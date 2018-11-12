@@ -1,7 +1,7 @@
 const Manifest = require('./Manifest')
 
 const obj = {
-  Manifest
+  engine: Manifest
 }
 
 Object.freeze(obj)
