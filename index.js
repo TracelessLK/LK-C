@@ -1,9 +1,9 @@
-const Mainfest = require('./Manifest')
+const Manifest = require('./Manifest')
 const lkApplication = require('./lk/LKApplication')
 
 const obj = {
   lkApplication,
-  Mainfest
+  Manifest
 }
 
 Object.freeze(obj)
