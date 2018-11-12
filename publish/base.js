@@ -1,0 +1,1 @@
+window.ConfigManager = require("../Manifest")
