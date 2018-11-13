@@ -60,18 +60,49 @@ class ContactManager extends EventTarget{
         await Device.removeAll(userId);
     }
 
+  /**
+   *
+   * @param userId
+   * @param contactId
+   * @returns {*}
+   */
   asyGet (userId,contactId) {
       return LKContactProvider.asyGet(userId,contactId)
   }
+
+  /**
+   *
+   * @param userId
+   * @returns {*}
+   */
   asyGetAllMembers (userId) {
       return LKContactProvider.asyGetAllMembers(userId)
   }
+
+  /**
+   *
+   * @param userId
+   * @returns {*}
+   */
   asyGetAllFriends (userId) {
       return LKContactProvider.asyGetAllFriends(userId)
   }
+
+  /**
+   *
+   * @param contactId
+   * @returns {*}
+   */
   asyGetAllDevice (contactId) {
       return LKDeviceProvider.asyGetAll(contactId)
   }
+
+  /**
+   *
+   * @param userId
+   * @param orgId
+   * @returns {*}
+   */
   asyGetMembersByOrg (userId,orgId) {
       return LKContactProvider.asyGetMembersByOrg(userId,orgId)
   }

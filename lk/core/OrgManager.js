@@ -22,6 +22,12 @@ class OrgManager extends EventTarget{
         await Org.removeAll(userId);
     }
 
+  /**
+   *
+   * @param parentId
+   * @param userId
+   * @returns {*}
+   */
   asyGetChildren (parentId, userId) {
       return LKOrgProvider.asyGetChildren(parentId, userId)
   }
