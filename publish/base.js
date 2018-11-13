@@ -1,1 +1,0 @@
-window.engine = require("../Manifest")
