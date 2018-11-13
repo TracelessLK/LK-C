@@ -1,6 +1,7 @@
 const Application = require( '../LKApplication')
 const EventTarget = require( '../../common/core/EventTarget')
 const LKOrgHandler = require( '../logic/handler/LKOrgHandler')
+const LKOrgProvider = require( '../logic/provider/LKOrgProvider')
 const LKMagicCodeHandler = require( '../logic/handler/LKMagicCodeHandler')
 const MagicCodeManager = require( './MagicCodeManager')
 const Org = require( '../store/Org')
@@ -21,6 +22,9 @@ class OrgManager extends EventTarget{
         await Org.removeAll(userId);
     }
 
+  asyGetChildren (parentId, userId) {
+      return LKOrgProvider.asyGetChildren(parentId, userId)
+  }
 }
 
 

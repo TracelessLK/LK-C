@@ -7,6 +7,8 @@ const OrgManager = require('./lk/core/OrgManager')
 const UserManager = require('./lk/core/UserManager')
 const MagicCodeManager = require('./lk/core/MagicCodeManager')
 const MFApplyManager = require('./lk/core/MFApplyManager')
+const DBProxy = require('./lk/store/DBInit')
+
 
 ConfigManager.configure('Application', Application)
 ConfigManager.configure('WSChannel', WSChannel)
@@ -16,5 +18,6 @@ ConfigManager.configure('OrgManager', OrgManager)
 ConfigManager.configure('UserManager', UserManager)
 ConfigManager.configure('MagicCodeManager', MagicCodeManager)
 ConfigManager.configure('MFApplyManager', MFApplyManager)
+ConfigManager.configure('DBProxy', DBProxy)
 
 module.exports = ConfigManager

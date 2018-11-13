@@ -6,6 +6,9 @@ const MagicCodeManager = require( './MagicCodeManager')
 const Contact = require( '../store/Contact')
 const Device = require( '../store/Device')
 const ConfigManager = require( '../../common/core/ConfigManager')
+const LKContactProvider = require('../logic/provider/LKContactProvider')
+const LKDeviceProvider = require('../logic/provider/LKDeviceProvider')
+
 class ContactManager extends EventTarget{
 
 
@@ -56,6 +59,22 @@ class ContactManager extends EventTarget{
         await Contact.removeAll(userId);
         await Device.removeAll(userId);
     }
+
+  asyGet (userId,contactId) {
+      return LKContactProvider.asyGet(userId,contactId)
+  }
+  asyGetAllMembers (userId) {
+      return LKContactProvider.asyGetAllMembers(userId)
+  }
+  asyGetAllFriends (userId) {
+      return LKContactProvider.asyGetAllFriends(userId)
+  }
+  asyGetAllDevice (contactId) {
+      return LKDeviceProvider.asyGetAll(contactId)
+  }
+  asyGetMembersByOrg (userId,orgId) {
+      return LKContactProvider.asyGetMembersByOrg(userId,orgId)
+  }
 }
 
 

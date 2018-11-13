@@ -487,6 +487,24 @@ class ChatManager extends EventTarget{
         return Chat.setGroupName(userId,chatId,name);
     }
 
+  asyGetChat (userId,chatId) {
+      return LKChatProvider.asyGetChat(userId,chatId)
+  }
+  asyGetGroupMembers (chatId) {
+      return LKChatProvider.asyGetGroupMembers(chatId)
+  }
+  asyGetMsgs (userId,chatId,limit) {
+      return LKChatProvider.asyGetMsgs(userId,chatId,limit)
+  }
+  asyGetAllMsgNotReadNum (userId) {
+      return LKChatProvider.asyGetAllMsgNotReadNum(userId)
+  }
+  asyGetAll(userId) {
+      return LKChatProvider.asyGetAll(userId)
+  }
+  asyDeleteChat (userId, chatId) {
+      return LKChatProvider.asyDeleteChat(userId, chatId)
+  }
 }
 
 

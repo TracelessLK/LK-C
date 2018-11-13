@@ -1,10 +1,13 @@
 const Application = require( '../LKApplication')
 const EventTarget = require( '../../common/core/EventTarget')
 const LKUserHandler = require( '../logic/handler/LKUserHandler')
+const LKUserProvider = require( '../logic/provider/LKUserProvider')
 
 class UserManager extends EventTarget{
 
-
+    asyGetAll(){
+      return LKUserProvider.asyGetAll();
+    }
     asyAddLKUser(user){
        return LKUserHandler.asyAddLKUser(user);
     }
