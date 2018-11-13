@@ -1,1 +1,1 @@
-window.ConfigManager = require("../Manifest")
+window.engine = require("../Manifest")

@@ -37,7 +37,7 @@ class Application extends EventTarget{
   getName(){
     return this._appName;
   }
-  start(platform,db){
+  start(db,platform){
       this._platform = platform;
     this._dataSource = db;
     this.fire("dbReady",db);
