@@ -55,10 +55,14 @@ class LKApplication extends Application {
     return this._rsa
   }
 
-  asyRegister (user, venderDid, checkCode, qrcode, description) {
+  asyAuthorize(user,introducerDid,description){
+      return this.asyRegister(user,null,null,null,description,introducerDid);
+  }
+
+  asyRegister (user, venderDid, checkCode, qrcode, description,introducerDid) {
     let channel = new (ConfigManager.getWSChannel())('ws://' + user.serverIP + ':' + user.serverPort, true)
     return new Promise((resolve, reject) => {
-      channel.asyRegister(user.serverIP, user.serverPort, user.id, user.deviceId, venderDid, user.publicKey, checkCode, qrcode, description).then(function (msg) {
+      channel.asyRegister(user.serverIP, user.serverPort, user.id, user.deviceId, venderDid, user.publicKey, checkCode, qrcode, description,introducerDid).then(function (msg) {
         let content = msg.body.content
         if (content.error) {
           reject(content.error)
