@@ -1,5 +1,5 @@
 {
-  "name": "LK-C",
+  "name": "@lk/LK-C",
   "version": "0.0.2",
   "main": "index.js",
   "dependencies": {
