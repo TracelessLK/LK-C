@@ -84,8 +84,8 @@ class Chat{
 
     getGroupMember(chatId,contactId){
         return new Promise((resolve,reject)=>{
-            db.transaction((tx)=>{
-                let db = new DBProxy()
+          let db = new DBProxy()
+          db.transaction((tx)=>{
                 let sql = "select * from groupMember where chatId=? and contactId=?";
                 db.get(sql,[chatId,contactId],function (row) {
                     resolve(row)
@@ -124,8 +124,8 @@ class Chat{
             });
             Promise.all(ps).then(()=>{
                 resolve();
-            }).catch(()=>{
-                reject()
+            }).catch((err)=>{
+                reject(err)
             })
         });
     }
