@@ -541,6 +541,17 @@ class ChatManager extends EventTarget{
   asyDeleteChat (userId, chatId) {
       return LKChatProvider.asyDeleteChat(userId, chatId)
   }
+
+  /**
+   *
+   * @param userId
+   * @param chatId
+   * @param msgId
+   * @param fetchData
+   */
+  asyGetMsg(userId,chatId,msgId,fetchData){
+    return LKChatProvider.getMsg(userId,chatId,msgId,fetchData);
+  }
 }
 
 
