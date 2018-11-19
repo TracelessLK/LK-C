@@ -520,7 +520,8 @@ class ChatManager extends EventTarget{
    * @returns {*}
    */
   asyGetAllMsgNotReadNum (userId) {
-      return LKChatProvider.asyGetAllMsgNotReadNum(userId)
+      let id = userId||Application.getCurrentApp().getCurrentUser().id;
+      return LKChatProvider.asyGetAllMsgNotReadNum(id)
   }
 
   /**
