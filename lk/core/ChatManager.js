@@ -363,11 +363,9 @@ class ChatManager extends EventTarget{
     /**
      * clear recent list
      */
-    clear(){
-        LKChatHandler.asyClear(Application.getCurrentApp().getCurrentUser().id).then(()=>{
-            this.fire("recentChanged");
-        });
-
+    async clear(){
+        await LKChatHandler.asyClear(Application.getCurrentApp().getCurrentUser().id);
+        this.fire("recentChanged");
     }
 
     /**
@@ -520,7 +518,8 @@ class ChatManager extends EventTarget{
    * @returns {*}
    */
   asyGetAllMsgNotReadNum (userId) {
-      return LKChatProvider.asyGetAllMsgNotReadNum(userId)
+      let id = userId||Application.getCurrentApp().getCurrentUser().id;
+      return LKChatProvider.asyGetAllMsgNotReadNum(id)
   }
 
   /**
