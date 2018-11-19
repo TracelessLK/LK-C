@@ -534,8 +534,7 @@ class LKChannel extends WSChannel{
         this._reportMsgHandled(header.flowId,header.flowType);
         this._checkChatMsgPool(chatId,header.id,receiveOrder);
         ChatManager.fire("msgChanged",chatId);
-      let num = await LKChatProvider.asyGetAllMsgNotReadNum(userId)
-        ChatManager.fire("msgBadgeChanged",num);
+        ChatManager.fire("msgReceived",chatId);
     }
 
     async _getReceiveOrder(chatId,relativeMsgId,senderUid,senderDid,sendOrder){
