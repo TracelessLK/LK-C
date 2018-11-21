@@ -365,7 +365,7 @@ class Record{
                     },function (err) {
                         reject(err);
                     });
-
+                    DBProxy.removeAllAttachment();
 
 
                 },function (err) {

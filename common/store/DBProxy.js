@@ -80,4 +80,7 @@ class DBProxy {
 DBProxy.saveFile = function(filePath,fileName,data){
    return Application.getCurrentApp().getDataSource().saveFile(filePath,fileName,data);
 }
+DBProxy.removeAllAttachment = function(){
+    return Application.getCurrentApp().getDataSource().removeAllAttachment();
+}
 module.exports = DBProxy
