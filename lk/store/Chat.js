@@ -1,4 +1,5 @@
 const DBProxy = require('./DBInit')
+const Record = require('./Record')
 //order默认创建时间 如果置顶order=当前时间&onTop=1
 class Chat{
     getAll(userId){
@@ -152,17 +153,11 @@ class Chat{
                 let sql = "delete from chat where ownerUserId=? and isGroup=?";//removeAllSingleChats
                 db.run(sql,[userId,0],function () {
 
-                    let sql2 = "delete from record where ownerUserId=?";
-                    db.run(sql2,[userId],function () {
+                    Record.removeAll(userId).then(function () {
                         resolve()
-                    },function (err) {
-                        reject(err);
-                    });
-
-                    let sql4 = "delete from group_record_state where ownerUserId=?";
-                    db.run(sql4,[userId],function () {
-                    },function (err) {
-                    });
+                    }).catch(function (err) {
+                        reject(err)
+                    })
 
                 },function (err) {
                     reject(err);
