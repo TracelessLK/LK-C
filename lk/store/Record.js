@@ -54,6 +54,7 @@ class Record{
                 sql += "'";
                 num = 1;
             }else{
+                let _distinc = new Map();
                 sql += "in (";
                 for(var i=0;i<msgIds.length;i++){
                     sql+="'";
@@ -62,9 +63,11 @@ class Record{
                     if(i<msgIds.length-1){
                         sql+=",";
                     }
-                    num++;
+                    _distinc.set(msgIds[i],1);
+
                 }
                 sql+=")";
+                num = _distinc.size();
             }
             let db = new DBProxy()
             db.transaction((tx)=>{

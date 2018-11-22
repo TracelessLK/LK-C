@@ -485,6 +485,12 @@ class LKChannel extends WSChannel{
         }
     }
 
+    _getFromChatMsgPool(chatId,msgId){
+        let msgs = this._chatMsgPool.get(chatId);
+        if(!msgs){
+            return msgs.get(msgId);
+        }
+    }
     _putChatMsgPool(chatId,msg){
         let msgs = this._chatMsgPool.get(chatId);
         if(!msgs){
@@ -561,6 +567,11 @@ class LKChannel extends WSChannel{
         let senderDid = header.did;
         let isGroup = body.isGroup;
         let chatId = isGroup?body.chatId:(userId===senderUid?body.chatId:senderUid);
+        let _received = await LKChatProvider.asyGetMsg(userId,chatId,header.id);
+        if(_received||this._getFromChatMsgPool(chatId,header.id)){
+            this._reportMsgHandled(header.flowId);
+            return;
+        }
         let exits;
         if(isGroup){
             exits = await LKChatProvider.asyGetChat(userId,chatId);
