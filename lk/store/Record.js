@@ -186,7 +186,7 @@ class Record{
     }
 
     async _updateMsgState(userId,chatId,msgIds,state){
-        let updatedNum = await this._getNumNeedUpdate();
+        let updatedNum = await this._getNumNeedUpdate(userId,chatId,msgIds,state);
         return new Promise((resolve,reject)=>{
             if(updatedNum>0){
                 let sql = "update record set state=? where state<? and ownerUserId=? and chatId=? and id ";
