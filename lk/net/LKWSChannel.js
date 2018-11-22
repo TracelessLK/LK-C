@@ -487,7 +487,7 @@ class LKChannel extends WSChannel{
 
     _getFromChatMsgPool(chatId,msgId){
         let msgs = this._chatMsgPool.get(chatId);
-        if(!msgs){
+        if(msgs){
             return msgs.get(msgId);
         }
     }
