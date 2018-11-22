@@ -107,7 +107,7 @@ class Record{
 
     async msgReadReport(userId,chatId,msgIds,reporterUid,state,isGroup){
         // await this._ensureAllMsgExists(userId,chatId,msgIds);
-        await this._updateMsgState(userId,chatId,msgIds,state);
+        let num = await this._updateMsgState(userId,chatId,msgIds,state);
         if(isGroup){
             let ps = [];
             msgIds.forEach((msgId)=>{
@@ -117,7 +117,7 @@ class Record{
                //do nothing
            });
         }
-        return this._isAllUpdate(userId,chatId,msgIds,state);
+        return {isAllUpdate:this._isAllUpdate(userId,chatId,msgIds,state),updateNum:num};
     }
 
     _ensureAllMsgExists(userId,chatId,msgIds){
@@ -149,9 +149,10 @@ class Record{
         });
 
     }
-    _updateMsgState(userId,chatId,msgIds,state){
+
+    _getNumNeedUpdate(userId,chatId,msgIds,state){
         return new Promise((resolve,reject)=>{
-            let sql = "update record set state=? where state<? and ownerUserId=? and chatId=? and id ";
+            let sql = "select id from record where state<? and ownerUserId=? and chatId=? and id ";
             if(!msgIds.forEach){
                 sql += "='"
                 sql += msgIds;
@@ -170,8 +171,8 @@ class Record{
             }
             let db = new DBProxy()
             db.transaction((tx)=>{
-                db.run(sql,[state,state,userId,chatId], (tx,res)=> {
-                    resolve();
+                db.getAll(sql,[state,userId,chatId], (res)=> {
+                    resolve(res.length);
                 },function (err) {
                     reject(err);
                 });
@@ -179,7 +180,42 @@ class Record{
 
 
         });
+    }
 
+    async _updateMsgState(userId,chatId,msgIds,state){
+        let updatedNum = await this._getNumNeedUpdate();
+        return new Promise((resolve,reject)=>{
+            if(updatedNum>0){
+                let sql = "update record set state=? where state<? and ownerUserId=? and chatId=? and id ";
+                if(!msgIds.forEach){
+                    sql += "='"
+                    sql += msgIds;
+                    sql += "'";
+                }else{
+                    sql += "in (";
+                    for(var i=0;i<msgIds.length;i++){
+                        sql+="'";
+                        sql+=msgIds[i];
+                        sql+="'";
+                        if(i<msgIds.length-1){
+                            sql+=",";
+                        }
+                    }
+                    sql+=")";
+                }
+                let db = new DBProxy()
+                db.transaction((tx)=>{
+                    db.run(sql,[state,state,userId,chatId], (tx,res)=> {
+                        resolve(updatedNum)
+                    },function (err) {
+                        reject(err);
+                    });
+                });
+
+            }else{
+                resolve(0)
+            }
+        });
     }
 
     updateMsgState(userId,chatId,msgIds,state){
