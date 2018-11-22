@@ -454,6 +454,7 @@ class ChatManager extends EventTarget{
         if(chat){
             return Record.msgReadReport(userId,chatId,msgIds,reporterUid,state,chat.isGroup);
         }
+        return {isAllUpdate:true,updateNum:0};
     }
 
     /**
