@@ -67,7 +67,7 @@ class Record{
 
                 }
                 sql+=")";
-                num = _distinc.size();
+                num = _distinc.size;
             }
             let db = new DBProxy()
             db.transaction((tx)=>{
