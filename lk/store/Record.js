@@ -344,9 +344,11 @@ class Record{
                 db.get(sql,[userId,chatId,msgId], (result) =>{
                     if(result){
                         if(fetchData&&this.MESSAGE_TYPE_IMAGE===result.type){
-                            RNFetchBlob.fs.readFile(result.url,'base64').then((data)=>{
+                            DBProxy.readFile(result.url).then((data)=>{
                                 result.data = data;
                                 resolve(result);
+                            }).catch((err)=>{
+                                reject(err)
                             });
                         }else{
                             resolve(result);

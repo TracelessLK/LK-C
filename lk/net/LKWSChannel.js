@@ -83,7 +83,7 @@ class LKChannel extends WSChannel{
     }
 
     _reportMsgHandled(flowId,flowType){
-        if(flowType){
+        if(flowId&&flowType){
             let userId = Application.getCurrentApp().getCurrentUser().id;
             FlowCursor.setLastFlowId(userId,flowType,flowId).then(()=>{
                 this._resolveFlowPool(flowId);
