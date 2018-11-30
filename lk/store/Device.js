@@ -39,7 +39,8 @@ class Device{
                     db.run(sql,[device.id,device.pk,contactId],function () {
                         resolve();
                     },function (err) {
-                        reject(err)
+                        //reject(err)
+                        conlsole.info(err);
                     });
                 }else{
                     resolve();
