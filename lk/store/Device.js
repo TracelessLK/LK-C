@@ -39,8 +39,7 @@ class Device{
                     db.run(sql,[device.id,device.pk,contactId],function () {
                         resolve();
                     },function (err) {
-                        //reject(err)
-                        conlsole.info(err);
+                        reject(err)
                     });
                 }else{
                     resolve();
@@ -57,7 +56,10 @@ class Device{
                     ps.push(this._addDevice(contactId,device));
                 });
             }
-            return Promise.all(ps);
+             Promise.all(ps).then(function (err) {
+                 console.info(err)
+             });
+            resolve()
             // db.transaction((tx)=>{
             //     if(devices&&devices.length>0){
             //         let sql = "insert into device(id,publicKey,contactId) values ";
