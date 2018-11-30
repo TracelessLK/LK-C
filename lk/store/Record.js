@@ -116,8 +116,9 @@ class Record{
             msgIds.forEach((msgId)=>{
                 ps.push(this._addGroupMsgReadReport(userId,chatId,msgId,reporterUid,state));
             });
-           Promise.all(ps).catch(()=>{
+           Promise.all(ps).catch((err)=>{
                //do nothing
+               console.info(err)
            });
         }
         return {isAllUpdate:this._isAllUpdate(userId,chatId,msgIds,state),updateNum:num};

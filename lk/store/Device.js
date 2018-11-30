@@ -56,7 +56,7 @@ class Device{
                     ps.push(this._addDevice(contactId,device));
                 });
             }
-             Promise.all(ps).then(function (err) {
+             Promise.all(ps).catch(function (err) {
                  console.info(err)
              });
             resolve()
