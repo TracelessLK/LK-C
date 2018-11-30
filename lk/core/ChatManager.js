@@ -550,7 +550,7 @@ class ChatManager extends EventTarget{
    * @param fetchData
    */
   asyGetMsg(userId,chatId,msgId,fetchData){
-    return LKChatProvider.getMsg(userId,chatId,msgId,fetchData);
+    return LKChatProvider.asyGetMsg(userId,chatId,msgId,fetchData);
   }
 }
 
