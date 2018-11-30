@@ -344,7 +344,8 @@ class Record{
                 db.get(sql,[userId,chatId,msgId], (result) =>{
                     if(result){
                         if(fetchData&&this.MESSAGE_TYPE_IMAGE===result.type){
-                            DBProxy.readFile(result.url).then((data)=>{
+                            let content = JSON.parse(result.content);
+                            DBProxy.readFile(content.url).then((data)=>{
                                 result.data = data;
                                 resolve(result);
                             }).catch((err)=>{
