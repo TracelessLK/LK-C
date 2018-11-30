@@ -27,7 +27,7 @@ Application.getCurrentApp().on("dbReady",function () {
         });
 
         db.transaction((tx)=>{
-            let sql = "create table if not exists flowCursor(ownerUserId TEXT,flowId TEXT,flowType TEXT,PRIMARY KEY(ownerUserId,flowType))";
+            let sql = "create table if not exists flowCursor(ownerUserId TEXT,flowId TEXT not null,flowType TEXT,PRIMARY KEY(ownerUserId,flowType))";
             db.run(sql,[],function () {
             },function (err) {
             });

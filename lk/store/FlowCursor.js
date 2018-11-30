@@ -16,7 +16,7 @@ class FlowCursor{
                         if(row){
                             flowId = row.flowId;
                             this._flows.set(userId+flowType,flowId)
-                            resolve(flowId);
+                            resolve(flowId,true);
                         }else{
                             resolve(null);
                         }
@@ -34,9 +34,9 @@ class FlowCursor{
 
     setLastFlowId(userId,flowType,flowId){
         return new Promise((resolve,reject)=>{
-            this.getLastFlowId(userId,flowType).then((flowId)=>{
+            this.getLastFlowId(userId,flowType).then((fid,hasRec)=>{
                 let sql;
-                if(!flowId){
+                if(!fid&&hasRec!==true){
                     sql = "insert into flowCursor(flowId,ownerUserId,flowType) values (?,?,?)";
                 }else{
                     sql = "update flowCursor set flowId=? where ownerUserId=? and flowType=?";
