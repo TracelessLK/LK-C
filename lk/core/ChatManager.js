@@ -74,7 +74,8 @@ class ChatManager extends EventTarget{
     async asyGetHotChatRandomSent(chatId){
         let curUser = Application.getCurrentApp().getCurrentUser();
         let userId = curUser.id;
-        if(this._recentChatsIndex[chatId]===undefined){
+        let curIndex = this._recentChatsIndex[chatId];
+        if(curIndex===undefined){
             //chat&members
             let chat = await LKChatProvider.asyGetChat(userId,chatId);
             if(chat){
@@ -134,31 +135,25 @@ class ChatManager extends EventTarget{
                }
             }
         }else{
-            let curIndex = this._recentChatsIndex[chatId];
-            if(curIndex!=this._recentChats.length-1){
-                let chat = this._recentChats[curIndex];
-                this._recentChats.splice(curIndex,1);
-                this._recentChats.push(chat);
-                this._recentChatsIndex[chatId] = this._recentChats.length-1;
-            }
-        }
-        let time = Date.now();
-        let chat = this._recentChats[this._recentChatsIndex[chatId]];
-        if(chat){
+            let time = Date.now();
+            let chat = this._recentChats[curIndex];
             if(time-chat.keyGenTime>3600000){
-                chat.key = UUID();
-                chat.keyGenTime = time;
-                let members = chat.members;
-                members.forEach((contact)=>{
-                    contact.devices.forEach((device)=>{
-                        let rsa = new RSAKey();
-                        rsa.setPublicString(device.publicKey);
-                        device.random = rsa.encrypt(chat.key);
-                    });
-                });
+                //remove
+                this._recentChats.splice(curIndex,1);
+                delete this._recentChatsIndex[chatId];
+                //reset
+                return this.asyGetHotChatRandomSent(chatId);
+            }else{
+                //resort
+                if(curIndex!=this._recentChats.length-1){
+                    let chat = this._recentChats[curIndex];
+                    this._recentChats.splice(curIndex,1);
+                    this._recentChats.push(chat);
+                    this._recentChatsIndex[chatId] = this._recentChats.length-1;
+                }
             }
         }
-        return chat;
+        return this._recentChats[this._recentChatsIndex[chatId]];
     }
 
     getHotChatKeyReceived(chatId,senderDid,random){
