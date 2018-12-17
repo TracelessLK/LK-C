@@ -1,6 +1,7 @@
 const Application = require( '../LKApplication')
 const EventTarget = require( '../../common/core/EventTarget')
 const LKUserHandler = require( '../logic/handler/LKUserHandler')
+const LKLoginHandler = require( '../logic/handler/LKLoginHandler')
 const LKUserProvider = require( '../logic/provider/LKUserProvider')
 
 class UserManager extends EventTarget{
@@ -28,7 +29,9 @@ class UserManager extends EventTarget{
         user.pic = pic;
       this.fire("picChanged");
     }
-
+    async asyLogin(userId,password,pwdHash){
+      return LKLoginHandler.asyLogin(userId,password,pwdHash)
+    }
 }
 
 
