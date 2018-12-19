@@ -540,7 +540,10 @@ class LKChannel extends WSChannel{
         this._reportMsgHandled(header.flowId,header.flowType);
         this._checkChatMsgPool(chatId,header.id,receiveOrder);
         ChatManager.fire("msgChanged",chatId);
-        ChatManager.fire("msgReceived",chatId);
+        const option = {
+            isFromSelf: userId === header.uid
+        }
+        ChatManager.fire("msgReceived",chatId, option);
     }
 
     async _getReceiveOrder(chatId,relativeMsgId,senderUid,senderDid,sendOrder){
