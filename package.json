@@ -1,6 +1,6 @@
 {
   "name": "@lk/LK-C",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "index.js",
   "dependencies": {
     "uuid": "^3.2.1",
