@@ -13,9 +13,10 @@ class Record{
 
             let insert2DB = function () {
                 let db = new DBProxy()
+                let time = Date.now();
                 db.transaction((tx)=>{
-                    let sql = "insert into record(ownerUserId,chatId,id,senderUid,senderDid,type,content,sendTime,state,readState,relativeMsgId,relativeOrder,receiveOrder,sendOrder) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                    db.run(sql,[userId,chatId,msgId,senderUid,senderDid,type,content,sendTime,isNaN(state)?-1:state,-1,relativeMsgId,relativeOrder,receiveOrder,sendOrder],function () {
+                    let sql = "insert into record(ownerUserId,chatId,id,senderUid,senderDid,type,content,sendTime,eventTime,state,readState,relativeMsgId,relativeOrder,receiveOrder,sendOrder) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    db.run(sql,[userId,chatId,msgId,senderUid,senderDid,type,content,sendTime,time,isNaN(state)?-1:state,-1,relativeMsgId,relativeOrder,receiveOrder,sendOrder],function () {
                         resolve();
                     },function (err) {
                         reject(err);
@@ -250,11 +251,13 @@ class Record{
             let db = new DBProxy()
             var sql = "select * from record where ownerUserId=? and chatId=?";
             if(limit&&limit>0){
-                sql += " order by relativeOrder desc,receiveOrder desc,sendOrder desc";
+                //sql += " order by relativeOrder desc,receiveOrder desc,sendOrder desc";
+                sql += " order by eventTime desc";
                 sql += " limit ";
                 sql += limit;
             }else{
-                sql += " order by relativeOrder,receiveOrder,sendOrder";
+                // sql += " order by relativeOrder,receiveOrder,sendOrder";
+                sql += " order by eventTime";
             }
             db.transaction((tx)=>{
                 db.getAll(sql,[userId,chatId],function (results) {
