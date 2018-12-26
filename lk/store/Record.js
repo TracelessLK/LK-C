@@ -15,7 +15,7 @@ class Record{
                 let db = new DBProxy()
                 let time = Date.now();
                 db.transaction((tx)=>{
-                    let sql = "insert into record(ownerUserId,chatId,id,senderUid,senderDid,type,content,sendTime,eventTime,state,readState,relativeMsgId,relativeOrder,receiveOrder,sendOrder) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    let sql = "insert into record(ownerUserId,chatId,id,senderUid,senderDid,type,content,sendTime,eventTime,state,readState,relativeMsgId,relativeOrder,receiveOrder,sendOrder) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
                     db.run(sql,[userId,chatId,msgId,senderUid,senderDid,type,content,sendTime,time,isNaN(state)?-1:state,-1,relativeMsgId,relativeOrder,receiveOrder,sendOrder],function () {
                         resolve();
                     },function (err) {
