@@ -17,29 +17,61 @@ class MagicCode{
 
     updateOrgMagicCode(code,userId){
         return new Promise((resolve,reject)=>{
-            let db = new DBProxy()
-            db.transaction((tx)=>{
-                let sql = "update magicCode set orgMCode=? where ownerUserId=?";
-                db.run(sql,[code,userId],function () {
-                    resolve();
-                },function (err) {
-                    reject(err);
-                });
+            this.getMagicCode(userId).then( (row)=> {
+                if(row){
+                    let db = new DBProxy()
+                    db.transaction((tx)=>{
+                        let sql = "update magicCode set orgMCode=? where ownerUserId=?";
+                        db.run(sql,[code,userId],function () {
+                            resolve();
+                        },function (err) {
+                            reject(err);
+                        });
+                    });
+                }else{
+                    let db = new DBProxy()
+                    db.transaction((tx)=>{
+                        let sql = "insert into magicCode(orgMCode,ownerUserId) values (?,?)";
+                        db.run(sql,[code,userId],function () {
+                            resolve();
+                        },function (err) {
+                            reject(err);
+                        });
+                    });
+
+                }
             });
+
         });
     }
 
     updateMemberMagicCode(code,userId){
         return new Promise((resolve,reject)=>{
-            let db = new DBProxy()
-            db.transaction((tx)=>{
-                let sql = "update magicCode set memberMCode=? where ownerUserId=?";
-                db.run(sql,[code,userId],function () {
-                    resolve();
-                },function (err) {
-                    reject(err);
-                });
+            this.getMagicCode(userId).then( (row)=> {
+                if(row){
+                    let db = new DBProxy()
+                    db.transaction((tx)=>{
+                        let sql = "update magicCode set memberMCode=? where ownerUserId=?";
+                        db.run(sql,[code,userId],function () {
+                            resolve();
+                        },function (err) {
+                            reject(err);
+                        });
+                    });
+                }else{
+                    let db = new DBProxy()
+                    db.transaction((tx)=>{
+                        let sql = "insert into magicCode(memberMCode,ownerUserId) values (?,?)";
+                        db.run(sql,[code,userId],function () {
+                            resolve();
+                        },function (err) {
+                            reject(err);
+                        });
+                    });
+
+                }
             });
+
         });
     }
 

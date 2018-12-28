@@ -336,6 +336,8 @@ class LKChannel extends WSChannel{
                    resolve();
                });
            });
+       }else{
+           return ContactManager.asyUpdateMemberMagicCode(remoteMemberMCode);
        }
 
     }

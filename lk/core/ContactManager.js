@@ -11,7 +11,7 @@ const LKDeviceProvider = require('../logic/provider/LKDeviceProvider')
 
 class ContactManager extends EventTarget{
 
-
+    //just init when register
     asyResetContacts(newMemberMCode,members,friends,groupContacts,userId){
         let curApp = Application.getCurrentApp();
         return  LKContactHandler.asyResetContacts(members,friends,groupContacts,userId||curApp.getCurrentUser().id).then(function () {
@@ -21,7 +21,7 @@ class ContactManager extends EventTarget{
             this.fire("contactChanged");
         });
     }
-
+    //rebuild the specified members when server add or modify org members
     asyRebuildMembers(newMemberMCode,ids,newMembers){
         let curApp = Application.getCurrentApp();
         if(ids&&ids.length>0&&newMembers&&newMembers.length>0){
@@ -42,6 +42,13 @@ class ContactManager extends EventTarget{
             });
         }
 
+    }
+    //just update member code
+    asyUpdateMemberMagicCode(newMemberMCode){
+        let curApp = Application.getCurrentApp();
+        return LKMagicCodeHandler.asyUpdateMemberMagicCode(newMemberMCode,curApp.getCurrentUser().id).then(function () {
+            MagicCodeManager.setMemberMagicCode(newMemberMCode);
+        });
     }
 
     async asyAddNewFriend(friend){

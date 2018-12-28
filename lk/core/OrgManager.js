@@ -8,7 +8,7 @@ const Org = require( '../store/Org')
 
 class OrgManager extends EventTarget{
 
-
+    //update when diff between c&s checked
     asyResetOrgs(newOrgMCode,orgs,userId){
         return LKOrgHandler.asyResetOrgs(orgs,userId).then( () =>{
             return LKMagicCodeHandler.asyUpdateOrgMagicCode(newOrgMCode,userId);
