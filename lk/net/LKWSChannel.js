@@ -346,7 +346,11 @@ class LKChannel extends WSChannel{
         let result = await Promise.all([this.applyChannel(),this._asyNewRequest("login",{venderDid:Application.getCurrentApp().getVenderId()})]);
          result[0]._sendMessage(result[1]).then((msg)=>{
              if(!msg.body.content.err){
-                 Application.getCurrentApp().setLogin(Application.getCurrentApp().getCurrentUser())
+                 let userId = Application.getCurrentApp().getCurrentUser().id;
+                 Promise.all([FlowCursor.setLastFlowId(userId,"deviceDiffReport",msg.body.content["deviceDiffReport"]),FlowCursor.setLastFlowId(userId,"group",msg.body.content["group"])]).then(function () {
+                     Application.getCurrentApp().setLogin(Application.getCurrentApp().getCurrentUser())
+
+                 });
              }
          })
     }
