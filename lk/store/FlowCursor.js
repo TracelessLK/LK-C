@@ -34,23 +34,28 @@ class FlowCursor{
 
     setLastFlowId(userId,flowType,flowId){
         return new Promise((resolve,reject)=>{
-            this.getLastFlowId(userId,flowType).then((fid,hasRec)=>{
-                let sql;
-                if(!fid&&hasRec!==true){
-                    sql = "insert into flowCursor(flowId,ownerUserId,flowType) values (?,?,?)";
-                }else{
-                    sql = "update flowCursor set flowId=? where ownerUserId=? and flowType=?";
-                }
-                let db = new DBProxy()
-                db.transaction(()=>{
-                    db.run(sql,[flowId,userId,flowType], ()=> {
-                        this._flows.set(userId+flowType,flowId);
-                        resolve();
-                    },function (err) {
-                        reject(err);
+            if(flowId&&flowType){
+                this.getLastFlowId(userId,flowType).then((fid,hasRec)=>{
+                    let sql;
+                    if(!fid&&hasRec!==true){
+                        sql = "insert into flowCursor(flowId,ownerUserId,flowType) values (?,?,?)";
+                    }else{
+                        sql = "update flowCursor set flowId=? where ownerUserId=? and flowType=?";
+                    }
+                    let db = new DBProxy()
+                    db.transaction(()=>{
+                        db.run(sql,[flowId,userId,flowType], ()=> {
+                            this._flows.set(userId+flowType,flowId);
+                            resolve();
+                        },function (err) {
+                            reject(err);
+                        });
                     });
-                });
-            })
+                })
+            }else{
+                resolve();
+            }
+
 
 
         });
