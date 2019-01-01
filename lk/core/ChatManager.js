@@ -149,7 +149,9 @@ class ChatManager extends EventTarget{
                     let chat = this._recentChats[curIndex];
                     this._recentChats.splice(curIndex,1);
                     this._recentChats.push(chat);
-                    this._recentChatsIndex[chatId] = this._recentChats.length-1;
+                    for(let i=0;i<this._recentChats.length;i++){
+                        this._recentChatsIndex[this._recentChats[i].id]=i;
+                    }
                 }
             }
         }
