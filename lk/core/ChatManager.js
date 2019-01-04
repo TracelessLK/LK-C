@@ -106,6 +106,7 @@ class ChatManager extends EventTarget{
                     let oldChatId = this._recentChats[0].chatId;
                     delete this._recentChatsIndex[oldChatId];
                     this._recentChats.splice(0,1);
+                    this._resortRecentChats();
                 }
                 chat.key = UUID();
                 chat.keyGenTime = Date.now();
@@ -137,10 +138,11 @@ class ChatManager extends EventTarget{
         }else{
             let time = Date.now();
             let chat = this._recentChats[curIndex];
-            if(time-chat.keyGenTime>3600000){
+            if(time-chat.keyGenTime>600000){
                 //remove
                 this._recentChats.splice(curIndex,1);
                 delete this._recentChatsIndex[chatId];
+                this._resortRecentChats();
                 //reset
                 return this.asyGetHotChatRandomSent(chatId);
             }else{
@@ -149,13 +151,17 @@ class ChatManager extends EventTarget{
                     let chat = this._recentChats[curIndex];
                     this._recentChats.splice(curIndex,1);
                     this._recentChats.push(chat);
-                    for(let i=0;i<this._recentChats.length;i++){
-                        this._recentChatsIndex[this._recentChats[i].id]=i;
-                    }
+                    this._resortRecentChats();
                 }
             }
         }
         return this._recentChats[this._recentChatsIndex[chatId]];
+    }
+
+    _resortRecentChats(){
+        for(let i=0;i<this._recentChats.length;i++){
+            this._recentChatsIndex[this._recentChats[i].id]=i;
+        }
     }
 
     getHotChatKeyReceived(chatId,senderDid,random){
