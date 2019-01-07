@@ -53,13 +53,16 @@ class Record{
                         console.info("addMsg:t!=type,"+url)
                     }
                     if(t===this.MESSAGE_TYPE_IMAGE){
-                        newContent = JSON.stringify({width:oldContent.width,height:oldContent.height,url:url});
+                        newContent = {width:oldContent.width,height:oldContent.height,url:url};
                         console.info("addMsg:img,"+url)
                     }else{
-                        newContent = JSON.stringify({url:url});
+                        newContent = {url:url};
                         console.info("addMsg:audio,"+url)
                     }
-                    extParam.content = newContent;
+                    if(!newContent.width&&!newContent.height){
+                         newContent.data = oldContent.data;
+                    }
+                    extParam.content = JSON.stringify(newContent);
                     this._insert2DB(extParam).then(()=>{
                         resolve();
                     }).catch((err)=>{
