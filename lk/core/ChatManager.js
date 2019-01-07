@@ -343,13 +343,23 @@ class ChatManager extends EventTarget{
                         if(added.length>0){
                             let addDevices = [];
                             added.forEach(function (addDevice) {
-                                let rsa = new RSAKey();
-                                rsa.setPublicString(addDevice.pk);
-                                let random = rsa.encrypt(chat.key);
-                                let newD = {id:addDevice.id,random:random};
-                                localDevices.push(newD);
-                                if(chat.id===chatId)
-                                    addDevices.push(newD);
+                                let exists = false;
+                                for(let m=0;m<localDevices.length;m++){
+                                    if(localDevices[m].id==addDevice.id){
+                                        exists = true;
+                                        break;
+                                    }
+                                }
+                                if(!exists){
+                                    let rsa = new RSAKey();
+                                    rsa.setPublicString(addDevice.pk);
+                                    let random = rsa.encrypt(chat.key);
+                                    let newD = {id:addDevice.id,random:random};
+                                    localDevices.push(newD);
+                                    if(chat.id===chatId)
+                                        addDevices.push(newD);
+                                }
+
                             });
                             if(chat.id===chatId)
                                 returnAdded.push({id:member.id,serverIP:member.serverIP,serverPort:member.serverPort,devices:addDevices});
