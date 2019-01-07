@@ -8,23 +8,31 @@ class Record{
         this.MESSAGE_TYPE_FILE=2
         this.MESSAGE_TYPE_AUDIO=3
     }
+    _insert2DB(param){
+        return new Promise((resolve,reject)=>{
+            let db = new DBProxy()
+            let time = Date.now();
+            db.transaction((tx)=>{
+                let sql = "insert into record(ownerUserId,chatId,id,senderUid,senderDid,type,content,sendTime,eventTime,state,readState,relativeMsgId,relativeOrder,receiveOrder,sendOrder) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                db.run(sql,[param.userId,param.chatId,param.msgId,param.senderUid,param.senderDid,param.type,param.content,param.sendTime,time,isNaN(param.state)?-1:param.state,-1,param.relativeMsgId,param.relativeOrder,param.receiveOrder,param.sendOrder],function () {
+                    resolve();
+                },function (err) {
+                    console.info("insert2DB err:"+err)
+                    reject(err);
+                });
+            });
+        })
+
+    }
     addMsg(userId,chatId,msgId,senderUid,senderDid,type,content,sendTime,state,relativeMsgId,relativeOrder,receiveOrder,sendOrder){
         return new Promise((resolve,reject)=>{
-
-            let insert2DB = function () {
-                let db = new DBProxy()
-                let time = Date.now();
-                db.transaction((tx)=>{
-                    let sql = "insert into record(ownerUserId,chatId,id,senderUid,senderDid,type,content,sendTime,eventTime,state,readState,relativeMsgId,relativeOrder,receiveOrder,sendOrder) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                    db.run(sql,[userId,chatId,msgId,senderUid,senderDid,type,content,sendTime,time,isNaN(state)?-1:state,-1,relativeMsgId,relativeOrder,receiveOrder,sendOrder],function () {
-                        resolve();
-                    },function (err) {
-                        reject(err);
-                    });
-                });
-            }
+            let param = {userId,chatId,msgId,senderUid,senderDid,type,content,sendTime,state,relativeMsgId,relativeOrder,receiveOrder,sendOrder};
             if(type===this.MESSAGE_TYPE_TEXT){
-                insert2DB();
+                this._insert2DB(param).then(()=>{
+                    resolve();
+                }).catch((err)=>{
+                    reject(err);
+                });
             }else if(type===this.MESSAGE_TYPE_IMAGE||type===this.MESSAGE_TYPE_AUDIO){
                 let fileDir = "/images/";
                 let fileExt = "jpg";
@@ -34,13 +42,32 @@ class Record{
                 }
                 let filePath = "/"+userId+fileDir+chatId;
                 let fileName = msgId+"."+fileExt;
-                DBProxy.saveFile(filePath,fileName,content.data).then((url)=>{
-                    if(type===this.MESSAGE_TYPE_IMAGE){
-                        content = JSON.stringify({width:content.width,height:content.height,url:url});
-                    }else{
-                        content = JSON.stringify({url:url});
+
+                DBProxy.saveFile(filePath,fileName,content.data,param).then((p)=>{
+                    let url = p.url;
+                    let extParam = p.param;
+                    let newContent;
+                    let oldContent = extParam.content;
+                    let t = extParam.type;
+                    if(t!=type){
+                        console.info("addMsg:t!=type,"+url)
                     }
-                    insert2DB();
+                    if(t===this.MESSAGE_TYPE_IMAGE){
+                        newContent = JSON.stringify({width:oldContent.width,height:oldContent.height,url:url});
+                        console.info("addMsg:img,"+url)
+                    }else{
+                        newContent = JSON.stringify({url:url});
+                        console.info("addMsg:audio,"+url)
+                    }
+                    extParam.content = newContent;
+                    this._insert2DB(extParam).then(()=>{
+                        resolve();
+                    }).catch((err)=>{
+                        reject(err);
+                    });;
+                }).catch(function (e) {
+                    console.info("saveFile err:"+e);
+                    throw e;
                 })
             }
         });

@@ -77,8 +77,8 @@ class DBProxy {
     }
 
 }
-DBProxy.saveFile = function(filePath,fileName,data){
-   return Application.getCurrentApp().getDataSource().saveFile(filePath,fileName,data);
+DBProxy.saveFile = function(filePath,fileName,data,param){
+   return Application.getCurrentApp().getDataSource().saveFile(filePath,fileName,data,param);
 }
 DBProxy.readFile = function (filePath) {
     return Application.getCurrentApp().getDataSource().readFile(filePath);
