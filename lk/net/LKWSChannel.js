@@ -351,6 +351,8 @@ class LKChannel extends WSChannel{
                      Application.getCurrentApp().setLogin(Application.getCurrentApp().getCurrentUser())
 
                  });
+             }else{
+                 //TODO throw it to the front
              }
          })
     }
@@ -470,6 +472,7 @@ class LKChannel extends WSChannel{
                 if(oldMsg){
                     this._asyNewRequest("sendMsg2",{type:oldMsg.type,data:oldMsg.content},{isGroup:chat.isGroup,time:oldMsg.sendTime,chatId:chatId,relativeMsgId:oldMsg.relativeMsgId,id:oldMsg.id,targets:added,order:oldMsg.order}).then((req)=>{
                         this._sendMessage(req).then((resp)=>{
+                            this._reportMsgHandled(header.flowId,header.flowType);
                             LKChatHandler.asyUpdateMsgState(userId,chatId,msgId,ChatManager.MESSAGE_STATE_SERVER_RECEIVE).then(()=>{
                                 ChatManager.fire("msgChanged",chatId);
                             });
