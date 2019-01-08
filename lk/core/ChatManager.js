@@ -347,6 +347,8 @@ class ChatManager extends EventTarget{
                                 for(let m=0;m<localDevices.length;m++){
                                     if(localDevices[m].id==addDevice.id){
                                         exists = true;
+                                        if(chat.id===chatId)
+                                            addDevices.push(localDevices[m]);
                                         break;
                                     }
                                 }
