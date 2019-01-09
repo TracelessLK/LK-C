@@ -381,8 +381,8 @@ class LKChannel extends WSChannel{
         let content = {type:ChatManager.MESSAGE_TYPE_IMAGE,data:{data:imgData,width:width,height:height}};
         return this._sendMsg(chatId,content,relativeMsgId,isGroup);
     }
-    sendAudio(chatId,audioData,audioExt,relativeMsgId,isGroup){
-        let content = {type:ChatManager.MESSAGE_TYPE_AUDIO,data:{data:audioData,ext:audioExt}};
+    sendAudio(chatId,audioData,audioExt,duration,relativeMsgId,isGroup){
+        let content = {type:ChatManager.MESSAGE_TYPE_AUDIO,data:{data:audioData,ext:audioExt,duration:duration}};
         return this._sendMsg(chatId,content,relativeMsgId,isGroup);
     }
     async retrySend(chatId,msgId){
@@ -417,8 +417,8 @@ class LKChannel extends WSChannel{
     sendGroupImage(chatId,imgData,width,height,relativeMsgId){
         this.sendImage(chatId,imgData,width,height,relativeMsgId,true);
     }
-    sendGroupAudio(chatId,audioData,audioExt,relativeMsgId){
-        this.sendAudio(chatId,audioData,audioExt,relativeMsgId,true);
+    sendGroupAudio(chatId,audioData,audioExt,duration,relativeMsgId){
+        this.sendAudio(chatId,audioData,audioExt,duration,relativeMsgId,true);
     }
 
     async _sendMsg(chatId,content,relativeMsgId,isGroup){
