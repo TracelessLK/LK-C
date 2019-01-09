@@ -33,7 +33,7 @@ class ChatManager extends EventTarget{
         this.MESSAGE_STATE_TARGET_RECEIVE=3
         this.MESSAGE_STATE_TARGET_READ=4
 
-        this. MESSAGE_TYPE_TEXT=0
+        this.MESSAGE_TYPE_TEXT=0
         this.MESSAGE_TYPE_IMAGE=1
         this.MESSAGE_TYPE_FILE=2
         this.MESSAGE_TYPE_AUDIO=3
@@ -241,6 +241,24 @@ class ChatManager extends EventTarget{
 
 
         return {msgs:records,newMsgs:newMsgs};
+    }
+
+    /**
+     * notify the audio has played
+     * @param msgId
+     * @returns {Promise.<void>}
+     */
+    setAudioPlayed(msgId){
+        return Record.setAudioPlayed(msgId);
+    }
+
+    /**
+     * delete the specified msgs
+     * @param msgIds string ary or  string
+     * @returns {*}
+     */
+    deleteMsgs(msgIds){
+        return Record.deleteMsgs(msgIds);
     }
 
     //each 5 minutes check readstate and send readreport

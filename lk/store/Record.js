@@ -7,14 +7,19 @@ class Record{
         this.MESSAGE_TYPE_IMAGE=1
         this.MESSAGE_TYPE_FILE=2
         this.MESSAGE_TYPE_AUDIO=3
+
+        this.MESSAGE_READSTATE_READ=1
+        this.MESSAGE_READSTATE_READREPORT=2
+
+        this.AUDIO_PLAYSTATE_PLAYED=1
     }
     _insert2DB(param){
         return new Promise((resolve,reject)=>{
             let db = new DBProxy()
             let time = Date.now();
             db.transaction((tx)=>{
-                let sql = "insert into record(ownerUserId,chatId,id,senderUid,senderDid,type,content,sendTime,eventTime,state,readState,relativeMsgId,relativeOrder,receiveOrder,sendOrder) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                db.run(sql,[param.userId,param.chatId,param.msgId,param.senderUid,param.senderDid,param.type,param.content,param.sendTime,time,isNaN(param.state)?-1:param.state,-1,param.relativeMsgId,param.relativeOrder,param.receiveOrder,param.sendOrder],function () {
+                let sql = "insert into record(ownerUserId,chatId,id,senderUid,senderDid,type,content,sendTime,eventTime,state,readState,readTime,playState,relativeMsgId,relativeOrder,receiveOrder,sendOrder) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                db.run(sql,[param.userId,param.chatId,param.msgId,param.senderUid,param.senderDid,param.type,param.content,param.sendTime,time,isNaN(param.state)?-1:param.state,-1,-1,-1,param.relativeMsgId,param.relativeOrder,param.receiveOrder,param.sendOrder],function () {
                     resolve();
                 },function (err) {
                     console.info("insert2DB err:"+err)
@@ -304,7 +309,11 @@ class Record{
 
     updateReadState(msgIds,state){
         return new Promise((resolve,reject)=>{
-            let sql = "update record set readState=? where readState<? and id ";
+            let sql = "update record set readState=?";
+            if(state==this.MESSAGE_READSTATE_READ){
+                sql += ",readTime=?";
+            }
+            sql += " where readState<? and id ";
             sql += "in (";
             for(var i=0;i<msgIds.length;i++){
                 sql+="'";
@@ -317,7 +326,11 @@ class Record{
             sql+=")";
             let db = new DBProxy()
             db.transaction((tx)=>{
-                db.run(sql,[state,state], ()=> {
+                let params = [state,state];
+                if(state==this.MESSAGE_READSTATE_READ){
+                    params.push(Date.now());
+                }
+                db.run(sql,params, ()=> {
                     resolve();
                 },function (err) {
                     reject(err);
@@ -448,6 +461,54 @@ class Record{
                     reject(err);
                 });
             });
+        });
+    }
+
+    setAudioPlayed(msgId){
+        return new Promise((resolve,reject)=>{
+            let sql = "update record set playState=? where id=?";
+            let db = new DBProxy()
+            db.transaction((tx)=>{
+                db.run(sql,[this.AUDIO_PLAYSTATE_PLAYED,msgId], ()=> {
+                    resolve();
+                },function (err) {
+                    reject(err);
+                });
+            });
+
+
+        });
+    }
+
+    deleteMsgs(msgIds){
+        return new Promise((resolve,reject)=>{
+            let sql = "delete from record where id ";
+            if(!msgIds.forEach){
+                sql += "='"
+                sql += msgIds;
+                sql += "'";
+            }else{
+                sql += "in (";
+                for(var i=0;i<msgIds.length;i++){
+                    sql+="'";
+                    sql+=msgIds[i];
+                    sql+="'";
+                    if(i<msgIds.length-1){
+                        sql+=",";
+                    }
+                }
+                sql+=")";
+            }
+            let db = new DBProxy()
+            db.transaction((tx)=>{
+                db.getAll(sql,[], ()=> {
+                    resolve();
+                },function (err) {
+                    reject(err);
+                });
+            });
+
+
         });
     }
 }
