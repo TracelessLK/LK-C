@@ -18,11 +18,11 @@ class EventTarget{
         var ary=this._listeners.get(event);
         ary.splice(ary.indexOf(fun),1);
     }
-    fire(event,params) {
+    fire(event, ...params) {
         var ary=this._listeners.get(event)
         if(ary){
             ary.forEach(function(o){
-                o(params);
+                o(...params);
             });
         }
     }

@@ -68,3 +68,6 @@ unversioned*
 lk/app.json
 .idea/misc.xml
 .idea/vcs.xml
+
+# mac
+._*
