@@ -98,7 +98,7 @@ class Chat{
     }
 
     async _addGroupMember(chatId,contactId){
-        let cur = await this.getGroupMember();
+        let cur = await this.getGroupMember(chatId,contactId);
         if(!cur){
             return new Promise( (resolve,reject)=>{
                 let db = new DBProxy()
@@ -222,7 +222,7 @@ class Chat{
         return new Promise((resolve,reject)=>{
             let db = new DBProxy()
             db.transaction(()=>{
-                let sql2 = "delete from groupMember where chatId=? and contactId=?";
+                let sql = "delete from groupMember where chatId=? and contactId=?";
                 db.run(sql,[chatId,contactId],function () {
                     resolve();
 

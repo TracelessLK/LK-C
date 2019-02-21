@@ -581,8 +581,10 @@ class LKChannel extends WSChannel{
         let isGroup = body.isGroup;
         let chatId = isGroup?body.chatId:(userId===senderUid?body.chatId:senderUid);
         let _received = await LKChatProvider.asyGetMsg(userId,chatId,header.id);
-        if(_received||this._getFromChatMsgPool(chatId,header.id)){
+        if(_received){
             this._reportMsgHandled(header.flowId);
+            return;
+        }else if(this._getFromChatMsgPool(chatId,header.id)){
             return;
         }
         let exits;
@@ -616,6 +618,8 @@ class LKChannel extends WSChannel{
             if(relativeOrder&&receiveOrder){
                 this._receiveMsg(chatId,msg,relativeOrder,receiveOrder)
             }
+        }else{
+            this._reportMsgHandled(header.flowId);
         }
 
     }
