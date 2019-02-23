@@ -381,6 +381,11 @@ class LKChannel extends WSChannel{
         let content = {type:ChatManager.MESSAGE_TYPE_IMAGE,data:{data:imgData,width:width,height:height}};
         return this._sendMsg(chatId,content,relativeMsgId,isGroup);
     }
+    sendFile(chatId,filePath,name,relativeMsgId,isGroup){
+        let content = {type:ChatManager.MESSAGE_TYPE_FILE,data:{name:name}};
+        //TODO
+        return this._sendMsg(chatId,content,relativeMsgId,isGroup);
+    }
     sendAudio(chatId,audioData,audioExt,duration,relativeMsgId,isGroup){
         let content = {type:ChatManager.MESSAGE_TYPE_AUDIO,data:{data:audioData,ext:audioExt,duration:duration}};
         return this._sendMsg(chatId,content,relativeMsgId,isGroup);
@@ -470,7 +475,7 @@ class LKChannel extends WSChannel{
                 let chat = result[0] ;
                 let oldMsg = result[1] ;
                 if(oldMsg){
-                    this._asyNewRequest("sendMsg2",{type:oldMsg.type,data:JSON.parse(oldMsg.content)},{isGroup:chat.isGroup,time:oldMsg.sendTime,chatId:chatId,relativeMsgId:oldMsg.relativeMsgId,id:oldMsg.id,targets:added,order:oldMsg.order}).then((req)=>{
+                    this._asyNewRequest("sendMsg2",{type:oldMsg.type,data:oldMsg.type=="0"?oldMsg.content:JSON.parse(oldMsg.content)},{isGroup:chat.isGroup,time:oldMsg.sendTime,chatId:chatId,relativeMsgId:oldMsg.relativeMsgId,id:oldMsg.id,targets:added,order:oldMsg.order}).then((req)=>{
                         this._sendMessage(req).then((resp)=>{
                             this._reportMsgHandled(header.flowId,header.flowType);
                             LKChatHandler.asyUpdateMsgState(userId,chatId,msgId,ChatManager.MESSAGE_STATE_SERVER_RECEIVE).then(()=>{
