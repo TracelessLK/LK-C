@@ -287,12 +287,12 @@ class Record{
             var sql = "select * from record where ownerUserId=? and chatId=?";
             if(limit&&limit>0){
                 //sql += " order by relativeOrder desc,receiveOrder desc,sendOrder desc";
-                sql += " order by eventTime desc";
+                sql += " order by sendTime desc";
                 sql += " limit ";
                 sql += limit;
             }else{
                 // sql += " order by relativeOrder,receiveOrder,sendOrder";
-                sql += " order by eventTime";
+                sql += " order by sendTime";
             }
             db.transaction((tx)=>{
                 db.getAll(sql,[userId,chatId],function (results) {
