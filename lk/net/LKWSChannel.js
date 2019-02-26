@@ -535,6 +535,45 @@ class LKChannel extends WSChannel{
         }
     }
 
+    _delayFire(name,param){
+
+        if(!this._delayEvents)
+            this._delayEvents = new Map();
+        let params = this._delayEvents.get(name);
+        if(!params){
+            params = [];
+            this._delayEvents.set(name,params);
+        }
+        let exists = false;
+        for(let i=0;i<params.length;i++){
+            let p = params[i];
+            if(p.toString()==param.toString()){
+                exists = true;
+                break;
+            }
+
+        }
+        if(!exists){
+            params.push(param);
+        }
+        this._lastFireTime = Date.now();
+        setTimeout(()=>{
+            this._checkFireDelayEvent();
+        },1000)
+    }
+
+    _checkFireDelayEvent(){
+        let now = Date.now();
+        if(this._lastFireTime&&now-this._lastFireTime>1000){
+            //fire
+            this._delayEvents.forEach(function (v,k) {
+                ChatManager.fire(k,v);
+            })
+            delete this._delayEvents;
+            delete this._lastFireTime;
+        }
+    }
+
     async _receiveMsg(chatId,msg,relativeOrder,receiveOrder){
         let userId = Application.getCurrentApp().getCurrentUser().id;
         let header = msg.header;
@@ -553,12 +592,16 @@ class LKChannel extends WSChannel{
         await LKChatHandler.asyAddMsg(userId,chatId,header.id,header.uid,header.did,content.type,content.data,header.time,state,body.relativeMsgId,relativeOrder,receiveOrder,body.order);
         this._reportMsgHandled(header.flowId,header.flowType);
         this._checkChatMsgPool(chatId,header.id,receiveOrder);
-        ChatManager.fire("msgChanged",chatId);
+
+        this._delayFire("msgChanged",chatId);
+
+        //ChatManager.fire("msgChanged",chatId);
         const option = {
             isFromSelf: userId === header.uid,
             chatId
         }
-        ChatManager.fire("msgReceived", option);
+        this._delayFire("msgReceived", option);
+        //ChatManager.fire("msgReceived", option);
     }
 
     async _getReceiveOrder(chatId,relativeMsgId,senderUid,senderDid,sendOrder){
