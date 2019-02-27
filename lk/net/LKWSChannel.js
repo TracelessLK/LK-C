@@ -547,7 +547,7 @@ class LKChannel extends WSChannel{
         let exists = false;
         for(let i=0;i<params.length;i++){
             let p = params[i];
-            if(p.toString()==param.toString()){
+            if(JSON.stringify(p)==JSON.stringify(param)){
                 exists = true;
                 break;
             }
@@ -559,12 +559,12 @@ class LKChannel extends WSChannel{
         this._lastFireTime = Date.now();
         setTimeout(()=>{
             this._checkFireDelayEvent();
-        },1000)
+        },3000)
     }
 
     _checkFireDelayEvent(){
         let now = Date.now();
-        if(this._lastFireTime&&now-this._lastFireTime>1000){
+        if(this._lastFireTime&&now-this._lastFireTime>3000){
             //fire
             this._delayEvents.forEach(function (v,k) {
                 ChatManager.fire(k,v);
