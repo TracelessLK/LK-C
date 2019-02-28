@@ -111,6 +111,7 @@ class LKChannel extends WSChannel{
     }
 
     _onreconnect(){
+        this._lastPongTime = Date.now();
         if(Application.getCurrentApp().getCurrentUser())
             this.asyLogin();
     }
