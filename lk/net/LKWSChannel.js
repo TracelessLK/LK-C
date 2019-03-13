@@ -14,6 +14,7 @@ const MFApplyManager = require('../core/MFApplyManager')
 const FlowCursor = require('../store/FlowCursor')
 const LZBase64String = require('../../common/util/lz-base64-string')
 const CryptoJS = require("crypto-js")
+const Uploader = require("./Uploader");
 
 class LKChannel extends WSChannel{
 
@@ -382,10 +383,24 @@ class LKChannel extends WSChannel{
         let content = {type:ChatManager.MESSAGE_TYPE_IMAGE,data:{data:imgData,width:width,height:height}};
         return this._sendMsg(chatId,content,relativeMsgId,isGroup);
     }
-    sendFile(chatId,filePath,name,relativeMsgId,isGroup){
-        let content = {type:ChatManager.MESSAGE_TYPE_FILE,data:{name:name}};
-        //TODO
-        return this._sendMsg(chatId,content,relativeMsgId,isGroup);
+    async sendFile(chatId,filePath,name,postfix,relativeMsgId,isGroup,onScheduleChanged,onCompleted,onError){
+
+        let msg = await this._applyUploadChannel(postfix);
+        let port = msg.body.content.port;
+        let newName = msg.body.content.newName;
+        let upload = new Uploader(filePath,Application.getCurrentApp().getCurrentUser().serverIP,port);
+        upload.start();
+        upload.onScheduleChanged(onScheduleChanged)
+        upload.onCompleted(() =>{
+            let content = {type:ChatManager.MESSAGE_TYPE_FILE,data:{name:name,postfix:postfix,newName:newName}};
+            this._sendMsg(chatId,content,relativeMsgId,isGroup);
+            onCompleted();
+        })
+        upload.onError(onError)
+    }
+    async _applyUploadChannel(postfix){
+        let result = await Promise.all([this.applyChannel(),this._asyNewRequest("applyUploadChannel",{postfix:postfix})]);
+        return result[0]._sendMessage(result[1]);
     }
     sendAudio(chatId,audioData,audioExt,duration,relativeMsgId,isGroup){
         let content = {type:ChatManager.MESSAGE_TYPE_AUDIO,data:{data:audioData,ext:audioExt,duration:duration}};
