@@ -614,7 +614,9 @@ class LKChannel extends WSChannel{
         //ChatManager.fire("msgChanged",chatId);
         const option = {
             isFromSelf: userId === header.uid,
-            chatId
+            chatId,
+            fromUid: header.uid,
+            toUid: header.target.id
         }
         this._delayFire("msgReceived", option);
         //ChatManager.fire("msgReceived", option);
