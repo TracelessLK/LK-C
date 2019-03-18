@@ -40,7 +40,7 @@ class Contact{
                 }else if(relation==1){
                     sql += " and relation=1";
                 }
-
+                sql += " order by name collate nocase"
                 db.getAll(sql,[userId],function (results) {
                     resolve(results);
                 },function (err) {
