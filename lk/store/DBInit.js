@@ -7,7 +7,7 @@ Application.getCurrentApp().on("dbReady",function () {
             db.run("create table if not exists chat(id TEXT,ownerUserId TEXT,name TEXT,createTime INTEGER,topTime INTEGER,isGroup INTEGER,reserve1 TEXT,PRIMARY KEY(ownerUserId,id))",[],function () {
             },function (err) {
             });
-            db.run("create table if not exists groupMember(chatId TEXT,contactId TEXT,reserve1 TEXT,primary key(chatId,contactId))",[],function () {
+            db.run("create table if not exists groupMember(ownerUserId TEXT,chatId TEXT,contactId TEXT,reserve1 TEXT,primary key(chatId,contactId))",[],function () {
             },function (err) {
             });
         });
@@ -21,7 +21,7 @@ Application.getCurrentApp().on("dbReady",function () {
         });
 
         db.transaction((tx)=>{
-            db.run("create table if not exists device(id TEXT PRIMARY KEY NOT NULL,publicKey TEXT,contactId TEXT,remark TEXT,reserve1 TEXT)",[],function () {
+            db.run("create table if not exists device(ownerUserId TEXT,id TEXT PRIMARY KEY NOT NULL,publicKey TEXT,contactId TEXT,remark TEXT,reserve1 TEXT)",[],function () {
             },function (err) {
             });
         });

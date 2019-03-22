@@ -349,7 +349,9 @@ class LKChannel extends WSChannel{
          result[0]._sendMessage(result[1]).then((msg)=>{
              if(!msg.body.content.err){
                  let userId = Application.getCurrentApp().getCurrentUser().id;
-                 Promise.all([FlowCursor.setLastFlowId(userId,"deviceDiffReport",msg.body.content["deviceDiffReport"]),FlowCursor.setLastFlowId(userId,"group",msg.body.content["group"])]).then(function () {
+                 let minPreFlows = msg.body.content["minPreFlows"];
+                 let groups = msg.body.content["groups"];
+                 Promise.all([FlowCursor.setLastFlowId(userId,"deviceDiffReport",minPreFlows["deviceDiffReport"]),FlowCursor.setLastFlowId(userId,"group",minPreFlows["group"]),ChatManager.asyResetGroups(groups, userId)]).then(function () {
                      Application.getCurrentApp().setLogin(Application.getCurrentApp().getCurrentUser())
 
                  });
