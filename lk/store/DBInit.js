@@ -44,7 +44,9 @@ Application.getCurrentApp().on("dbReady",function () {
 
 function runSql(db, sql, param = []) {
   return new Promise((res, rej) => {
-    db.run(sql, param, res, rej)
+    db.transaction(() => {
+      db.run(sql, param, res, rej)
+    })
   })
 }
 
