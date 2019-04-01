@@ -502,6 +502,14 @@ class ChatManager extends EventTarget{
     }
 
     /**
+     *get the latest chat record
+     * @param chatId
+     */
+     asyGetMsgsOne(userId,chatId) {
+        return  LKChatProvider.asyGetMsgsOne(userId,chatId);
+    }
+
+    /**
      * update group name
      * @param chatId
      * @param name

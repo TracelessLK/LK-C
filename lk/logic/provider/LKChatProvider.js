@@ -14,6 +14,9 @@ class LKChatProvider{
     asyGetGroupMembers(chatId){
         return Chat.getGroupMembers(chatId);
     }
+    asyGetMsgsOne(userId,chatId){
+        return Record.getMsgsOne(userId,chatId)
+    }
     asyGetMsgs(userId,chatId,limit){
         return Record.getMsgs(userId,chatId,limit);
     }

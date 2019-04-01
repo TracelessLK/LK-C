@@ -281,6 +281,21 @@ class Record{
         });
     }
 
+    getMsgsOne(userId,chatId) {
+        return new Promise((resolve, reject) => {
+            let db = new DBProxy()
+            db.transaction((tx)=>{
+                let sql = `select * from record where  ownerUserId= ?  and chatId = ? order by sendTime desc limit 0,1`;
+                db.getAll(sql,[userId,chatId],function (results) {
+                    resolve(results);
+                },function (err) {
+                    reject(err);
+                });
+            });
+
+        })
+    }
+
     getMsgs(userId,chatId,limit){
         return new Promise((resolve,reject)=>{
             let db = new DBProxy()
