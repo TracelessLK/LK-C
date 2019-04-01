@@ -1,7 +1,7 @@
 const Device = require('../../store/Device')
 class LKDeviceHandler{
-    asyAddDevices(contactId,devices){
-        return Device.addDevices(contactId,devices);
+    asyAddDevices(userId,contactId,devices){
+        return Device.addDevices(userId,contactId,devices);
     }
 
     asyRemoveDevices(contactId,devices){
