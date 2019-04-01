@@ -9,5 +9,6 @@
     "moment": "^2.24.0",
     "react-native-rsa": "0.0.3",
     "uuid": "^3.2.1"
-  }
+  },
+  "repository": "https://github.com/tracelessman/LK-C.git#dev"
 }

@@ -1,0 +1,10 @@
+modify:
+  groupMember:
+    add:
+      field: ownerUserId
+      type: TEXT
+  device:
+    add:
+      field: ownerUserId
+      type: TEXT
+

@@ -13,8 +13,6 @@ const LKChatProvider = require('../logic/provider/LKChatProvider')
 const MFApplyManager = require('../core/MFApplyManager')
 const FlowCursor = require('../store/FlowCursor')
 const LZBase64String = require('../../common/util/lz-base64-string')
-const CryptoJS = require("crypto-js")
-const Uploader = require("./Uploader");
 
 class LKChannel extends WSChannel{
 
@@ -349,7 +347,9 @@ class LKChannel extends WSChannel{
          result[0]._sendMessage(result[1]).then((msg)=>{
              if(!msg.body.content.err){
                  let userId = Application.getCurrentApp().getCurrentUser().id;
-                 Promise.all([FlowCursor.setLastFlowId(userId,"deviceDiffReport",msg.body.content["deviceDiffReport"]),FlowCursor.setLastFlowId(userId,"group",msg.body.content["group"])]).then(function () {
+                 let minPreFlows = msg.body.content["minPreFlows"];
+                 let groups = msg.body.content["groups"];
+                 Promise.all([FlowCursor.setLastFlowId(userId,"deviceDiffReport",minPreFlows["deviceDiffReport"]),FlowCursor.setLastFlowId(userId,"group",minPreFlows["group"]),ChatManager.asyResetGroups(groups, userId)]).then(function () {
                      Application.getCurrentApp().setLogin(Application.getCurrentApp().getCurrentUser())
 
                  });
@@ -383,7 +383,7 @@ class LKChannel extends WSChannel{
         let content = {type:ChatManager.MESSAGE_TYPE_IMAGE,data:{data:imgData,width:width,height:height}};
         return this._sendMsg(chatId,content,relativeMsgId,isGroup);
     }
-    async sendFile(chatId,filePath,name,postfix,relativeMsgId,isGroup,onScheduleChanged,onCompleted,onError){
+    async sendFile(Uploader,chatId,filePath,name,postfix,relativeMsgId,isGroup,onScheduleChanged,onCompleted,onError){
 
         let msg = await this._applyUploadChannel(postfix);
         let port = msg.body.content.port;
