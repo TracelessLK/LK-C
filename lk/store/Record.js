@@ -511,5 +511,17 @@ class Record{
 
         });
     }
+
+  getLastMsg(userId, chatId) {
+    return new Promise((resolve, reject) => {
+      const sql = `select * from record order by sendTime desc limit 1 where ownerUserId=? and chatId=? `
+      const db = new DBProxy()
+      db.transaction(() => {
+        db.get(sql,[userId, chatId], result => {
+          resolve(result)
+        }, reject)
+      })
+    })
+  }
 }
 module.exports = new Record();

@@ -588,6 +588,14 @@ class ChatManager extends EventTarget{
   asyGetMsg(userId,chatId,msgId,fetchData){
     return LKChatProvider.asyGetMsg(userId,chatId,msgId,fetchData);
   }
+
+  /*
+  * @param userId
+  * @param chatId
+  */
+  asyGetLastMsg(userId, chatId) {
+    return Record.getLastMsg(userId, chatId)
+  }
 }
 
 
