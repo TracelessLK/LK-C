@@ -22,7 +22,7 @@ Application.getCurrentApp().on("dbReady",function () {
       })
       await Promise.all(psAry)
       const viewAry = [
-        `create view if not exists groupView as 
+        `create view if not exists groupMemberView as 
         select 
         t3.name chatName
         , t2.name contactName
