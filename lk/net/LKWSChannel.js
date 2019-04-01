@@ -13,8 +13,6 @@ const LKChatProvider = require('../logic/provider/LKChatProvider')
 const MFApplyManager = require('../core/MFApplyManager')
 const FlowCursor = require('../store/FlowCursor')
 const LZBase64String = require('../../common/util/lz-base64-string')
-const CryptoJS = require("crypto-js")
-const Uploader = require("./Uploader");
 
 class LKChannel extends WSChannel{
 
@@ -383,7 +381,7 @@ class LKChannel extends WSChannel{
         let content = {type:ChatManager.MESSAGE_TYPE_IMAGE,data:{data:imgData,width:width,height:height}};
         return this._sendMsg(chatId,content,relativeMsgId,isGroup);
     }
-    async sendFile(chatId,filePath,name,postfix,relativeMsgId,isGroup,onScheduleChanged,onCompleted,onError){
+    async sendFile(Uploader,chatId,filePath,name,postfix,relativeMsgId,isGroup,onScheduleChanged,onCompleted,onError){
 
         let msg = await this._applyUploadChannel(postfix);
         let port = msg.body.content.port;
