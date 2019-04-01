@@ -97,14 +97,14 @@ class Chat{
         });
     }
 
-    async _addGroupMember(chatId,contactId){
+    async _addGroupMember(userId,chatId,contactId){
         let cur = await this.getGroupMember(chatId,contactId);
         if(!cur){
             return new Promise( (resolve,reject)=>{
                 let db = new DBProxy()
                 db.transaction(()=>{
-                    let sql = "insert into groupMember(chatId,contactId) values (?,?)";
-                    db.run(sql,[chatId,contactId],function () {
+                    let sql = "insert into groupMember(ownerUserId,chatId,contactId) values (?,?,?)";
+                    db.run(sql,[userId,chatId,contactId],function () {
                         resolve();
                     },function (err) {
                         reject(err);
@@ -116,12 +116,12 @@ class Chat{
         }
     }
 
-    addGroupMembers(chatId,members){
+    addGroupMembers(userId,chatId,members){
         return new Promise( (resolve,reject)=>{
             let ps = [];
             members.forEach((contact)=>{
                 let contactId = contact.id;
-                ps.push(this._addGroupMember(chatId,contactId))
+                ps.push(this._addGroupMember(userId,chatId,contactId))
             });
             Promise.all(ps).then(()=>{
                 resolve();
@@ -158,6 +158,27 @@ class Chat{
                     }).catch(function (err) {
                         reject(err)
                     })
+
+                },function (err) {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    deleteGroups (userId){
+        return new Promise((resolve,reject)=>{
+            let db = new DBProxy()
+            db.transaction(()=>{
+                let sql = "delete from chat where ownerUserId=? and isGroup=?";
+                db.run(sql,[userId,1],function () {
+
+                    let sql2 = "delete from groupMember where ownerUserId=?";
+                    db.run(sql2,[userId],function () {
+                        resolve();
+                    },function (err) {
+                        reject(err);
+                    });
 
                 },function (err) {
                     reject(err);

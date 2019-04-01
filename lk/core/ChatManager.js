@@ -337,8 +337,9 @@ class ChatManager extends EventTarget{
     deviceChanged(chatId,changedMembers){
         let returnAdded = [];
         // console.log({changedMembers})
+        let userId = Application.getCurrentApp().getCurrentUser().id;
         changedMembers.forEach(function(changed){
-            LKDeviceHandler.asyAddDevices(changed.id,changed.added);
+            LKDeviceHandler.asyAddDevices(userId,changed.id,changed.added);
             LKDeviceHandler.asyRemoveDevices(changed.id,changed.removed);
         });
         // let chat = this._recentChats[this._recentChatsIndex[chatId]];
@@ -420,7 +421,7 @@ class ChatManager extends EventTarget{
         if(!chat){
             if(!local)
                 await Contact.addNewGroupContactIFNotExist(members,userId);
-            await Promise.all([Chat.addGroupChat(userId,chatId,name),Chat.addGroupMembers(chatId,members)])
+            await Promise.all([Chat.addGroupChat(userId,chatId,name),Chat.addGroupMembers(userId,chatId,members)])
             this.fire("recentChanged");
         }
     }
@@ -437,20 +438,22 @@ class ChatManager extends EventTarget{
         // oldMembers.forEach(function (m) {
         //     curMembers.push(m.id);
         // });
+        let userId = Application.getCurrentApp().getCurrentUser().id;
         await Application.getCurrentApp().getLKWSChannel().addGroupMembers(chatId,newMembers);
-        await Chat.addGroupMembers(chatId,newMembers);
+        await Chat.addGroupMembers(userId,chatId,newMembers);
         this.fire('groupMemberChange', chatId)
     }
     async addGroupMembers(chatId,newMembers){
         let userId = Application.getCurrentApp().getCurrentUser().id;
-        await Promise.all([Contact.addNewGroupContactIFNotExist(newMembers,userId),Chat.addGroupMembers(chatId,newMembers)]);
+        await Promise.all([Contact.addNewGroupContactIFNotExist(newMembers,userId),Chat.addGroupMembers(userId,chatId,newMembers)]);
 
     }
     async asyResetGroups(groups,userId){
         let ps = [];
+        ps.push(Chat.deleteGroups(userId));
         groups.forEach(function (group) {
             ps.push(Chat.addGroupChat(userId,group.id,group.name));
-            ps.push(Chat.addGroupMembers(group.id,group.members));
+            ps.push(Chat.addGroupMembers(userId,group.id,group.members));
         })
         await Promise.all(ps);
 

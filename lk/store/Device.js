@@ -29,14 +29,14 @@ class Device{
         });
     }
 
-    _addDevice(contactId,device){
+    _addDevice(userId,contactId,device){
         return new Promise((resolve,reject)=>{
             let db = new DBProxy()
             db.transaction(()=>{
                 if(contactId&&device){
-                    let sql = "insert into device(id,publicKey,contactId) values ";
+                    let sql = "insert into device(ownerUserId,id,publicKey,contactId) values ";
                     sql += "(?,?,?)";
-                    db.run(sql,[device.id,device.pk,contactId],function () {
+                    db.run(sql,[userId,device.id,device.pk,contactId],function () {
                         resolve();
                     },function (err) {
                         reject(err)
@@ -48,12 +48,12 @@ class Device{
         });
     }
 
-    addDevices(contactId,devices){
+    addDevices(userId,contactId,devices){
         return new Promise((resolve,reject)=>{
             let ps = [];
             if(devices&&devices.length>0){
                 devices.forEach((device)=>{
-                    ps.push(this._addDevice(contactId,device));
+                    ps.push(this._addDevice(userId,contactId,device));
                 });
             }
              Promise.all(ps).catch(function (err) {
