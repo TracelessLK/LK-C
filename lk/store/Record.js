@@ -507,17 +507,15 @@ class Record{
                     reject(err);
                 });
             });
-
-
         });
     }
 
   getLastMsg(userId, chatId) {
     return new Promise((resolve, reject) => {
-      const sql = `select * from record order by sendTime desc limit 1 where ownerUserId=? and chatId=? `
+      const sql = `select * from record  where ownerUserId=? and chatId=?  order by sendTime desc limit 1`
       const db = new DBProxy()
       db.transaction(() => {
-        db.get(sql,[userId, chatId], result => {
+        db.getAll(sql,[userId, chatId], result => {
           resolve(result)
         }, reject)
       })
