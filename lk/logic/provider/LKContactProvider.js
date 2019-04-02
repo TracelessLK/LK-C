@@ -24,6 +24,9 @@ class LKContactProvider{
     asySelectAllDevices(contactId){
         return Contact.selectAllDevices(contactId);
     }
+    asyGetgroupMemberImg(chatId){
+        return Contact.getgroupMemberImg(chatId)
+    }
 }
 module.exports = new LKContactProvider();
 
