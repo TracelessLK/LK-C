@@ -1,6 +1,9 @@
+const RSAKey = require('react-native-rsa')
+
 const Application = require('../common/core/Application')
 const ConfigManager = require('../common/core/ConfigManager')
-const RSAKey = require('react-native-rsa')
+const DbUtil = require('./store/DbUtil')
+const {prepareDb} = DbUtil
 
 class LKApplication extends Application {
   constructor (name) {
@@ -49,6 +52,12 @@ class LKApplication extends Application {
   }
   setLogin (user) {
     this._login = user
+  }
+
+  start (db,platform) {
+    super.start(db,platform)
+
+    return prepareDb()
   }
 
   getCurrentRSA () {
@@ -119,5 +128,8 @@ class LKApplication extends Application {
     return this._messageTimeout
   }
 }
+
+
+
 new LKApplication('LK')
 module.exports = LKApplication
