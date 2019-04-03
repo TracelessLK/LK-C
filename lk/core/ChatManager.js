@@ -6,6 +6,7 @@ const LKDeviceProvider = require('../logic/provider/LKDeviceProvider')
 const LKChatHandler = require('../logic/handler/LKChatHandler')
 const LKDeviceHandler = require('../logic/handler/LKDeviceHandler')
 const Chat = require('../store/Chat')
+const DbUtil = require('../store/DbUtil')
 const Contact = require('../store/Contact')
 const Record = require('../store/Record')
 const UUID = require('uuid/v4')
@@ -595,6 +596,12 @@ class ChatManager extends EventTarget{
   */
   asyGetLastMsg(userId, chatId) {
     return Record.getLastMsg(userId, chatId)
+  }
+  /*
+ * @param tableName
+ */
+  asyGetAllData(tableName) {
+    return DbUtil.getAllData(tableName)
   }
 }
 

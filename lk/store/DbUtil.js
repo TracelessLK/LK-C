@@ -36,6 +36,8 @@ class DbUtil {
       await Promise.all(psAry)
       await DbUtil.updateDb()
       DbUtil.createView()
+      DbUtil.getAllData()
+
     })
   }
 
@@ -178,6 +180,41 @@ create table if not exists db_version(
         db.getAll(sql, param, res, rej)
       })
     })
+  }
+  // 如果tableName为空,返回所有数据
+  static async getAllData (tableName) {
+    let tableNameAry = []
+    if(tableName) {
+      tableNameAry.push(tableName)
+    } else {
+      tableNameAry = await DbUtil.runSql(`SELECT 
+    name
+FROM 
+    sqlite_master 
+WHERE 
+    type ='table' AND 
+    name NOT LIKE 'sqlite_%';`)
+    }
+
+    const obj = {}
+    const psAry = []
+
+    for(let ele of tableNameAry) {
+      const tableName = ele.name
+      const ps = new Promise(async resolve => {
+        const recordAry = await DbUtil.runSql(`
+        select * from ${tableName}
+      `)
+        obj[tableName] = recordAry
+        resolve()
+      })
+    }
+    await Promise.all(psAry)
+    let result = obj
+    if(tableName) {
+      result = obj[tableName]
+    }
+    return result
   }
 }
 
