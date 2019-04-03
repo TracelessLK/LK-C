@@ -36,8 +36,6 @@ class DbUtil {
       await Promise.all(psAry)
       await DbUtil.updateDb()
       DbUtil.createView()
-      DbUtil.getAllData()
-
     })
   }
 
@@ -60,7 +58,6 @@ create table if not exists db_version(
       const recentVersion = versionRecordAry[0].version
       updateAry = versionKeyAry.slice(versionKeyAry.indexOf(recentVersion) + 1)
     }
-    console.log({updateAry})
     for (let ele of updateAry) {
       const sqlBlock = updateSqlObj[ele]
       for(let sentence of sqlBlock.split(';')){
@@ -75,7 +72,6 @@ create table if not exists db_version(
     if (updateAry.length) {
       const newVersion = _.last(updateAry)
       const sql = `insert into db_version values('${newVersion}', ' ', '${moment().format('YYYY-MM-DD h:mm:ss')}', '${require('../../package.json').version}')`
-      console.log({sql})
       DbUtil.runSql(sql)
     }
   }
