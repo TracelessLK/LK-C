@@ -2,6 +2,7 @@ const _ = require('lodash')
 const moment = require('moment')
 
 const DBProxy = require('../../common/store/DBProxy')
+const displayAllData = false
 
 const updateSqlObj = {
   '0.0.1': `
@@ -36,6 +37,10 @@ class DbUtil {
       await Promise.all(psAry)
       await DbUtil.updateDb()
       DbUtil.createView()
+      if (displayAllData) {
+        const result = await DbUtil.getAllData()
+        console.log(result)
+      }
     })
   }
 
@@ -213,7 +218,7 @@ FROM
     sqlite_master 
 WHERE 
     type ='table' AND 
-    name NOT LIKE 'sqlite_%';`)
+    name NOT LIKE 'sqlite_%' order by name`)
     return tableNameAry.map(ele => {
       return ele.name
     })

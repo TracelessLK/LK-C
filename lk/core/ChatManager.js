@@ -609,6 +609,15 @@ class ChatManager extends EventTarget{
   getAllTableAry() {
     return DbUtil.getAllTableAry()
   }
+  /*
+ * @param sql
+ * @param param
+ * 运行传入的sql,返回结果
+ */
+
+  runSql(sql, param) {
+    return DbUtil.runSql(sql,param)
+  }
 }
 
 
