@@ -39,7 +39,7 @@ class DbUtil {
       await DbUtil.updateDb()
       DbUtil.createView()
       if (displayAllData) {
-        const result = await DbUtil.getAllData()
+        const result = await DbUtil.getAllData('lkuser')
         console.log(result)
       }
     })
@@ -203,6 +203,7 @@ create table if not exists db_version(
         obj[tableName] = recordAry
         resolve()
       })
+      psAry.push(ps)
     }
     await Promise.all(psAry)
     let result = obj

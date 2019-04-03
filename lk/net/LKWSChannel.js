@@ -583,7 +583,9 @@ class LKChannel extends WSChannel{
         if(this._lastFireTime&&now-this._lastFireTime>3000){
             //fire
             this._delayEvents.forEach(function (v,k) {
-                ChatManager.fire(k,v);
+              v.forEach(ele => {
+                ChatManager.fire(k,ele)
+              })
             })
             delete this._delayEvents;
             delete this._lastFireTime;
