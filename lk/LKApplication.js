@@ -11,6 +11,7 @@ class LKApplication extends Application {
   }
 
   setCurrentUser (user,venderId) {
+    const psAry = []
     super.setCurrentUser(user,venderId)
 
     if (user) {
@@ -38,13 +39,15 @@ class LKApplication extends Application {
       }
     }
     if (this._channel) {
-      this._channel.applyChannel().then((channel) => {
+      const ps = this._channel.applyChannel().then((channel) => {
         return channel.asyLogin(user.id, user.password)
       })
+      psAry.push(ps)
     }
     this.fire('currentUserChanged', user)
     ConfigManager.getChatManager().init(user)
     ConfigManager.getMagicCodeManager().init(user)
+    return Promise.all(psAry)
   }
 
   getLogin () {
