@@ -603,6 +603,12 @@ class ChatManager extends EventTarget{
   asyGetAllData(tableName) {
     return DbUtil.getAllData(tableName)
   }
+  /*
+   * 获取所有表名
+   */
+  getAllTableAry() {
+    return DbUtil.getAllTableAry()
+  }
 }
 
 

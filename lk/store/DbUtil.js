@@ -183,20 +183,13 @@ create table if not exists db_version(
     if(tableName) {
       tableNameAry.push(tableName)
     } else {
-      tableNameAry = await DbUtil.runSql(`SELECT 
-    name
-FROM 
-    sqlite_master 
-WHERE 
-    type ='table' AND 
-    name NOT LIKE 'sqlite_%';`)
+      tableNameAry = await DbUtil.getAllTableAry()
     }
-
     const obj = {}
     const psAry = []
 
     for(let ele of tableNameAry) {
-      const tableName = ele.name
+      const tableName = ele
       const ps = new Promise(async resolve => {
         const recordAry = await DbUtil.runSql(`
         select * from ${tableName}
@@ -211,6 +204,19 @@ WHERE
       result = obj[tableName]
     }
     return result
+  }
+
+  static async getAllTableAry() {
+    const tableNameAry = await DbUtil.runSql(`SELECT 
+    name
+FROM 
+    sqlite_master 
+WHERE 
+    type ='table' AND 
+    name NOT LIKE 'sqlite_%';`)
+    return tableNameAry.map(ele => {
+      return ele.name
+    })
   }
 }
 
