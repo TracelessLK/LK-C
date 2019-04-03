@@ -344,19 +344,18 @@ class LKChannel extends WSChannel{
 
     async asyLogin(){
         let result = await Promise.all([this.applyChannel(),this._asyNewRequest("login",{venderDid:Application.getCurrentApp().getVenderId()})]);
-         result[0]._sendMessage(result[1]).then((msg)=>{
-             if(!msg.body.content.err){
-                 let userId = Application.getCurrentApp().getCurrentUser().id;
-                 let minPreFlows = msg.body.content["minPreFlows"];
-                 let groups = msg.body.content["groups"];
-                 Promise.all([FlowCursor.setLastFlowId(userId,"deviceDiffReport",minPreFlows["deviceDiffReport"]),FlowCursor.setLastFlowId(userId,"group",minPreFlows["group"]),ChatManager.asyResetGroups(groups, userId)]).then(function () {
-                     Application.getCurrentApp().setLogin(Application.getCurrentApp().getCurrentUser())
-
-                 });
-             }else{
-                 //TODO throw it to the front
-             }
-         })
+         const msg = await result[0]._sendMessage(result[1])
+        if(!msg.body.content.err){
+          let userId = Application.getCurrentApp().getCurrentUser().id;
+          let minPreFlows = msg.body.content["minPreFlows"];
+          let groups = msg.body.content["groups"]
+          const psAry = [FlowCursor.setLastFlowId(userId,"deviceDiffReport",
+            minPreFlows["deviceDiffReport"]),FlowCursor.setLastFlowId(userId,"group",
+            minPreFlows["group"]),ChatManager.asyResetGroups(groups, userId)]
+          return Promise.all(psAry)
+        }else{
+          throw msg.body.content.err
+        }
     }
 
   async asyGetAllDetainedMsg(){

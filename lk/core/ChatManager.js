@@ -451,7 +451,8 @@ class ChatManager extends EventTarget{
     }
     async asyResetGroups(groups,userId){
         let ps = [];
-        ps.push(Chat.deleteGroups(userId));
+        // 先清空所有的group chat和group member,否则会重复插入
+        await Chat.deleteGroups(userId)
         groups.forEach(function (group) {
             ps.push(Chat.addGroupChat(userId,group.id,group.name));
             ps.push(Chat.addGroupMembers(userId,group.id,group.members));
