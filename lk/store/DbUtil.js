@@ -2,7 +2,8 @@ const _ = require('lodash')
 const moment = require('moment')
 
 const DBProxy = require('../../common/store/DBProxy')
-const displayAllData = false
+const config = require('../../config')
+const {displayAllData} = config
 
 const updateSqlObj = {
   '0.0.1': `

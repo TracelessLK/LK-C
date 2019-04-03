@@ -3,7 +3,10 @@ const fs = require('fs')
 const _ = require('lodash')
 
 const config = {
-  pingInterval: 1000 * 60
+  // ping间隔时间
+  pingInterval: 1000 * 60,
+  // 打印数据库所有数据
+  displayAllData: false,
 }
 
 const unversionedPath = path.resolve(__dirname, 'unversioned.js')
