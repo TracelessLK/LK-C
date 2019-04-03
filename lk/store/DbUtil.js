@@ -7,6 +7,8 @@ const updateSqlObj = {
   '0.0.1': `
     alter table groupMember add column ownerUserId TEXT;
     alter table device add column ownerUserId TEXT;
+    update groupMember set ownerUserId = (select id from lkuser limit 1) where ownerUserId is null;
+    update device set ownerUserId = (select id from lkuser limit 1) where ownerUserId is null;
   `
 }
 
@@ -43,7 +45,7 @@ create table if not exists db_version(
   version varchar(100),
   description TEXT,
   updateAt datetime,
-  engineVersion varchar(100) unique,
+  engineVersion varchar(100),
   primary key(version)
 )`
     await DbUtil.runSql(sql)
