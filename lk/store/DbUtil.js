@@ -14,10 +14,30 @@ const updateSqlObj = {
   `
 }
 
+const versionAry = Object.keys(updateSqlObj)
+
 class DbUtil {
   static async prepareDb() {
     let db = new DBProxy();
     db.serialize(async () => {
+      const allTableAry = await DbUtil.getAllTableAry()
+
+      //如果没有contact, db_version表,说明数据库重置了,需要插入最新数据库版本号
+      if (!allTableAry.includes('contact') && !allTableAry.includes('db_version')) {
+        const insertDbVersionSqlAry = [
+          `
+create table if not exists db_version(
+  version varchar(100),
+  description TEXT,
+  updateAt datetime,
+  engineVersion varchar(100),
+  primary key(version)
+)`,
+          `insert into db_version values('${_.last(versionAry)}', ' ', '${moment().format('YYYY-MM-DD h:mm:ss')}', '${require('../../package.json').version}')`
+        ]
+        await DbUtil.runSqlBatch(insertDbVersionSqlAry)
+
+      }
       const sqlAry = [
         "create table if not exists chat(id TEXT,ownerUserId TEXT,name TEXT,createTime INTEGER,topTime INTEGER,isGroup INTEGER,reserve1 TEXT,PRIMARY KEY(ownerUserId,id))",
         "create table if not exists groupMember(ownerUserId TEXT,chatId TEXT,contactId TEXT,reserve1 TEXT,primary key(chatId,contactId))",
@@ -183,6 +203,13 @@ create table if not exists db_version(
       })
     })
   }
+  static async runSqlBatch(sqlAry) {
+    for (let sql of sqlAry) {
+      await DbUtil.runSql(sql)
+    }
+  }
+
+
   // 如果tableName为空,返回所有数据
   static async getAllData (tableName) {
     let tableNameAry = []
