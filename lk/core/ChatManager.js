@@ -598,11 +598,19 @@ class ChatManager extends EventTarget{
   asyGetLastMsg(userId, chatId) {
     return Record.getLastMsg(userId, chatId)
   }
+
+  /*
+* @param viewName
+*/
+  asyGetAllViewData(viewName) {
+    return DbUtil.getAllViewData(viewName)
+  }
+
   /*
  * @param tableName
  */
   asyGetAllData(tableName) {
-    return DbUtil.getAllData(tableName)
+    return DbUtil.getAllTableData(tableName)
   }
   /*
    * 获取所有表名
@@ -610,6 +618,14 @@ class ChatManager extends EventTarget{
   getAllTableAry() {
     return DbUtil.getAllTableAry()
   }
+
+  /*
+ * 获取所有view名
+ */
+  getAllViewAry() {
+    return DbUtil.getAllViewAry()
+  }
+
   /*
  * @param sql
  * @param param

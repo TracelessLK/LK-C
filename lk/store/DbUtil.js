@@ -57,11 +57,7 @@ create table if not exists db_version(
       })
       await Promise.all(psAry)
       await DbUtil.updateDb()
-      DbUtil.createView()
-      if (displayAllData) {
-        const result = await DbUtil.getAllData('lkuser')
-        console.log(result)
-      }
+      prepareDbAsyncTask()
     })
   }
 
@@ -84,6 +80,7 @@ create table if not exists db_version(
       const recentVersion = versionRecordAry[0].version
       updateAry = versionKeyAry.slice(versionKeyAry.indexOf(recentVersion) + 1)
     }
+
     for (let ele of updateAry) {
       const sqlBlock = updateSqlObj[ele]
       for(let sentence of sqlBlock.split(';')){
@@ -209,48 +206,79 @@ create table if not exists db_version(
     }
   }
 
+  static async getAllTableData(schemeName) {
+    return DbUtil.getAllSchemeData('table', schemeName)
+  }
 
-  // 如果tableName为空,返回所有数据
-  static async getAllData (tableName) {
-    let tableNameAry = []
-    if(tableName) {
-      tableNameAry.push(tableName)
+  static async getAllViewData(schemeName) {
+    return DbUtil.getAllSchemeData('view', schemeName)
+  }
+
+  // 如果schemeName为空,返回所有数据
+  static async getAllSchemeData (type, schemeName) {
+    let nameAry = []
+    if(schemeName) {
+      nameAry.push(schemeName)
     } else {
-      tableNameAry = await DbUtil.getAllTableAry()
+      nameAry = await DbUtil.getAllScheme(type)
     }
     const obj = {}
     const psAry = []
 
-    for(let ele of tableNameAry) {
-      const tableName = ele
+    for(let ele of nameAry) {
       const ps = new Promise(async resolve => {
         const recordAry = await DbUtil.runSql(`
-        select * from ${tableName}
+        select * from ${ele}
       `)
-        obj[tableName] = recordAry
+        obj[ele] = recordAry
         resolve()
       })
       psAry.push(ps)
     }
     await Promise.all(psAry)
     let result = obj
-    if(tableName) {
-      result = obj[tableName]
+    if(schemeName) {
+      result = obj[schemeName]
     }
     return result
   }
 
+  // 获取所有的table
   static async getAllTableAry() {
-    const tableNameAry = await DbUtil.runSql(`SELECT 
+
+    return DbUtil.getAllScheme('table')
+  }
+
+  // 获取所有的view
+  static async getAllViewAry() {
+
+    return DbUtil.getAllScheme('view')
+  }
+
+  // 获取所有的view或table
+  /*
+    * @return array
+   */
+  static async getAllScheme(type) {
+    const nameAry = await DbUtil.runSql(`SELECT 
     name
 FROM 
     sqlite_master 
 WHERE 
-    type ='table' AND 
+    type ='${type}' AND 
     name NOT LIKE 'sqlite_%' order by name`)
-    return tableNameAry.map(ele => {
+    return nameAry.map(ele => {
       return ele.name
     })
+  }
+}
+
+
+async function prepareDbAsyncTask () {
+  await DbUtil.createView()
+  if (displayAllData) {
+    const result = await DbUtil.getAllTableAry()
+    console.log(result)
   }
 }
 
