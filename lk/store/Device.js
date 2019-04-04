@@ -35,7 +35,7 @@ class Device{
             db.transaction(()=>{
                 if(contactId&&device){
                     let sql = "insert into device(ownerUserId,id,publicKey,contactId) values ";
-                    sql += "(?,?,?)";
+                    sql += "(?,?,?,?)";
                     db.run(sql,[userId,device.id,device.pk,contactId],function () {
                         resolve();
                     },function (err) {
