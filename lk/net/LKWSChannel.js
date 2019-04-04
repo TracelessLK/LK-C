@@ -483,7 +483,7 @@ class LKChannel extends WSChannel{
         let chatId = content.chatId;
         let diff = content.diff;
         if(diff){
-            let added = ChatManager.deviceChanged(chatId,diff);
+            let added = await ChatManager.deviceChanged(chatId,diff);
             if(added&&added.length>0){
                 let userId = Application.getCurrentApp().getCurrentUser().id;
                 let result = await Promise.all([LKChatProvider.asyGetChat(userId,chatId),LKChatProvider.asyGetMsg(userId,chatId,msgId,true)]);
