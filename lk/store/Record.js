@@ -222,39 +222,43 @@ class Record{
         });
     }
 
-    async _updateMsgState(userId,chatId,msgIds,state){
-        let updatedNum = await this._getNumNeedUpdate(userId,chatId,msgIds,state);
+    _updateMsgState(userId,chatId,msgIds,state){
         return new Promise((resolve,reject)=>{
-            if(updatedNum>0){
-                let sql = "update record set state=? where state<? and ownerUserId=? and chatId=? and id ";
-                if(!msgIds.forEach){
-                    sql += "='"
-                    sql += msgIds;
-                    sql += "'";
-                }else{
-                    sql += "in (";
-                    for(var i=0;i<msgIds.length;i++){
-                        sql+="'";
-                        sql+=msgIds[i];
-                        sql+="'";
-                        if(i<msgIds.length-1){
-                            sql+=",";
+            this._getNumNeedUpdate(userId,chatId,msgIds,state).then((updatedNum)=>{
+                if(updatedNum>0){
+                    let sql = "update record set state=? where state<? and ownerUserId=? and chatId=? and id ";
+                    if(!msgIds.forEach){
+                        sql += "='"
+                        sql += msgIds;
+                        sql += "'";
+                    }else{
+                        sql += "in (";
+                        for(var i=0;i<msgIds.length;i++){
+                            sql+="'";
+                            sql+=msgIds[i];
+                            sql+="'";
+                            if(i<msgIds.length-1){
+                                sql+=",";
+                            }
                         }
+                        sql+=")";
                     }
-                    sql+=")";
-                }
-                let db = new DBProxy()
-                db.transaction((tx)=>{
-                    db.run(sql,[state,state,userId,chatId], (tx,res)=> {
-                        resolve(updatedNum)
-                    },function (err) {
-                        reject(err);
+                    let db = new DBProxy()
+                    db.transaction((tx)=>{
+                        db.run(sql,[state,state,userId,chatId], (tx,res)=> {
+                            resolve(updatedNum)
+                        },function (err) {
+                            reject(err);
+                        });
                     });
-                });
 
-            }else{
-                resolve(0)
-            }
+                }else{
+                    resolve(0)
+                }
+            }).catch(function (err) {
+
+            })
+
         });
     }
 

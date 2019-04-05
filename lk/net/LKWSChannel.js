@@ -65,7 +65,7 @@ class LKChannel extends WSChannel{
                     let userId = Application.getCurrentApp().getCurrentUser().id;
                     FlowCursor.getLastFlowId(userId,header.flowType).then((lastFlowId)=>{
                         if(lastFlowId){
-                            if(header.preFlowId===lastFlowId){
+                            if(header.preFlowId==lastFlowId){
                                 handler.call(this,msg);
                             }else{
                                 this._putFlowPool(header.preFlowId,msg);
@@ -291,30 +291,28 @@ class LKChannel extends WSChannel{
                     result = await Promise.all([this.applyChannel(),this._asyNewRequest("ping")]);
                 }
 
-                result[0]._sendMessage(result[1]).then((msg)=>{
-                    this._lastPongTime = Date.now();
-                    if(checkMCode){
-                        let content = msg.body.content;
-                        if(orgMCode!= content.orgMCode){
-                            let orgs = content.orgs;
-                            if(orgs){
-                                OrgManager.asyResetOrgs(content.orgMCode,orgs,curApp.getCurrentUser().id);
-                            }
-                        }
-                        if(memberMCode!=content.memberMCode){
-                            let members = content.members;
-                            if(members) {
-                                this._checkMembersDiff(members).then((diff)=>{
-                                    LKContactHandler.asyRemoveContacts(diff.removed,curApp.getCurrentUser().id);
-                                    //TODO mark the contact has been unregistered
-                                    this._asyFetchMembers(content.memberMCode,diff.added,diff.modified);
-                                });
-                            }
-
+                let msg = await result[0]._sendMessage(result[1]);
+                this._lastPongTime = Date.now();
+                if(checkMCode){
+                    let content = msg.body.content;
+                    if(orgMCode!= content.orgMCode){
+                        let orgs = content.orgs;
+                        if(orgs){
+                           await OrgManager.asyResetOrgs(content.orgMCode,orgs,curApp.getCurrentUser().id);
                         }
                     }
+                    if(memberMCode!=content.memberMCode){
+                        let members = content.members;
+                        if(members) {
+                            this._checkMembersDiff(members).then((diff)=>{
+                                LKContactHandler.asyRemoveContacts(diff.removed,curApp.getCurrentUser().id);
+                                //TODO mark the contact has been unregistered
+                                this._asyFetchMembers(content.memberMCode,diff.added,diff.modified);
+                            });
+                        }
 
-                });
+                    }
+                }
             }catch (e){
 
             }
@@ -352,7 +350,8 @@ class LKChannel extends WSChannel{
           const psAry = [FlowCursor.setLastFlowId(userId,"deviceDiffReport",
             minPreFlows["deviceDiffReport"]),FlowCursor.setLastFlowId(userId,"group",
             minPreFlows["group"]),ChatManager.asyResetGroups(groups, userId)]
-          return Promise.all(psAry)
+          await Promise.all(psAry)
+            return this.asyGetAllDetainedMsg();
         }else{
           throw msg.body.content.err
         }

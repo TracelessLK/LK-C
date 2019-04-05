@@ -57,7 +57,7 @@ class Device{
                 });
             }
              Promise.all(ps).catch(function (err) {
-                 console.info(err)
+                 //console.info(err)
              });
             resolve()
             // db.transaction((tx)=>{

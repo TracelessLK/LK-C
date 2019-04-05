@@ -336,16 +336,14 @@ class ChatManager extends EventTarget{
     }
 
     async deviceChanged(chatId,changedMembers){
-        await this.asyGetHotChatRandomSent(chatId);//make sure the chat in the recent hot list
         let returnAdded = [];
-        // console.log({changedMembers})
+        await this.asyGetHotChatRandomSent(chatId);//make sure the chat in the recent hot list
         let userId = Application.getCurrentApp().getCurrentUser().id;
         changedMembers.forEach(function(changed){
             LKDeviceHandler.asyAddDevices(userId,changed.id,changed.added);
             LKDeviceHandler.asyRemoveDevices(changed.id,changed.removed);
         });
         // let chat = this._recentChats[this._recentChatsIndex[chatId]];
-
         this._recentChats.forEach((chat)=>{
             let members = chat.members;
             for(let i=0;i<members.length;i++){
