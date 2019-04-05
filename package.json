@@ -1,6 +1,6 @@
 {
   "name": "@lk/LK-C",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "main": "index.js",
   "dependencies": {
     "crypto-js": "^3.1.9-1",
