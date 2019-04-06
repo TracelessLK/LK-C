@@ -412,8 +412,8 @@ class ChatManager extends EventTarget{
 
     async newGroupChat(name,members){
         let chatId = UUID();
+        await Application.getCurrentApp().getLKWSChannel().addGroupChat(chatId,name,members);
         await this.addGroupChat(chatId,name,members,true);
-        return Application.getCurrentApp().getLKWSChannel().addGroupChat(chatId,name,members);
     }
 
     async addGroupChat(chatId,name,members,local){
@@ -433,14 +433,14 @@ class ChatManager extends EventTarget{
      * @param newMembers
      * @returns {Promise.<void>}
      */
-    async newGroupMembers(chatId,newMembers){
+    async newGroupMembers(chatId,name,newMembers){
         // let oldMembers = await LKChatProvider.asyGetGroupMembers(chatId);
         // let curMembers = [];
         // oldMembers.forEach(function (m) {
         //     curMembers.push(m.id);
         // });
         let userId = Application.getCurrentApp().getCurrentUser().id;
-        await Application.getCurrentApp().getLKWSChannel().addGroupMembers(chatId,newMembers);
+        await Application.getCurrentApp().getLKWSChannel().addGroupMembers(chatId,name,newMembers);
         await Chat.addGroupMembers(userId,chatId,newMembers);
         this.fire('groupMemberChange', chatId)
     }
@@ -467,7 +467,8 @@ class ChatManager extends EventTarget{
      */
     async leaveGroup(chatId){
         await Application.getCurrentApp().getLKWSChannel().leaveGroup(chatId);
-        return this.deleteGroup(chatId);
+        await this.deleteGroup(chatId);
+        this.fire("recentChanged");
     }
 
     deleteGroup(chatId){

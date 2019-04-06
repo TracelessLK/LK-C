@@ -767,8 +767,8 @@ class LKChannel extends WSChannel{
             this._reportMsgHandled(msg.header.flowId,msg.header.flowType);
         });
     }
-    async addGroupMembers(chatId,newMembers){
-        let result = await Promise.all([this.applyChannel(),this._asyNewRequest("addGroupMembers",{chatId:chatId,members:newMembers})]);
+    async addGroupMembers(chatId,chatName,newMembers){
+        let result = await Promise.all([this.applyChannel(),this._asyNewRequest("addGroupMembers",{chatId:chatId,name:chatName,members:newMembers})]);
         return result[0]._sendMessage(result[1]);
     }
     async addGroupMembersHandler(msg){
