@@ -130,6 +130,10 @@ class ContactManager extends EventTarget {
         await Contact.setContactName(name, id)
         // this.fire("contactChanged");
     }
+
+    async setContactPic(pic,id){
+        await Contact.setContactPic(pic,id)
+    }
 }
 
 
