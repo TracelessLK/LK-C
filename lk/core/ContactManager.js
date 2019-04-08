@@ -125,6 +125,11 @@ class ContactManager extends EventTarget {
     asyGetgroupMemberImg(chatId) {
         return LKContactProvider.asyGetgroupMemberImg(chatId)
     }
+
+    async setContactName(name,id){
+        await Contact.setContactName(name, id)
+        // this.fire("contactChanged");
+    }
 }
 
 

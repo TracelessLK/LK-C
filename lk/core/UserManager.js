@@ -3,6 +3,7 @@ const EventTarget = require( '../../common/core/EventTarget')
 const LKUserHandler = require( '../logic/handler/LKUserHandler')
 const LKLoginHandler = require( '../logic/handler/LKLoginHandler')
 const LKUserProvider = require( '../logic/provider/LKUserProvider')
+const ContactManager = require('./ContactManager')
 
 class UserManager extends EventTarget{
 
@@ -20,6 +21,7 @@ class UserManager extends EventTarget{
         let user = Application.getCurrentApp().getCurrentUser();
         await LKUserHandler.asySetUserName(name,user.id);
         user.name = name;
+        await ContactManager.setContactName(name, user.id)
       this.fire("nameChanged");
     }
     async setUserPic(pic){
