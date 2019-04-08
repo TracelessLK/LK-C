@@ -422,7 +422,7 @@ class LKChannel extends WSChannel{
                 oldMsg.content.data =  LZBase64String.compressToUTF16(oldMsg.content.data);
                 oldMsg.content.compress = true;
             }
-            let result = await Promise.all([this.applyChannel(),this._asyNewRequest("sendMsg",{type:oldMsg.type,data:oldMsg.content},{isGroup:chat.isGroup,time:oldMsg.sendTime,chatId:chatId,relativeMsgId:oldMsg.relativeMsgId,id:oldMsg.id,order:oldMsg.order})]);
+            let result = await Promise.all([this.applyChannel(),this._asyNewRequest("sendMsg",{type:oldMsg.type,data:oldMsg.type=="0"?oldMsg.content:JSON.parse(oldMsg.content)},{isGroup:chat.isGroup,time:oldMsg.sendTime,chatId:chatId,relativeMsgId:oldMsg.relativeMsgId,id:oldMsg.id,order:oldMsg.order})]);
             result[0]._sendMessage(result[1]).then((resp)=>{
                 LKChatHandler.asyUpdateMsgState(userId,chatId,msgId,ChatManager.MESSAGE_STATE_SERVER_RECEIVE).then(()=>{
                     ChatManager.fire("msgChanged",chatId);
@@ -495,6 +495,10 @@ class LKChannel extends WSChannel{
                 let chat = result[0] ;
                 let oldMsg = result[1] ;
                 if(oldMsg){
+                    if(oldMsg.type===ChatManager.MESSAGE_TYPE_IMAGE||oldMsg.type===ChatManager.MESSAGE_TYPE_AUDIO){
+                        oldMsg.content.data =  LZBase64String.compressToUTF16(oldMsg.content.data);
+                        oldMsg.content.compress = true;
+                    }
                     this._asyNewRequest("sendMsg2",{type:oldMsg.type,data:oldMsg.type=="0"?oldMsg.content:JSON.parse(oldMsg.content)},{isGroup:chat.isGroup,time:oldMsg.sendTime,chatId:chatId,relativeMsgId:oldMsg.relativeMsgId,id:oldMsg.id,targets:added,order:oldMsg.order}).then((req)=>{
                         this._sendMessage(req).then((resp)=>{
                             this._reportMsgHandled(header.flowId,header.flowType);
@@ -609,7 +613,7 @@ class LKChannel extends WSChannel{
                 let data = bytes.toString(CryptoJS.enc.Utf8);
                 content.data  = JSON.parse(data);
             }catch (e){
-                console.error(e);
+                console.info(e);
             }
 
         }
