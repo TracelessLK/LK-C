@@ -21,7 +21,6 @@ class UserManager extends EventTarget{
         let user = Application.getCurrentApp().getCurrentUser();
         await LKUserHandler.asySetUserName(name,user.id);
         user.name = name;
-        await ContactManager.setContactName(name, user.id)
       this.fire("nameChanged");
     }
     async setUserPic(pic){
@@ -29,7 +28,6 @@ class UserManager extends EventTarget{
         let user = Application.getCurrentApp().getCurrentUser();
         await LKUserHandler.asySetUserPic(pic,user.id);
         user.pic = pic;
-        await ContactManager.setContactPic(pic,user.id)
       this.fire("picChanged");
     }
     async asyLogin(userId,password,pwdHash){
