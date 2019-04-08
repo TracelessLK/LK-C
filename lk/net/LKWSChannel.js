@@ -602,20 +602,19 @@ class LKChannel extends WSChannel{
         let body = msg.body;
         let random = header.target.random;
         let key = ChatManager.getHotChatKeyReceived(chatId,header.did,random);
-        let msgDecrypted = msg.body.content;
-
-        if(msgDecrypted.type==ChatManager.MESSAGE_TYPE_TEXT){
+        let content = JSON.parse(msg.body.content);
+        if(content.type==ChatManager.MESSAGE_TYPE_TEXT){
             try{
-                var bytes  = CryptoJS.AES.decrypt(msgDecrypted.data.toString(), key);
+                var bytes  = CryptoJS.AES.decrypt(content.data.toString(), key);
                 let data = bytes.toString(CryptoJS.enc.Utf8);
-                msgDecrypted.data  = data;
+                content.data  = JSON.parse(data);
             }catch (e){
                 console.error(e);
             }
 
         }
 
-        let content = JSON.parse(msgDecrypted);
+
         let state = userId===header.uid?ChatManager.MESSAGE_STATE_SERVER_RECEIVE:null;
         if((content.type===ChatManager.MESSAGE_TYPE_IMAGE||content.type===ChatManager.MESSAGE_TYPE_AUDIO)&&content.data.compress){
             content.data.data = LZBase64String.decompressFromUTF16(content.data.data);
