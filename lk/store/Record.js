@@ -519,7 +519,14 @@ class Record{
       const sql = `select * from record  where ownerUserId=? and chatId=?  order by sendTime desc limit 1`
       const db = new DBProxy()
       db.transaction(() => {
-        db.getAll(sql,[userId, chatId], result => {
+        db.getAll(sql,[userId, chatId], recordAry => {
+          const {length} = recordAry
+          let result
+          if (length) {
+            result = recordAry[0]
+          } else {
+            result = null
+          }
           resolve(result)
         }, reject)
       })
