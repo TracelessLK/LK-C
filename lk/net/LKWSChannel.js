@@ -13,6 +13,7 @@ const LKChatProvider = require('../logic/provider/LKChatProvider')
 const MFApplyManager = require('../core/MFApplyManager')
 const FlowCursor = require('../store/FlowCursor')
 const LZBase64String = require('../../common/util/lz-base64-string')
+const CryptoJS = require('crypto-js');
 
 class LKChannel extends WSChannel{
 
@@ -65,7 +66,7 @@ class LKChannel extends WSChannel{
                     let userId = Application.getCurrentApp().getCurrentUser().id;
                     FlowCursor.getLastFlowId(userId,header.flowType).then((lastFlowId)=>{
                         if(lastFlowId){
-                            if(header.preFlowId===lastFlowId){
+                            if(header.preFlowId==lastFlowId){
                                 handler.call(this,msg);
                             }else{
                                 this._putFlowPool(header.preFlowId,msg);
@@ -173,8 +174,11 @@ class LKChannel extends WSChannel{
                     msg.body.chatId = chatId;
                     msg.body.relativeMsgId = relativeMsgId;
                     msg.body.order=option.order||ChatManager.getChatSendOrder(chatId);
-                    // msg.body.content = option.content||CryptoJS.AES.encrypt(JSON.stringify(content), chat.key).toString();
-                    msg.body.content = option.content||JSON.stringify(content);
+                    if(content&&content.type==ChatManager.MESSAGE_TYPE_TEXT){
+                        content.data = CryptoJS.AES.encrypt(JSON.stringify(content.data), chat.key).toString()
+                    }
+                    msg.body.content = JSON.stringify(content);
+                    //msg.body.content = option.content||JSON.stringify(content);
                     // console.log({content: msg.body.content})
                 }
             }
@@ -291,30 +295,28 @@ class LKChannel extends WSChannel{
                     result = await Promise.all([this.applyChannel(),this._asyNewRequest("ping")]);
                 }
 
-                result[0]._sendMessage(result[1]).then((msg)=>{
-                    this._lastPongTime = Date.now();
-                    if(checkMCode){
-                        let content = msg.body.content;
-                        if(orgMCode!= content.orgMCode){
-                            let orgs = content.orgs;
-                            if(orgs){
-                                OrgManager.asyResetOrgs(content.orgMCode,orgs,curApp.getCurrentUser().id);
-                            }
-                        }
-                        if(memberMCode!=content.memberMCode){
-                            let members = content.members;
-                            if(members) {
-                                this._checkMembersDiff(members).then((diff)=>{
-                                    LKContactHandler.asyRemoveContacts(diff.removed,curApp.getCurrentUser().id);
-                                    //TODO mark the contact has been unregistered
-                                    this._asyFetchMembers(content.memberMCode,diff.added,diff.modified);
-                                });
-                            }
-
+                let msg = await result[0]._sendMessage(result[1]);
+                this._lastPongTime = Date.now();
+                if(checkMCode){
+                    let content = msg.body.content;
+                    if(orgMCode!= content.orgMCode){
+                        let orgs = content.orgs;
+                        if(orgs){
+                           await OrgManager.asyResetOrgs(content.orgMCode,orgs,curApp.getCurrentUser().id);
                         }
                     }
+                    if(memberMCode!=content.memberMCode){
+                        let members = content.members;
+                        if(members) {
+                            this._checkMembersDiff(members).then((diff)=>{
+                                LKContactHandler.asyRemoveContacts(diff.removed,curApp.getCurrentUser().id);
+                                //TODO mark the contact has been unregistered
+                                this._asyFetchMembers(content.memberMCode,diff.added,diff.modified);
+                            });
+                        }
 
-                });
+                    }
+                }
             }catch (e){
 
             }
@@ -352,7 +354,8 @@ class LKChannel extends WSChannel{
           const psAry = [FlowCursor.setLastFlowId(userId,"deviceDiffReport",
             minPreFlows["deviceDiffReport"]),FlowCursor.setLastFlowId(userId,"group",
             minPreFlows["group"]),ChatManager.asyResetGroups(groups, userId)]
-          return Promise.all(psAry)
+          await Promise.all(psAry)
+            return this.asyGetAllDetainedMsg();
         }else{
           throw msg.body.content.err
         }
@@ -419,7 +422,7 @@ class LKChannel extends WSChannel{
                 oldMsg.content.data =  LZBase64String.compressToUTF16(oldMsg.content.data);
                 oldMsg.content.compress = true;
             }
-            let result = await Promise.all([this.applyChannel(),this._asyNewRequest("sendMsg",{type:oldMsg.type,data:oldMsg.content},{isGroup:chat.isGroup,time:oldMsg.sendTime,chatId:chatId,relativeMsgId:oldMsg.relativeMsgId,id:oldMsg.id,order:oldMsg.order})]);
+            let result = await Promise.all([this.applyChannel(),this._asyNewRequest("sendMsg",{type:oldMsg.type,data:oldMsg.type=="0"?oldMsg.content:JSON.parse(oldMsg.content)},{isGroup:chat.isGroup,time:oldMsg.sendTime,chatId:chatId,relativeMsgId:oldMsg.relativeMsgId,id:oldMsg.id,order:oldMsg.order})]);
             result[0]._sendMessage(result[1]).then((resp)=>{
                 LKChatHandler.asyUpdateMsgState(userId,chatId,msgId,ChatManager.MESSAGE_STATE_SERVER_RECEIVE).then(()=>{
                     ChatManager.fire("msgChanged",chatId);
@@ -452,6 +455,8 @@ class LKChannel extends WSChannel{
         }else if(content.type===ChatManager.MESSAGE_TYPE_AUDIO){
             sendContent = {type:content.type,data:{compress:true,ext:content.data.ext}};
             sendContent.data.data = LZBase64String.compressToUTF16(content.data.data);
+        }else if(content.type===ChatManager.MESSAGE_TYPE_TEXT){
+            sendContent = {type:content.type,data:content.data};
         }
         let result = await Promise.all([this.applyChannel(),this._asyNewRequest("sendMsg",sendContent,{isGroup:isGroup,chatId:chatId,relativeMsgId:relativeMsgId})]);
         let msgId = result[1].header.id;
@@ -483,13 +488,17 @@ class LKChannel extends WSChannel{
         let chatId = content.chatId;
         let diff = content.diff;
         if(diff){
-            let added = ChatManager.deviceChanged(chatId,diff);
+            let added = await ChatManager.deviceChanged(chatId,diff);
             if(added&&added.length>0){
                 let userId = Application.getCurrentApp().getCurrentUser().id;
                 let result = await Promise.all([LKChatProvider.asyGetChat(userId,chatId),LKChatProvider.asyGetMsg(userId,chatId,msgId,true)]);
                 let chat = result[0] ;
                 let oldMsg = result[1] ;
                 if(oldMsg){
+                    if(oldMsg.type===ChatManager.MESSAGE_TYPE_IMAGE||oldMsg.type===ChatManager.MESSAGE_TYPE_AUDIO){
+                        oldMsg.content.data =  LZBase64String.compressToUTF16(oldMsg.content.data);
+                        oldMsg.content.compress = true;
+                    }
                     this._asyNewRequest("sendMsg2",{type:oldMsg.type,data:oldMsg.type=="0"?oldMsg.content:JSON.parse(oldMsg.content)},{isGroup:chat.isGroup,time:oldMsg.sendTime,chatId:chatId,relativeMsgId:oldMsg.relativeMsgId,id:oldMsg.id,targets:added,order:oldMsg.order}).then((req)=>{
                         this._sendMessage(req).then((resp)=>{
                             this._reportMsgHandled(header.flowId,header.flowType);
@@ -597,11 +606,19 @@ class LKChannel extends WSChannel{
         let body = msg.body;
         let random = header.target.random;
         let key = ChatManager.getHotChatKeyReceived(chatId,header.did,random);
-        // var bytes  = CryptoJS.AES.decrypt(msg.body.content.toString(), key);
-        // let content = JSON.parse(bytes.toString(CryptoJS.enc.Utf8))
-        // const msgDecrypted = bytes.toString(msg.body.content)
-        const msgDecrypted = msg.body.content
-        let content = JSON.parse(msgDecrypted);
+        let content = JSON.parse(msg.body.content);
+        if(content.type==ChatManager.MESSAGE_TYPE_TEXT){
+            try{
+                var bytes  = CryptoJS.AES.decrypt(content.data.toString(), key);
+                let data = bytes.toString(CryptoJS.enc.Utf8);
+                content.data  = JSON.parse(data);
+            }catch (e){
+                console.info(e);
+            }
+
+        }
+
+
         let state = userId===header.uid?ChatManager.MESSAGE_STATE_SERVER_RECEIVE:null;
         if((content.type===ChatManager.MESSAGE_TYPE_IMAGE||content.type===ChatManager.MESSAGE_TYPE_AUDIO)&&content.data.compress){
             content.data.data = LZBase64String.decompressFromUTF16(content.data.data);
@@ -768,8 +785,8 @@ class LKChannel extends WSChannel{
             this._reportMsgHandled(msg.header.flowId,msg.header.flowType);
         });
     }
-    async addGroupMembers(chatId,newMembers){
-        let result = await Promise.all([this.applyChannel(),this._asyNewRequest("addGroupMembers",{chatId:chatId,members:newMembers})]);
+    async addGroupMembers(chatId,chatName,newMembers){
+        let result = await Promise.all([this.applyChannel(),this._asyNewRequest("addGroupMembers",{chatId:chatId,name:chatName,members:newMembers})]);
         return result[0]._sendMessage(result[1]);
     }
     async addGroupMembersHandler(msg){

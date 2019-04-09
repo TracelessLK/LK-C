@@ -64,13 +64,13 @@ class MagicCode{
                         let sql = "insert into magicCode(memberMCode,ownerUserId) values (?,?)";
                         db.run(sql,[code,userId],function () {
                             resolve();
-                        },function (err) {
+                        }, (err)=> {
                             reject(err);
                         });
                     });
 
                 }
-            });
+            })
 
         });
     }

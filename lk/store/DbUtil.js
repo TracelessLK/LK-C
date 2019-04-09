@@ -14,10 +14,30 @@ const updateSqlObj = {
   `
 }
 
+const versionAry = Object.keys(updateSqlObj)
+
 class DbUtil {
   static async prepareDb() {
     let db = new DBProxy();
     db.serialize(async () => {
+      const allTableAry = await DbUtil.getAllTableAry()
+
+      //如果没有contact, db_version表,说明数据库重置了,需要插入最新数据库版本号
+      if (!allTableAry.includes('contact') && !allTableAry.includes('db_version')) {
+        const insertDbVersionSqlAry = [
+          `
+create table if not exists db_version(
+  version varchar(100),
+  description TEXT,
+  updateAt datetime,
+  engineVersion varchar(100),
+  primary key(version)
+)`,
+          `insert into db_version values('${_.last(versionAry)}', ' ', '${moment().format('YYYY-MM-DD h:mm:ss')}', '${require('../../package.json').version}')`
+        ]
+        await DbUtil.runSqlBatch(insertDbVersionSqlAry)
+
+      }
       const sqlAry = [
         "create table if not exists chat(id TEXT,ownerUserId TEXT,name TEXT,createTime INTEGER,topTime INTEGER,isGroup INTEGER,reserve1 TEXT,PRIMARY KEY(ownerUserId,id))",
         "create table if not exists groupMember(ownerUserId TEXT,chatId TEXT,contactId TEXT,reserve1 TEXT,primary key(chatId,contactId))",
@@ -37,11 +57,7 @@ class DbUtil {
       })
       await Promise.all(psAry)
       await DbUtil.updateDb()
-      DbUtil.createView()
-      if (displayAllData) {
-        const result = await DbUtil.getAllData('lkuser')
-        console.log(result)
-      }
+      prepareDbAsyncTask()
     })
   }
 
@@ -64,6 +80,7 @@ create table if not exists db_version(
       const recentVersion = versionRecordAry[0].version
       updateAry = versionKeyAry.slice(versionKeyAry.indexOf(recentVersion) + 1)
     }
+
     for (let ele of updateAry) {
       const sqlBlock = updateSqlObj[ele]
       for(let sentence of sqlBlock.split(';')){
@@ -183,47 +200,85 @@ create table if not exists db_version(
       })
     })
   }
-  // 如果tableName为空,返回所有数据
-  static async getAllData (tableName) {
-    let tableNameAry = []
-    if(tableName) {
-      tableNameAry.push(tableName)
+  static async runSqlBatch(sqlAry) {
+    for (let sql of sqlAry) {
+      await DbUtil.runSql(sql)
+    }
+  }
+
+  static async getAllTableData(schemeName) {
+    return DbUtil.getAllSchemeData('table', schemeName)
+  }
+
+  static async getAllViewData(schemeName) {
+    return DbUtil.getAllSchemeData('view', schemeName)
+  }
+
+  // 如果schemeName为空,返回所有数据
+  static async getAllSchemeData (type, schemeName) {
+    let nameAry = []
+    if(schemeName) {
+      nameAry.push(schemeName)
     } else {
-      tableNameAry = await DbUtil.getAllTableAry()
+      nameAry = await DbUtil.getAllScheme(type)
     }
     const obj = {}
     const psAry = []
 
-    for(let ele of tableNameAry) {
-      const tableName = ele
+    for(let ele of nameAry) {
       const ps = new Promise(async resolve => {
         const recordAry = await DbUtil.runSql(`
-        select * from ${tableName}
+        select * from ${ele}
       `)
-        obj[tableName] = recordAry
+        obj[ele] = recordAry
         resolve()
       })
       psAry.push(ps)
     }
     await Promise.all(psAry)
     let result = obj
-    if(tableName) {
-      result = obj[tableName]
+    if(schemeName) {
+      result = obj[schemeName]
     }
     return result
   }
 
+  // 获取所有的table
   static async getAllTableAry() {
-    const tableNameAry = await DbUtil.runSql(`SELECT 
+
+    return DbUtil.getAllScheme('table')
+  }
+
+  // 获取所有的view
+  static async getAllViewAry() {
+
+    return DbUtil.getAllScheme('view')
+  }
+
+  // 获取所有的view或table
+  /*
+    * @return array
+   */
+  static async getAllScheme(type) {
+    const nameAry = await DbUtil.runSql(`SELECT 
     name
 FROM 
     sqlite_master 
 WHERE 
-    type ='table' AND 
+    type ='${type}' AND 
     name NOT LIKE 'sqlite_%' order by name`)
-    return tableNameAry.map(ele => {
+    return nameAry.map(ele => {
       return ele.name
     })
+  }
+}
+
+
+async function prepareDbAsyncTask () {
+  await DbUtil.createView()
+  if (displayAllData) {
+    const result = await DbUtil.getAllTableAry()
+    console.log(result)
   }
 }
 

@@ -3,6 +3,7 @@ const EventTarget = require( '../../common/core/EventTarget')
 const LKUserHandler = require( '../logic/handler/LKUserHandler')
 const LKLoginHandler = require( '../logic/handler/LKLoginHandler')
 const LKUserProvider = require( '../logic/provider/LKUserProvider')
+const ContactManager = require('./ContactManager')
 
 class UserManager extends EventTarget{
 

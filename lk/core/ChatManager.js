@@ -335,9 +335,9 @@ class ChatManager extends EventTarget{
         return this._sendOrderSeed+sendOrder;
     }
 
-    deviceChanged(chatId,changedMembers){
+    async deviceChanged(chatId,changedMembers){
         let returnAdded = [];
-        // console.log({changedMembers})
+        await this.asyGetHotChatRandomSent(chatId);//make sure the chat in the recent hot list
         let userId = Application.getCurrentApp().getCurrentUser().id;
         changedMembers.forEach(function(changed){
             LKDeviceHandler.asyAddDevices(userId,changed.id,changed.added);
@@ -412,8 +412,8 @@ class ChatManager extends EventTarget{
 
     async newGroupChat(name,members){
         let chatId = UUID();
+        await Application.getCurrentApp().getLKWSChannel().addGroupChat(chatId,name,members);
         await this.addGroupChat(chatId,name,members,true);
-        return Application.getCurrentApp().getLKWSChannel().addGroupChat(chatId,name,members);
     }
 
     async addGroupChat(chatId,name,members,local){
@@ -433,14 +433,14 @@ class ChatManager extends EventTarget{
      * @param newMembers
      * @returns {Promise.<void>}
      */
-    async newGroupMembers(chatId,newMembers){
+    async newGroupMembers(chatId,name,newMembers){
         // let oldMembers = await LKChatProvider.asyGetGroupMembers(chatId);
         // let curMembers = [];
         // oldMembers.forEach(function (m) {
         //     curMembers.push(m.id);
         // });
         let userId = Application.getCurrentApp().getCurrentUser().id;
-        await Application.getCurrentApp().getLKWSChannel().addGroupMembers(chatId,newMembers);
+        await Application.getCurrentApp().getLKWSChannel().addGroupMembers(chatId,name,newMembers);
         await Chat.addGroupMembers(userId,chatId,newMembers);
         this.fire('groupMemberChange', chatId)
     }
@@ -467,7 +467,8 @@ class ChatManager extends EventTarget{
      */
     async leaveGroup(chatId){
         await Application.getCurrentApp().getLKWSChannel().leaveGroup(chatId);
-        return this.deleteGroup(chatId);
+        await this.deleteGroup(chatId);
+        this.fire("recentChanged");
     }
 
     deleteGroup(chatId){
@@ -598,11 +599,19 @@ class ChatManager extends EventTarget{
   asyGetLastMsg(userId, chatId) {
     return Record.getLastMsg(userId, chatId)
   }
+
+  /*
+* @param viewName
+*/
+  asyGetAllViewData(viewName) {
+    return DbUtil.getAllViewData(viewName)
+  }
+
   /*
  * @param tableName
  */
   asyGetAllData(tableName) {
-    return DbUtil.getAllData(tableName)
+    return DbUtil.getAllTableData(tableName)
   }
   /*
    * 获取所有表名
@@ -610,6 +619,14 @@ class ChatManager extends EventTarget{
   getAllTableAry() {
     return DbUtil.getAllTableAry()
   }
+
+  /*
+ * 获取所有view名
+ */
+  getAllViewAry() {
+    return DbUtil.getAllViewAry()
+  }
+
   /*
  * @param sql
  * @param param

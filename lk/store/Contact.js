@@ -285,6 +285,35 @@ class Contact {
             });
         });
     }
+
+    setContactName(name,id){
+        return new Promise((resolve,reject)=>{
+            let db = new DBProxy()
+            db.transaction((tx)=>{
+                let sql = "update contact set name=? where id=?";
+                db.run(sql,[name,id],function () {
+                    resolve();
+                },function (err) {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    setContactPic(pic,id){
+        return new Promise((resolve,reject)=>{
+            let db = new DBProxy()
+            db.transaction((tx)=>{
+                let sql = "update contact set pic=? where id=?";
+                db.run(sql,[pic,id],function () {
+                    resolve();
+                },function (err) {
+                    reject(err);
+                });
+            });
+        });
+    }
+
 }
 
 module.exports = new Contact();
