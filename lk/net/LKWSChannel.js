@@ -100,6 +100,7 @@ class LKChannel extends WSChannel{
     }
 
     _onmessage(message){
+        console.info(message.data);
         let msg = JSON.parse(message.data);
         if(msg.forEach){
             msg.forEach((m)=> {
@@ -174,10 +175,10 @@ class LKChannel extends WSChannel{
                     msg.body.chatId = chatId;
                     msg.body.relativeMsgId = relativeMsgId;
                     msg.body.order=option.order||ChatManager.getChatSendOrder(chatId);
-                    if(content&&content.type==ChatManager.MESSAGE_TYPE_TEXT){
+                    if(content&&content.data){
                         content.data = CryptoJS.AES.encrypt(JSON.stringify(content.data), chat.key).toString()
                     }
-                    msg.body.content = JSON.stringify(content);
+                     msg.body.content = JSON.stringify(content);
                     //msg.body.content = option.content||JSON.stringify(content);
                     // console.log({content: msg.body.content})
                 }
@@ -455,7 +456,7 @@ class LKChannel extends WSChannel{
         }else if(content.type===ChatManager.MESSAGE_TYPE_AUDIO){
             sendContent = {type:content.type,data:{compress:true,ext:content.data.ext}};
             sendContent.data.data = LZBase64String.compressToUTF16(content.data.data);
-        }else if(content.type===ChatManager.MESSAGE_TYPE_TEXT){
+        }else{
             sendContent = {type:content.type,data:content.data};
         }
         let result = await Promise.all([this.applyChannel(),this._asyNewRequest("sendMsg",sendContent,{isGroup:isGroup,chatId:chatId,relativeMsgId:relativeMsgId})]);
@@ -607,17 +608,13 @@ class LKChannel extends WSChannel{
         let random = header.target.random;
         let key = ChatManager.getHotChatKeyReceived(chatId,header.did,random);
         let content = JSON.parse(msg.body.content);
-        if(content.type==ChatManager.MESSAGE_TYPE_TEXT){
-            try{
-                var bytes  = CryptoJS.AES.decrypt(content.data.toString(), key);
-                let data = bytes.toString(CryptoJS.enc.Utf8);
-                content.data  = JSON.parse(data);
-            }catch (e){
-                console.info(e);
-            }
-
+        try{
+            var bytes  = CryptoJS.AES.decrypt(content.data.toString(), key);
+            let data = bytes.toString(CryptoJS.enc.Utf8);
+            content.data  = JSON.parse(data);
+        }catch (e){
+            console.info(e);
         }
-
 
         let state = userId===header.uid?ChatManager.MESSAGE_STATE_SERVER_RECEIVE:null;
         if((content.type===ChatManager.MESSAGE_TYPE_IMAGE||content.type===ChatManager.MESSAGE_TYPE_AUDIO)&&content.data.compress){
