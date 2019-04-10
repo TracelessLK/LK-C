@@ -100,7 +100,7 @@ class LKChannel extends WSChannel{
     }
 
     _onmessage(message){
-        console.info(message.data);
+        // console.info(message.data);
         let msg = JSON.parse(message.data);
         if(msg.forEach){
             msg.forEach((m)=> {
