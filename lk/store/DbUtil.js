@@ -22,8 +22,8 @@ class DbUtil {
     db.serialize(async () => {
       const allTableAry = await DbUtil.getAllTableAry()
 
-      //如果没有contact, db_version表,说明数据库重置了,需要插入最新数据库版本号
-      if (!allTableAry.includes('contact') && !allTableAry.includes('db_version')) {
+      //如果没有contact, db_version表,说明数据库重置了或者初次生成,需要插入最新数据库版本号
+      if (!allTableAry.includes('contact')) {
         const insertDbVersionSqlAry = [
           `
 create table if not exists db_version(
