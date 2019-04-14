@@ -123,7 +123,8 @@ create table if not exists db_version(
         device t1 
         join contact t2   
         on 
-        t1.contactId = t2.id`,
+        t1.contactId = t2.id 
+        order by t2.name`,
       flowCursorView: `create view if not exists flowCursorView as 
         select 
         t2.name lkuserName,
