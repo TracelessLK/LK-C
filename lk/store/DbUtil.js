@@ -171,12 +171,17 @@ create table if not exists db_version(
       recordView: `create view if NOT EXISTS recordView AS
         SELECT t2.name lkuserName,
 		t3.name chatName,
+		t4.name senderName,
 		t1.*
         FROM record t1
         JOIN lkuser t2
         JOIN chat t3
+        join contact t4
 	    ON t1.ownerUserId = t2.id
-		AND t1.chatId = t3.id`
+		AND t1.chatId = t3.id
+		and t4.id = t1.senderUid
+		
+		`
     }
     const viewAry = Object.keys(viewWrapper)
     // drop all view
