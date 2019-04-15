@@ -44,6 +44,9 @@ class FlowCursor{
                     }
                     let db = new DBProxy()
                     db.transaction(()=>{
+                        if(!flowId){
+                            flowId="";
+                        }
                         db.run(sql,[flowId,userId,flowType], ()=> {
                             this._flows.set(userId+flowType,flowId);
                             resolve();
