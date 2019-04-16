@@ -34,7 +34,7 @@ class FlowCursor{
 
     setLastFlowId(userId,flowType,flowId){
         return new Promise((resolve,reject)=>{
-            if(flowId&&flowType){
+            if(flowType){
                 this.getLastFlowId(userId,flowType).then((fid,hasRec)=>{
                     let sql;
                     if(!fid&&hasRec!==true){
@@ -44,6 +44,9 @@ class FlowCursor{
                     }
                     let db = new DBProxy()
                     db.transaction(()=>{
+                        if(!flowId){
+                            flowId="";
+                        }
                         db.run(sql,[flowId,userId,flowType], ()=> {
                             this._flows.set(userId+flowType,flowId);
                             resolve();

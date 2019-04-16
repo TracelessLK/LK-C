@@ -22,8 +22,8 @@ class DbUtil {
     db.serialize(async () => {
       const allTableAry = await DbUtil.getAllTableAry()
 
-      //如果没有contact, db_version表,说明数据库重置了,需要插入最新数据库版本号
-      if (!allTableAry.includes('contact') && !allTableAry.includes('db_version')) {
+      //如果没有contact, db_version表,说明数据库重置了或者初次生成,需要插入最新数据库版本号
+      if (!allTableAry.includes('contact')) {
         const insertDbVersionSqlAry = [
           `
 create table if not exists db_version(
@@ -123,7 +123,8 @@ create table if not exists db_version(
         device t1 
         join contact t2   
         on 
-        t1.contactId = t2.id`,
+        t1.contactId = t2.id 
+        order by t2.name`,
       flowCursorView: `create view if not exists flowCursorView as 
         select 
         t2.name lkuserName,
@@ -171,12 +172,17 @@ create table if not exists db_version(
       recordView: `create view if NOT EXISTS recordView AS
         SELECT t2.name lkuserName,
 		t3.name chatName,
+		t4.name senderName,
 		t1.*
         FROM record t1
         JOIN lkuser t2
         JOIN chat t3
+        join contact t4
 	    ON t1.ownerUserId = t2.id
-		AND t1.chatId = t3.id`
+		AND t1.chatId = t3.id
+		and t4.id = t1.senderUid
+		
+		`
     }
     const viewAry = Object.keys(viewWrapper)
     // drop all view
