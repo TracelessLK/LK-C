@@ -72,9 +72,20 @@ class LKApplication extends Application {
   }
 
   asyRegister (user, venderDid, checkCode, qrcode, description,introducerDid) {
+    return this.register({
+      user, venderDid, checkCode, qrcode, description,introducerDid,
+      requestName: 'register'
+    })
+  }
+
+  updateRegister({user, venderDid, description}) {
+    return this.register({user, venderDid, description, requestName: 'updateRegister'})
+  }
+
+  register ({user, venderDid, checkCode, qrcode, description, introducerDid, requestName}) {
     let channel = new (ConfigManager.getWSChannel())('ws://' + user.serverIP + ':' + user.serverPort, true)
     return new Promise((resolve, reject) => {
-      channel.asyRegister(user.serverIP, user.serverPort, user.id, user.deviceId, venderDid, user.publicKey, checkCode, qrcode, description,introducerDid).then(function (msg) {
+      channel.asyRegister(user.serverIP, user.serverPort, user.id, user.deviceId, venderDid, user.publicKey, checkCode, qrcode, description,introducerDid, requestName).then(function (msg) {
         let content = msg.body.content
         if (content.error) {
           reject(content.error)

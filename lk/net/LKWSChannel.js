@@ -367,9 +367,9 @@ class LKChannel extends WSChannel{
     return result[0]._sendMessage(result[1]);
   }
 
-   async asyRegister(ip,port,uid,did,venderDid,pk,checkCode,qrCode,description,introducerDid){
+   async asyRegister(ip,port,uid,did,venderDid,pk,checkCode,qrCode,description,introducerDid, requestName){
        let msg = {uid:uid,did:did,venderDid:venderDid,pk:pk,checkCode:checkCode,qrCode:qrCode,description:description,introducerDid:introducerDid};
-       let result = await Promise.all([this.applyChannel(),this._asyNewRequest("register",msg)]);
+       let result = await Promise.all([this.applyChannel(),this._asyNewRequest(requestName,msg)]);
        return result[0]._sendMessage(result[1],60000);
     }
 
