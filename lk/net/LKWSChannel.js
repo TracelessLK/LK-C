@@ -624,7 +624,7 @@ class LKChannel extends WSChannel{
         this._reportMsgHandled(header.flowId,header.flowType);
         this._checkChatMsgPool(chatId,header.id,receiveOrder);
 
-        this._delayFire("msgChanged",chatId);
+        //this._delayFire("msgChanged",chatId);
 
         //ChatManager.fire("msgChanged",chatId);
         const option = {
