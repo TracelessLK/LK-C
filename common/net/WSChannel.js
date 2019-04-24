@@ -70,6 +70,17 @@ class WSChannel extends EventTarget{
 
     }
 
+    asyReset(){
+        return new Promise((resolve,reject)=>{
+            delete this._openPromise;
+            this.applyChannel().then(()=>{
+                resolve()
+                this._onreconnect(this);
+            });
+        })
+
+    }
+
     send(message){
         try{
             this._ws.send(message);

@@ -132,7 +132,6 @@ class Chat{
     }
 
     topChat(userId,chatId){
-        console.log(919)
         return new Promise((resolve,reject)=>{
             let db = new DBProxy()
             db.transaction(()=>{
