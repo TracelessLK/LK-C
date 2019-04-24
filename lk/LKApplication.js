@@ -10,17 +10,10 @@ class LKApplication extends Application {
     super(name)
   }
 
-  setCurrentUser (user,venderId) {
-    const psAry = []
+  setCurrentUser (user,venderId,preventAutoLogin) {
     super.setCurrentUser(user,venderId)
+      delete this._rsa;
 
-    if (user) {
-      let rsa = new RSAKey()
-      rsa.setPrivateString(user.privateKey)
-      this._rsa = rsa
-    } else {
-      delete this._rsa
-    }
 
     let url = user ? 'ws://' + user.serverIP + ':' + user.serverPort : null
     if ((!this._channel) || (this._channel.getUrl() !== url)) {
@@ -38,16 +31,27 @@ class LKApplication extends Application {
         })
       }
     }
-    if (this._channel) {
-      const ps = this._channel.applyChannel().then((channel) => {
-        return channel.asyLogin(user.id, user.password)
-      })
-      psAry.push(ps)
-    }
+
     this.fire('currentUserChanged', user)
     ConfigManager.getChatManager().init(user)
     ConfigManager.getMagicCodeManager().init(user)
-    return Promise.all(psAry)
+      if(preventAutoLogin!==true){
+          this.login()
+      }
+  }
+
+  login(){
+    let user = this._user;
+      if (user) {
+          let rsa = new RSAKey()
+          rsa.setPrivateString(user.privateKey)
+          this._rsa = rsa
+      }
+      if (this._channel) {
+         this._channel.applyChannel().then((channel) => {
+               channel.asyLogin(user.id, user.password)
+          })
+      }
   }
 
   getLogin () {
