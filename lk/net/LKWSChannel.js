@@ -633,8 +633,8 @@ class LKChannel extends WSChannel{
             fromUid: header.uid,
             toUid: header.target.id
         }
-        this._delayFire("msgReceived", option);
-        //ChatManager.fire("msgReceived", option);
+        // this._delayFire("msgReceived", option);
+        ChatManager.fire("msgReceived", option);
     }
 
     async _getReceiveOrder(chatId,relativeMsgId,senderUid,senderDid,sendOrder){
