@@ -524,9 +524,10 @@ class ChatManager extends EventTarget {
      * @param name
      * @returns {Promise.<*|Promise>}
      */
-    async asySetGroupName(chatId, name) {
-        await Application.getCurrentApp().getLKWSChannel().setGroupName(chatId, name);
-        return this.asyUpdateGroupName(chatId, name)
+    async asySetGroupName(chatId,name){
+        await Application.getCurrentApp().getLKWSChannel().setGroupName(chatId,name);
+        this.asyUpdateGroupName(chatId,name)
+        this.fire("recentChanged");
     }
 
     asyUpdateGroupName(chatId, name) {
