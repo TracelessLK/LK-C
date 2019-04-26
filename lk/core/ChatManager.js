@@ -659,6 +659,24 @@ class ChatManager extends EventTarget {
     runSql(sql, param) {
         return DbUtil.runSql(sql, param)
     }
+
+    /**
+     * 消息类型显示
+     * @param stat 类型
+     * @param content 消息内容
+     * @returns {*} 返回结果
+     */
+    asyMessageType(stat, content) {
+        if (stat === 0) {
+            return content
+        } else if (stat === 1) {
+            return '[图片]'
+        } else if (stat === 2) {
+            return '[文件]'
+        } else if (stat === 3) {
+            return '[语音消息]'
+        }
+    }
 }
 
 
