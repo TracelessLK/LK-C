@@ -467,7 +467,8 @@ class ChatManager extends EventTarget {
             ps.push(Chat.addGroupChat(userId, group.id, group.name));
             ps.push(Chat.addGroupMembers(userId, group.id, group.members));
         })
-        await Promise.all(ps);
+        await Promise.all(ps)
+      this.fire('msgChanged')
 
     }
 
