@@ -39,7 +39,7 @@ class ContactManager extends EventTarget {
                 return LKMagicCodeHandler.asyUpdateMemberMagicCode(newMemberMCode, curApp.getCurrentUser().id);
             }).then(() => {
                 MagicCodeManager.setMemberMagicCode(newMemberMCode);
-                this.fire("contactChanged");
+                zthis.fire("contactChanged");
             });
         }
 
