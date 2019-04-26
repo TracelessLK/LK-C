@@ -100,7 +100,6 @@ class LKChannel extends WSChannel{
     }
 
     _onmessage(message){
-        // console.info(message.data);
         let msg = JSON.parse(message.data);
         if(msg.forEach){
             msg.forEach((m)=> {
@@ -367,9 +366,9 @@ class LKChannel extends WSChannel{
     return result[0]._sendMessage(result[1]);
   }
 
-   async asyRegister(ip,port,uid,did,venderDid,pk,checkCode,qrCode,description,introducerDid, requestName){
+   async asyRegister(ip,port,uid,did,venderDid,pk,checkCode,qrCode,description,introducerDid){
        let msg = {uid:uid,did:did,venderDid:venderDid,pk:pk,checkCode:checkCode,qrCode:qrCode,description:description,introducerDid:introducerDid};
-       let result = await Promise.all([this.applyChannel(),this._asyNewRequest(requestName,msg)]);
+       let result = await Promise.all([this.applyChannel(),this._asyNewRequest("register",msg)]);
        return result[0]._sendMessage(result[1],60000);
     }
 
@@ -471,6 +470,7 @@ class LKChannel extends WSChannel{
         }
         await LKChatHandler.asyAddMsg(userId,chatId,msgId,userId,did,content.type,content.data,time,ChatManager.MESSAGE_STATE_SENDING,relativeMsgId,relativeOrder,curTime,result[1].body.order);
         ChatManager.fire("msgChanged",chatId);
+        await ChatManager.asytopChat(userId,chatId)
         result[0]._sendMessage(result[1]).then((resp)=>{
                 LKChatHandler.asyUpdateMsgState(userId,chatId,msgId,ChatManager.MESSAGE_STATE_SERVER_RECEIVE).then(()=>{
                     ChatManager.fire("msgChanged",chatId);
@@ -627,9 +627,12 @@ class LKChannel extends WSChannel{
         //this._delayFire("msgChanged",chatId);
 
         //ChatManager.fire("msgChanged",chatId);
+        var MsgsOneData = await ChatManager.asyGetLastMsg(userId, chatId)
         const option = {
             isFromSelf: userId === header.uid,
             chatId,
+            content:MsgsOneData.content,
+            name:MsgsOneData.name,
             fromUid: header.uid,
             toUid: header.target.id
         }
@@ -721,7 +724,7 @@ class LKChannel extends WSChannel{
         ChatManager.msgReadReport(msg.header.uid,chatId,msgIds,ChatManager.MESSAGE_STATE_TARGET_READ).then((result)=>{
             if(result.isAllUpdate)
                 this._reportMsgHandled(msg.header.flowId,msg.header.flowType);
-            if(result.updateNum>0)
+            if(result.updateNum>=0)
                 ChatManager.fire("msgChanged",chatId);
         });
 
