@@ -623,9 +623,7 @@ class LKChannel extends WSChannel{
         await LKChatHandler.asyAddMsg(userId,chatId,header.id,header.uid,header.did,content.type,content.data,header.time,state,body.relativeMsgId,relativeOrder,receiveOrder,body.order);
         this._reportMsgHandled(header.flowId,header.flowType);
         this._checkChatMsgPool(chatId,header.id,receiveOrder);
-
-        //this._delayFire("msgChanged",chatId);
-
+        this._delayFire("msgChanged",chatId);
         //ChatManager.fire("msgChanged",chatId);
         var MsgsOneData = await ChatManager.asyGetLastMsg(userId, chatId)
         const option = {
@@ -636,8 +634,11 @@ class LKChannel extends WSChannel{
             fromUid: header.uid,
             toUid: header.target.id
         }
-        // this._delayFire("msgReceived", option);
+         //this._delayFire("msgReceived", option);
         ChatManager.fire("msgReceived", option);
+        await ChatManager.asytopChat(userId,chatId)
+
+
     }
 
     async _getReceiveOrder(chatId,relativeMsgId,senderUid,senderDid,sendOrder){
