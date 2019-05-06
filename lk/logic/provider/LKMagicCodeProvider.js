@@ -1,7 +1,9 @@
 const MagicCode = require('../../store/MagicCode')
-class LKMagicCodeProvider{
-    asyGetMagicCode(userId){
-        return MagicCode.getMagicCode(userId);
-    }
+
+class LKMagicCodeProvider {
+  asyGetMagicCode(userId) {
+    return MagicCode.getMagicCode(userId)
+  }
 }
-module.exports = new LKMagicCodeProvider();
+
+module.exports = new LKMagicCodeProvider()

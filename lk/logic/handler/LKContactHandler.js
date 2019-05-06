@@ -1,19 +1,21 @@
 const Contact = require('../../store/Contact')
-class LKContactHandler{
-    asyResetContacts(members,friends,groupContacts,userId){
-        return Contact.resetContacts(members,friends,groupContacts,userId);
-    }
 
-    asyRemoveContacts(ids,userId){
-        return Contact.removeContacts(ids,userId);
-    }
+class LKContactHandler {
+  asyResetContacts(members, friends, groupContacts, userId) {
+    return Contact.resetContacts(members, friends, groupContacts, userId)
+  }
 
-    asyRebuidMembers(ids,newMembers,userId){
-        return Contact.rebuidMembers(ids,newMembers,userId);
-    }
+  asyRemoveContacts(ids, userId) {
+    return Contact.removeContacts(ids, userId)
+  }
 
-    asyAddNewFriend(friend,userId){
-        return Contact.addNewFriends([friend],userId);
-    }
+  asyRebuidMembers(ids, newMembers, userId) {
+    return Contact.rebuidMembers(ids, newMembers, userId)
+  }
+
+  asyAddNewFriend(friend, userId) {
+    return Contact.addNewFriends([friend], userId)
+  }
 }
-module.exports = new LKContactHandler();
+
+module.exports = new LKContactHandler()

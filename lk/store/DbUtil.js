@@ -3,7 +3,8 @@ const moment = require('moment')
 
 const DBProxy = require('../../common/store/DBProxy')
 const config = require('../../config')
-const {displayAllData} = config
+
+const { displayAllData } = config
 
 const updateSqlObj = {
   '0.0.1': `
@@ -18,11 +19,11 @@ const versionAry = Object.keys(updateSqlObj)
 
 class DbUtil {
   static async prepareDb() {
-    let db = new DBProxy();
+    const db = new DBProxy()
     db.serialize(async () => {
       const allTableAry = await DbUtil.getAllTableAry()
 
-      //如果没有contact, db_version表,说明数据库重置了或者初次生成,需要插入最新数据库版本号
+      // 如果没有contact, db_version表,说明数据库重置了或者初次生成,需要插入最新数据库版本号
       if (!allTableAry.includes('contact')) {
         const insertDbVersionSqlAry = [
           `
@@ -36,32 +37,29 @@ create table if not exists db_version(
           `insert into db_version values('${_.last(versionAry)}', ' ', '${moment().format('YYYY-MM-DD h:mm:ss')}', '${require('../../package.json').version}')`
         ]
         await DbUtil.runSqlBatch(insertDbVersionSqlAry)
-
       }
       const sqlAry = [
-        "create table if not exists chat(id TEXT,ownerUserId TEXT,name TEXT,createTime INTEGER,topTime INTEGER,isGroup INTEGER,reserve1 TEXT,PRIMARY KEY(ownerUserId,id))",
-        "create table if not exists groupMember(ownerUserId TEXT,chatId TEXT,contactId TEXT,reserve1 TEXT,primary key(chatId,contactId))",
-        //include org members 0 & foreign contacts 1 & group contacts 2
-        "create table if not exists contact(id TEXT,name TEXT,pic TEXT,serverIP TEXT,serverPort INTEGER,relation INTEGER,orgId TEXT,mCode TEXT,ownerUserId TEXT,reserve1 TEXT,PRIMARY KEY(id,ownerUserId))",
-        "create table if not exists device(ownerUserId TEXT,id TEXT PRIMARY KEY NOT NULL,publicKey TEXT,contactId TEXT,remark TEXT,reserve1 TEXT)",
-        "create table if not exists flowCursor(ownerUserId TEXT,flowId TEXT not null,flowType TEXT,PRIMARY KEY(ownerUserId,flowType))",
-        "create table if not exists lkuser(id TEXT PRIMARY KEY NOT NULL,name TEXT,pic TEXT,publicKey TEXT,privateKey TEXT,deviceId TEXT,serverIP TEXT,serverPort INTEGER,serverPublicKey TEXT,orgId TEXT,mCode TEXT,password TEXT,reserve1 TEXT)",
-        "create table if not exists magicCode(ownerUserId TEXT PRIMARY KEY NOT NULL,orgMCode TEXT,memberMCode TEXT,reserve1 TEXT)",
-        "create table if not exists mfapply(ownerUserId TEXT,id TEXT NOT NULL,name TEXT,pic TEXT,serverIP TEXT,serverPort INTEGER,mCode TEXT,time INTEGER,state INTEGER,PRIMARY KEY(ownerUserId,id))",
-        "create table if not exists org(id TEXT PRIMARY KEY NOT NULL,name TEXT,parentId TEXT,ownerUserId TEXT,reserve1 TEXT)",
-        "create table if not exists record(ownerUserId TEXT,chatId TEXT,id TEXT,senderUid TEXT,senderDid TEXT,type INTEGER,content TEXT,sendTime INTEGER,eventTime INTEGER,state INTEGER,readState INTEGER,readTime INTEGER,playState INTEGER,relativeMsgId TEXT,relativeOrder INTEGER,receiveOrder INTEGER,sendOrder INTEGER,PRIMARY KEY(ownerUserId,chatId,id))",
-        "create table if not exists group_record_state(ownerUserId TEXT,chatId TEXT,msgId TEXT ,reporterUid TEXT NOT NULL,state INTEGER,PRIMARY KEY(ownerUserId,chatId,msgId,reporterUid))"
+        'create table if not exists chat(id TEXT,ownerUserId TEXT,name TEXT,createTime INTEGER,topTime INTEGER,isGroup INTEGER,reserve1 TEXT,PRIMARY KEY(ownerUserId,id))',
+        'create table if not exists groupMember(ownerUserId TEXT,chatId TEXT,contactId TEXT,reserve1 TEXT,primary key(chatId,contactId))',
+        // include org members 0 & foreign contacts 1 & group contacts 2
+        'create table if not exists contact(id TEXT,name TEXT,pic TEXT,serverIP TEXT,serverPort INTEGER,relation INTEGER,orgId TEXT,mCode TEXT,ownerUserId TEXT,reserve1 TEXT,PRIMARY KEY(id,ownerUserId))',
+        'create table if not exists device(ownerUserId TEXT,id TEXT PRIMARY KEY NOT NULL,publicKey TEXT,contactId TEXT,remark TEXT,reserve1 TEXT)',
+        'create table if not exists flowCursor(ownerUserId TEXT,flowId TEXT not null,flowType TEXT,PRIMARY KEY(ownerUserId,flowType))',
+        'create table if not exists lkuser(id TEXT PRIMARY KEY NOT NULL,name TEXT,pic TEXT,publicKey TEXT,privateKey TEXT,deviceId TEXT,serverIP TEXT,serverPort INTEGER,serverPublicKey TEXT,orgId TEXT,mCode TEXT,password TEXT,reserve1 TEXT)',
+        'create table if not exists magicCode(ownerUserId TEXT PRIMARY KEY NOT NULL,orgMCode TEXT,memberMCode TEXT,reserve1 TEXT)',
+        'create table if not exists mfapply(ownerUserId TEXT,id TEXT NOT NULL,name TEXT,pic TEXT,serverIP TEXT,serverPort INTEGER,mCode TEXT,time INTEGER,state INTEGER,PRIMARY KEY(ownerUserId,id))',
+        'create table if not exists org(id TEXT PRIMARY KEY NOT NULL,name TEXT,parentId TEXT,ownerUserId TEXT,reserve1 TEXT)',
+        'create table if not exists record(ownerUserId TEXT,chatId TEXT,id TEXT,senderUid TEXT,senderDid TEXT,type INTEGER,content TEXT,sendTime INTEGER,eventTime INTEGER,state INTEGER,readState INTEGER,readTime INTEGER,playState INTEGER,relativeMsgId TEXT,relativeOrder INTEGER,receiveOrder INTEGER,sendOrder INTEGER,PRIMARY KEY(ownerUserId,chatId,id))',
+        'create table if not exists group_record_state(ownerUserId TEXT,chatId TEXT,msgId TEXT ,reporterUid TEXT NOT NULL,state INTEGER,PRIMARY KEY(ownerUserId,chatId,msgId,reporterUid))'
       ]
-      let psAry = sqlAry.map((ele) => {
-        return DbUtil.runSql(ele)
-      })
+      const psAry = sqlAry.map(ele => DbUtil.runSql(ele))
       await Promise.all(psAry)
       await DbUtil.updateDb()
       prepareDbAsyncTask()
     })
   }
 
-  static async updateDb () {
+  static async updateDb() {
     const sql = `
 create table if not exists db_version(
   version varchar(100),
@@ -71,7 +69,7 @@ create table if not exists db_version(
   primary key(version)
 )`
     await DbUtil.runSql(sql)
-    const versionRecordAry = await DbUtil.runSql(`select * from db_version order by updateAt desc`)
+    const versionRecordAry = await DbUtil.runSql('select * from db_version order by updateAt desc')
     const versionKeyAry = Object.keys(updateSqlObj)
     let updateAry = []
     if (!versionRecordAry.length) {
@@ -81,9 +79,9 @@ create table if not exists db_version(
       updateAry = versionKeyAry.slice(versionKeyAry.indexOf(recentVersion) + 1)
     }
 
-    for (let ele of updateAry) {
+    for (const ele of updateAry) {
       const sqlBlock = updateSqlObj[ele]
-      for(let sentence of sqlBlock.split(';')){
+      for (let sentence of sqlBlock.split(';')) {
         sentence = sentence.trim()
         if (sentence) {
           await DbUtil.runSql(sentence.trim())
@@ -94,13 +92,13 @@ create table if not exists db_version(
 
     if (updateAry.length) {
       const newVersion = _.last(updateAry)
-      const sql = `insert into db_version values('${newVersion}', ' ', '${moment().format('YYYY-MM-DD h:mm:ss')}', '${require('../../package.json').version}')`
-      DbUtil.runSql(sql)
+      const runsql = `insert into db_version values('${newVersion}', ' ', '${moment().format('YYYY-MM-DD h:mm:ss')}', '${require('../../package.json').version}')`
+      DbUtil.runSql(runsql)
     }
   }
 
-  static async createView () {
-    const db = new DBProxy();
+  static async createView() {
+    //const db = new DBProxy()
     let psAry = []
     const viewWrapper = {
       contactView: `create view if not exists contactView as 
@@ -186,15 +184,10 @@ create table if not exists db_version(
     }
     const viewAry = Object.keys(viewWrapper)
     // drop all view
-    psAry = viewAry.map(ele => {
-      return DbUtil.runSql(`drop view if exists ${ele}`)
-    })
+    psAry = viewAry.map(ele => DbUtil.runSql(`drop view if exists ${ele}`))
     await Promise.all(psAry)
-    psAry = viewAry.map((ele) => {
-      return DbUtil.runSql(viewWrapper[ele])
-    })
+    psAry = viewAry.map(ele => DbUtil.runSql(viewWrapper[ele]))
     await Promise.all(psAry)
-
   }
 
 
@@ -206,8 +199,9 @@ create table if not exists db_version(
       })
     })
   }
+
   static async runSqlBatch(sqlAry) {
-    for (let sql of sqlAry) {
+    for (const sql of sqlAry) {
       await DbUtil.runSql(sql)
     }
   }
@@ -221,9 +215,9 @@ create table if not exists db_version(
   }
 
   // 如果schemeName为空,返回所有数据
-  static async getAllSchemeData (type, schemeName) {
+  static async getAllSchemeData(type, schemeName) {
     let nameAry = []
-    if(schemeName) {
+    if (schemeName) {
       nameAry.push(schemeName)
     } else {
       nameAry = await DbUtil.getAllScheme(type)
@@ -231,8 +225,8 @@ create table if not exists db_version(
     const obj = {}
     const psAry = []
 
-    for(let ele of nameAry) {
-      const ps = new Promise(async resolve => {
+    for (const ele of nameAry) {
+      const ps = new Promise(async (resolve) => {
         const recordAry = await DbUtil.runSql(`
         select * from ${ele}
       `)
@@ -243,7 +237,7 @@ create table if not exists db_version(
     }
     await Promise.all(psAry)
     let result = obj
-    if(schemeName) {
+    if (schemeName) {
       result = obj[schemeName]
     }
     return result
@@ -251,13 +245,11 @@ create table if not exists db_version(
 
   // 获取所有的table
   static async getAllTableAry() {
-
     return DbUtil.getAllScheme('table')
   }
 
   // 获取所有的view
   static async getAllViewAry() {
-
     return DbUtil.getAllScheme('view')
   }
 
@@ -273,14 +265,12 @@ FROM
 WHERE 
     type ='${type}' AND 
     name NOT LIKE 'sqlite_%' order by name`)
-    return nameAry.map(ele => {
-      return ele.name
-    })
+    return nameAry.map(ele => ele.name)
   }
 }
 
 
-async function prepareDbAsyncTask () {
+async function prepareDbAsyncTask() {
   await DbUtil.createView()
   if (displayAllData) {
     const result = await DbUtil.getAllTableAry()

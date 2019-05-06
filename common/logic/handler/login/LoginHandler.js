@@ -1,10 +1,11 @@
 
-class LoginHandler{
-    needLogin(){
-        return false;
-    }
-    login(){
-        return null;
-    }
+class LoginHandler {
+  needLogin() {
+    return false
+  }
+
+  login() {
+    return null
+  }
 }
-module.exports = LoginHandler;
+module.exports = LoginHandler

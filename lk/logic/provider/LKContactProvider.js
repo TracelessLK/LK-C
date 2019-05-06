@@ -1,32 +1,33 @@
-
 const Contact = require('../../store/Contact')
-class LKContactProvider{
-    asyGet(userId,contactId){
-        return Contact.get(userId,contactId);
-    }
 
-    asyGetAll(userId){
-        return Contact.getAll(userId);
-    }
+class LKContactProvider {
+  asyGet(userId, contactId) {
+    return Contact.get(userId, contactId)
+  }
 
-    asyGetAllMembers(userId){
-        return Contact.getAll(userId,0);
-    }
+  asyGetAll(userId) {
+    return Contact.getAll(userId)
+  }
 
-    asyGetAllFriends(userId){
-        return Contact.getAll(userId,1);
-    }
+  asyGetAllMembers(userId) {
+    return Contact.getAll(userId, 0)
+  }
 
-    asyGetMembersByOrg(userId,orgId){
-        return Contact.getMembersByOrg(userId,orgId);
-    }
+  asyGetAllFriends(userId) {
+    return Contact.getAll(userId, 1)
+  }
 
-    asySelectAllDevices(contactId){
-        return Contact.selectAllDevices(contactId);
-    }
-    asyGetgroupMemberImg(chatId){
-        return Contact.getgroupMemberImg(chatId)
-    }
+  asyGetMembersByOrg(userId, orgId) {
+    return Contact.getMembersByOrg(userId, orgId)
+  }
+
+  asySelectAllDevices(contactId) {
+    return Contact.selectAllDevices(contactId)
+  }
+
+  asyGetgroupMemberImg(chatId) {
+    return Contact.getgroupMemberImg(chatId)
+  }
 }
-module.exports = new LKContactProvider();
 
+module.exports = new LKContactProvider()

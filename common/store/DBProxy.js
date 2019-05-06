@@ -1,89 +1,88 @@
 const Application = require('../core/Application')
+
 class DBProxy {
-
-    serialize(fn){
-        if(Application.getCurrentApp().getPlatform()===Application.PLATFORM_RN){
-            fn()
-        }else{
-            Application.getCurrentApp().getDataSource().serialize(fn)
-        }
+  serialize(fn) {
+    if (Application.getCurrentApp().getPlatform() === Application.PLATFORM_RN) {
+      fn()
+    } else {
+      Application.getCurrentApp().getDataSource().serialize(fn)
     }
+  }
 
-    transaction(fn){
-        if(Application.getCurrentApp().getPlatform()===Application.PLATFORM_RN){
-            Application.getCurrentApp().getDataSource().transaction((tx)=>{
-                this._tx = tx;
-                fn()
-            })
-        }else{
-            fn()
-        }
+  transaction(fn) {
+    if (Application.getCurrentApp().getPlatform() === Application.PLATFORM_RN) {
+      Application.getCurrentApp().getDataSource().transaction((tx) => {
+        this._tx = tx
+        fn()
+      })
+    } else {
+      fn()
     }
+  }
 
-    get(sql,params,okCallback,errCallback){
-        if(Application.getCurrentApp().getPlatform()===Application.PLATFORM_RN){
-            this._tx.executeSql(sql,params,(tx,results)=>{
-                if(results.rows.length>0){
-                    okCallback(results.rows.item(0));
-                }else{
-                    okCallback(null);
-                }
-            },errCallback)
-        }else{
-            Application.getCurrentApp().getDataSource().get(sql,params,(err,row)=>{
-                if(err){
-                    errCallback(err)
-                }else{
-                    okCallback(row)
-                }
-            })
+  get(sql, params, okCallback, errCallback) {
+    if (Application.getCurrentApp().getPlatform() === Application.PLATFORM_RN) {
+      this._tx.executeSql(sql, params, (tx, results) => {
+        if (results.rows.length > 0) {
+          okCallback(results.rows.item(0))
+        } else {
+          okCallback(null)
         }
-    }
-
-    getAll(sql,params,okCallback,errCallback){
-        if(Application.getCurrentApp().getPlatform()===Application.PLATFORM_RN){
-            this._tx.executeSql(sql,params,(tx,results)=>{
-                let ary = [];
-                for(let i=0;i<results.rows.length;i++){
-                    ary.push(results.rows.item(i));
-                }
-                okCallback(ary)
-            },errCallback)
-        }else{
-            Application.getCurrentApp().getDataSource().all(sql,params,(err,rows)=>{
-                if(err){
-                    errCallback(err)
-                }else{
-                    okCallback(rows)
-                }
-            })
+      }, errCallback)
+    } else {
+      Application.getCurrentApp().getDataSource().get(sql, params, (err, row) => {
+        if (err) {
+          errCallback(err)
+        } else {
+          okCallback(row)
         }
+      })
     }
+  }
 
-    run(sql,params,okCallback,errCallback){
-        if(Application.getCurrentApp().getPlatform()===Application.PLATFORM_RN){
-            this._tx.executeSql(sql,params,(tx,results)=>{
-                okCallback()
-            },errCallback)
-        }else{
-            Application.getCurrentApp().getDataSource().run(sql,params,(err)=>{
-                if(err){
-                    errCallback(err)
-                }else{
-                    okCallback()
-                }
-            })
+  getAll(sql, params, okCallback, errCallback) {
+    if (Application.getCurrentApp().getPlatform() === Application.PLATFORM_RN) {
+      this._tx.executeSql(sql, params, (tx, results) => {
+        const ary = []
+        for (let i = 0; i < results.rows.length; i++) {
+          ary.push(results.rows.item(i))
         }
+        okCallback(ary)
+      }, errCallback)
+    } else {
+      Application.getCurrentApp().getDataSource().all(sql, params, (err, rows) => {
+        if (err) {
+          errCallback(err)
+        } else {
+          okCallback(rows)
+        }
+      })
     }
+  }
 
+  run(sql, params, okCallback, errCallback) {
+    if (Application.getCurrentApp().getPlatform() === Application.PLATFORM_RN) {
+      this._tx.executeSql(sql, params, () => {
+        okCallback()
+      }, errCallback)
+    } else {
+      Application.getCurrentApp().getDataSource().run(sql, params, (err) => {
+        if (err) {
+          errCallback(err)
+        } else {
+          okCallback()
+        }
+      })
+    }
+  }
 }
-DBProxy.saveFile = function(filePath,fileName,data,param){
-   return Application.getCurrentApp().getDataSource().saveFile(filePath,fileName,data,param);
+DBProxy.saveFile = function (filePath, fileName, data, param) {
+  return Application.getCurrentApp().getDataSource().saveFile(filePath, fileName, data, param)
 }
 DBProxy.readFile = function (filePath) {
-    return Application.getCurrentApp().getDataSource().readFile(filePath);
+  return Application.getCurrentApp().getDataSource().readFile(filePath)
 }
-DBProxy.removeAllAttachment = function(){
-    return Application.getCurrentApp().getDataSource().removeAllAttachment();
+DBProxy.removeAllAttachment = function () {
+  return Application.getCurrentApp().getDataSource().removeAllAttachment()
 }
 module.exports = DBProxy

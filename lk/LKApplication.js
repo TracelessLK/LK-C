@@ -3,26 +3,27 @@ const RSAKey = require('react-native-rsa')
 const Application = require('../common/core/Application')
 const ConfigManager = require('../common/core/ConfigManager')
 const DbUtil = require('./store/DbUtil')
-const {prepareDb} = DbUtil
+
+const { prepareDb } = DbUtil
 
 class LKApplication extends Application {
-  constructor (name) {
+  constructor(name) {
     super(name)
   }
 
-  setCurrentUser (user,venderId,preventAutoLogin) {
-    super.setCurrentUser(user,venderId)
-      delete this._rsa;
+  setCurrentUser(user, venderId, preventAutoLogin) {
+    super.setCurrentUser(user, venderId)
+    delete this._rsa
 
 
-    let url = user ? 'ws://' + user.serverIP + ':' + user.serverPort : null
-    if ((!this._channel) || (this._channel.getUrl() !== url)) {
+    const url = user ? `ws://${user.serverIP}:${user.serverPort}` : null
+    if (!this._channel || (this._channel.getUrl() !== url)) {
       if (this._channel) {
         this._channel.close()
         delete this._channel
       }
       if (url) {
-        this._channel = new (ConfigManager.getWSChannel())('ws://' + user.serverIP + ':' + user.serverPort, true)
+        this._channel = new (ConfigManager.getWSChannel())(`ws://${user.serverIP}:${user.serverPort}`, true)
         this._channel.on('connectionFail', () => {
           this.fire('netStateChanged', false)
         })
@@ -35,96 +36,104 @@ class LKApplication extends Application {
     this.fire('currentUserChanged', user)
     ConfigManager.getChatManager().init(user)
     ConfigManager.getMagicCodeManager().init(user)
-      if(preventAutoLogin!==true){
-          this.login()
-      }
+    if (preventAutoLogin !== true) {
+      this.login()
+    }
   }
 
-  login(){
-    let user = this._user;
-      if (user) {
-          let rsa = new RSAKey()
-          rsa.setPrivateString(user.privateKey)
-          this._rsa = rsa
-      }
-      if (this._channel) {
-         this._channel.applyChannel().then((channel) => {
-               channel.asyLogin(user.id, user.password)
-          })
-      }
+  login() {
+    const user = this._user
+    if (user) {
+      const rsa = new RSAKey()
+      rsa.setPrivateString(user.privateKey)
+      this._rsa = rsa
+    }
+    if (this._channel) {
+      this._channel.applyChannel().then((channel) => {
+        channel.asyLogin(user.id, user.password)
+      })
+    }
   }
 
-  getLogin () {
+  getLogin() {
     return this._login
   }
-  setLogin (user) {
+
+  setLogin(user) {
     this._login = user
   }
 
-  start (db,platform) {
-    super.start(db,platform)
+  start(db, platform) {
+    super.start(db, platform)
 
     return prepareDb()
   }
 
-  getCurrentRSA () {
+  getCurrentRSA() {
     return this._rsa
   }
 
-  asyAuthorize(user,introducerDid,description){
-      return this.asyRegister(user,null,null,null,description,introducerDid);
+  asyAuthorize(user, introducerDid, description) {
+    return this.asyRegister(user, null, null, null, description, introducerDid)
   }
 
-  asyRegister (user, venderDid, checkCode, qrcode, description,introducerDid) {
+  asyRegister(user, venderDid, checkCode, qrcode, description, introducerDid) {
     return this.register({
-      user, venderDid, checkCode, qrcode, description,introducerDid,
+      user,
+      venderDid,
+      checkCode,
+      qrcode,
+      description,
+      introducerDid,
       requestName: 'register'
     })
   }
 
-  updateRegister({user, venderDid, description}) {
-    return this.register({user, venderDid, description, requestName: 'updateRegister'})
+  updateRegister({ user, venderDid, description }) {
+    return this.register({
+      user, venderDid, description, requestName: 'updateRegister'
+    })
   }
 
-  register ({user, venderDid, checkCode, qrcode, description, introducerDid, requestName}) {
-    let channel = new (ConfigManager.getWSChannel())('ws://' + user.serverIP + ':' + user.serverPort, true)
+  register({
+    user, venderDid, checkCode, qrcode, description, introducerDid, requestName
+  }) {
+    const channel = new (ConfigManager.getWSChannel())(`ws://${user.serverIP}:${user.serverPort}`, true)
     return new Promise((resolve, reject) => {
-      channel.asyRegister(user.serverIP, user.serverPort, user.id, user.deviceId, venderDid, user.publicKey, checkCode, qrcode, description,introducerDid, requestName).then(function (msg) {
-        let content = msg.body.content
+      channel.asyRegister(user.serverIP, user.serverPort, user.id, user.deviceId, venderDid, user.publicKey, checkCode, qrcode, description, introducerDid, requestName).then((msg) => {
+        const { content } = msg.body
         if (content.error) {
           reject(content.error)
         } else {
           // console.log({content})
-          let serverPK = content.publicKey
-          let orgMCode = content.orgMCode
-          let orgs = content.orgs
-          let memberMCode = content.memberMCode
-          let members = content.members
-          let friends = content.friends
-          let groupContacts = content.groupContacts
-          let groups = content.groups
-          ConfigManager.getMagicCodeManager().asyReset(orgMCode, memberMCode, user.id).then(function () {
-            return ConfigManager.getOrgManager().asyResetOrgs(orgMCode, orgs, user.id)
-          }).then(function () {
-            return ConfigManager.getContactManager().asyResetContacts(memberMCode, members, friends, groupContacts, user.id)
-          }).then(function () {
-            return ConfigManager.getChatManager().asyResetGroups(groups, user.id)
-          }).then(function () {
-            user.serverPublicKey = serverPK
-            return ConfigManager.getUserManager().asyAddLKUser(user)
-          }).then(function () {
-            resolve(user)
-          }).catch(err => {
-            reject(err)
-          })
+          const serverPK = content.publicKey
+          const { orgMCode } = content
+          const { orgs } = content
+          const { memberMCode } = content
+          const { members } = content
+          const { friends } = content
+          const { groupContacts } = content
+          const { groups } = content
+          ConfigManager.getMagicCodeManager().asyReset(orgMCode, memberMCode, user.id).then(() => ConfigManager.getOrgManager().asyResetOrgs(orgMCode, orgs, user.id)).then(() => ConfigManager.getContactManager().asyResetContacts(memberMCode, members, friends, groupContacts, user.id))
+            .then(() => ConfigManager.getChatManager().asyResetGroups(groups, user.id))
+            .then(() => {
+              user.serverPublicKey = serverPK
+              return ConfigManager.getUserManager().asyAddLKUser(user)
+            })
+            .then(() => {
+              resolve(user)
+            })
+            .catch((err) => {
+              reject(err)
+            })
         }
       })
     })
   }
 
-  async asyUnRegister () {
+  async asyUnRegister() {
     await this._channel.asyUnRegister()
-    let userId = this.getCurrentUser().id
+    const userId = this.getCurrentUser().id
     await ConfigManager.getChatManager().removeAll(userId)
     await ConfigManager.getContactManager().removeAll(userId)
     await ConfigManager.getMagicCodeManager().removeAll(userId)
@@ -134,19 +143,18 @@ class LKApplication extends Application {
     this.setCurrentUser(null)
   }
 
-  getLKWSChannel () {
+  getLKWSChannel() {
     return this._channel
   }
 
-  setMessageTimeout (timeout) {
+  setMessageTimeout(timeout) {
     this._messageTimeout = timeout
   }
 
-  getMessageTimeout () {
+  getMessageTimeout() {
     return this._messageTimeout
   }
 }
-
 
 
 new LKApplication('LK')

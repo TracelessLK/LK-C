@@ -1,18 +1,16 @@
-const EventTarget = require ('./EventTarget')
-class ConfigManager extends EventTarget{
+const EventTarget = require('./EventTarget')
 
-    configure(name,obj){
-        if(this[name]){
-            throw name+" already exist";
-        }
-        this[name] = obj;
-        this["get"+name] =  ()=> {
-            return obj;
-        }
+class ConfigManager extends EventTarget {
+  configure(name, obj) {
+    if (this[name]) {
+      throw `${name} already exist`
     }
+    this[name] = obj
+    this[`get${name}`] = () => obj
+  }
 
-    get(name){
-        return this[name];
-    }
+  get(name) {
+    return this[name]
+  }
 }
-module.exports = new ConfigManager();
+module.exports = new ConfigManager()
