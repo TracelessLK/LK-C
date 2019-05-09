@@ -135,7 +135,6 @@ class Chat{
         return new Promise((resolve,reject)=>{
             let db = new DBProxy()
             db.transaction(()=>{
-                let db = new DBProxy()
                 let sql = "update chat set topTime=? where id=? and ownerUserId=?";
                 db.run(sql,[Date.now(),chatId,userId],function () {
                     resolve();
