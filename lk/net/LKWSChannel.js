@@ -632,7 +632,8 @@ class LKChannel extends WSChannel{
             content:MsgsOneData.content,
             name:MsgsOneData.name,
             fromUid: header.uid,
-            toUid: header.target.id
+            toUid: header.target.id,
+            type: MsgsOneData.type
         }
          //this._delayFire("msgReceived", option);
         ChatManager.fire("msgReceived", option);
