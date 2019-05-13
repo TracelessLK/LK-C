@@ -635,8 +635,9 @@ class LKChannel extends WSChannel{
             toUid: header.target.id
         }
          //this._delayFire("msgReceived", option);
-        ChatManager.fire("msgReceived", option);
         await ChatManager.asytopChat(userId,chatId)
+        ChatManager.fire("msgReceived", option);
+
 
 
     }
