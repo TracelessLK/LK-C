@@ -430,7 +430,7 @@ class ChatManager extends EventTarget {
         if (!chat) {
             if (!local)
                 await Contact.addNewGroupContactIFNotExist(members, userId);
-            await Promise.all([Chat.addGroupChat(userId, chatId, name), Chat.addGroupMembers(userId, chatId, members)])
+            await Promise.all([Chat.addGroupChat(userId, chatId, name, Date.now(),Date.now()), Chat.addGroupMembers(userId, chatId, members)])
             this.fire("recentChanged");
         }
     }
@@ -460,11 +460,12 @@ class ChatManager extends EventTarget {
     }
 
     async asyResetGroups(groups, userId) {
+         const top = await Chat.getChatID(userId)
         let ps = [];
         // 先清空所有的group chat和group member,否则会重复插入
         await Chat.deleteGroups(userId)
-        groups.forEach(function (group) {
-            ps.push(Chat.addGroupChat(userId, group.id, group.name));
+        groups.forEach(function (group,i) {
+            ps.push(Chat.addGroupChat(userId, group.id, group.name,top[i].topTime,top[i].MessageCeiling));
             ps.push(Chat.addGroupMembers(userId, group.id, group.members));
         })
         await Promise.all(ps)
@@ -552,6 +553,10 @@ class ChatManager extends EventTarget {
      */
     asytopChat(userId, chatId) {
         return Chat.topChat(userId, chatId)
+    }
+
+    asyMessageCeiling(MessageCeiling,userId, chatId) {
+        return Chat.MessageCeiling(MessageCeiling,userId, chatId)
     }
 
     /**

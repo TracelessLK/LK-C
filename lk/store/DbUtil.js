@@ -11,6 +11,9 @@ const updateSqlObj = {
     alter table device add column ownerUserId TEXT;
     update groupMember set ownerUserId = (select id from lkuser limit 1) where ownerUserId is null;
     update device set ownerUserId = (select id from lkuser limit 1) where ownerUserId is null;
+  `,
+  '0.0.2':`
+  alter table chat add column MessageCeiling INTEGER
   `
 }
 
@@ -193,6 +196,7 @@ create table if not exists db_version(
     psAry = viewAry.map((ele) => {
       return DbUtil.runSql(viewWrapper[ele])
     })
+
     await Promise.all(psAry)
 
   }

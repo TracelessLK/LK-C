@@ -6,9 +6,22 @@ class Chat{
         return new Promise((resolve,reject)=>{
             let db = new DBProxy()
             db.transaction(()=>{
-                let sql = "select * from chat where ownerUserId=? order by topTime desc,createTime desc";
+                let sql = "select * from chat where ownerUserId=? order by MessageCeiling desc,topTime desc,createTime desc";
                 db.getAll(sql,[userId],function (results) {
                     resolve(results);
+                },function (err) {
+                    reject(err);
+                });
+            });
+        });
+    }
+    getChatID(userId){
+        return new Promise((resolve,reject)=>{
+            let db = new DBProxy()
+            db.transaction(()=>{
+                let sql = "select * from chat where ownerUserId=? and isGroup=? ";
+                db.getAll(sql,[userId, 1],function (row) {
+                    resolve(row)
                 },function (err) {
                     reject(err);
                 });
@@ -41,6 +54,7 @@ class Chat{
             });
         });
     }
+
     getGroupMembers(chatId){
         return new Promise((resolve,reject)=>{
             let db = new DBProxy()
@@ -56,7 +70,6 @@ class Chat{
     }
 
     addSingleChat(userId,chatId){
-
         return new Promise((resolve,reject)=>{
             let db = new DBProxy()
             db.transaction(()=>{
@@ -69,14 +82,14 @@ class Chat{
             });
         });
     }
-    addGroupChat(userId,chatId,name){
-        return new Promise(async (resolve,reject)=>{
+     addGroupChat(userId, chatId, name,topTime,MessageCeiling) {
+        return new Promise(async (resolve, reject) => {
             let db = new DBProxy()
-            db.transaction(()=>{
-                let sql = "insert into chat(id,ownerUserId,name,createTime,topTime,isGroup) values (?,?,?,?,?,?)";
-                db.run(sql,[chatId,userId,name,Date.now(),0,1],function () {
+            db.transaction(() => {
+                let sql = "insert into chat(id,ownerUserId,name,createTime,topTime,isGroup,MessageCeiling) values (?,?,?,?,?,?,?)";
+                db.run(sql, [chatId, userId, name, Date.now(), topTime, 1,MessageCeiling], function () {
                     resolve();
-                },function (err) {
+                }, function (err) {
                     reject(err);
                 });
             });
@@ -137,6 +150,20 @@ class Chat{
             db.transaction(()=>{
                 let sql = "update chat set topTime=? where id=? and ownerUserId=?";
                 db.run(sql,[Date.now(),chatId,userId],function () {
+                    resolve();
+                },function (err) {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    MessageCeiling(MessageCeiling,userId,chatId){
+        return new Promise((resolve,reject)=>{
+            let db = new DBProxy()
+            db.transaction(()=>{
+                let sql = "update chat set MessageCeiling=? where id=? and ownerUserId=?";
+                db.run(sql,[MessageCeiling,chatId,userId],function () {
                     resolve();
                 },function (err) {
                     reject(err);
