@@ -430,7 +430,7 @@ class ChatManager extends EventTarget {
         if (!chat) {
             if (!local)
                 await Contact.addNewGroupContactIFNotExist(members, userId);
-            await Promise.all([Chat.addGroupChat(userId, chatId, name, Date.now(),Date.now()), Chat.addGroupMembers(userId, chatId, members)])
+            await Promise.all([Chat.addGroupChat(userId, chatId, name, Date.now(),null), Chat.addGroupMembers(userId, chatId, members)])
             this.fire("recentChanged");
         }
     }
