@@ -626,6 +626,7 @@ class LKChannel extends WSChannel{
         this._delayFire("msgChanged",chatId);
         //ChatManager.fire("msgChanged",chatId);
         var MsgsOneData = await ChatManager.asyGetLastMsg(userId, chatId)
+        let ChatData = await ChatManager.asyGetChat(userId, chatId)
         const option = {
             isFromSelf: userId === header.uid,
             chatId,
@@ -633,7 +634,8 @@ class LKChannel extends WSChannel{
             name:MsgsOneData.name,
             fromUid: header.uid,
             type: MsgsOneData.type,
-            toUid: header.target.id
+            toUid: header.target.id,
+            focus: ChatData.focus
         }
          //this._delayFire("msgReceived", option);
         await ChatManager.asytopChat(userId,chatId)

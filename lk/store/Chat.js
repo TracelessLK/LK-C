@@ -82,12 +82,12 @@ class Chat{
             });
         });
     }
-     addGroupChat(userId, chatId, name,topTime,MessageCeiling) {
+     addGroupChat(userId, chatId, name,topTime,MessageCeiling,focus,reserve1) {
         return new Promise(async (resolve, reject) => {
             let db = new DBProxy()
             db.transaction(() => {
-                let sql = "insert into chat(id,ownerUserId,name,createTime,topTime,isGroup,MessageCeiling) values (?,?,?,?,?,?,?)";
-                db.run(sql, [chatId, userId, name, Date.now(), topTime, 1,MessageCeiling], function () {
+                let sql = "insert into chat(id,ownerUserId,name,createTime,topTime,isGroup,MessageCeiling,focus,reserve1) values (?,?,?,?,?,?,?,?,?)";
+                db.run(sql, [chatId, userId, name, Date.now(), topTime, 1,MessageCeiling,focus,reserve1], function () {
                     resolve();
                 }, function (err) {
                     reject(err);
@@ -164,6 +164,32 @@ class Chat{
             db.transaction(()=>{
                 let sql = "update chat set MessageCeiling=? where id=? and ownerUserId=?";
                 db.run(sql,[MessageCeiling,chatId,userId],function () {
+                    resolve();
+                },function (err) {
+                    reject(err);
+                });
+            });
+        });
+    }
+    messageFocus(focus,userId,chatId){
+        return new Promise((resolve,reject)=>{
+            let db = new DBProxy()
+            db.transaction(()=>{
+                let sql = "update chat set focus=? where id=? and ownerUserId=?";
+                db.run(sql,[focus,chatId,userId],function () {
+                    resolve();
+                },function (err) {
+                    reject(err);
+                });
+            });
+        });
+    }
+    messageDraft(reserve1,userId,chatId){
+        return new Promise((resolve,reject)=>{
+            let db = new DBProxy()
+            db.transaction(()=>{
+                let sql = "update chat set reserve1=? where id=? and ownerUserId=?";
+                db.run(sql,[reserve1,chatId,userId],function () {
                     resolve();
                 },function (err) {
                     reject(err);

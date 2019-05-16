@@ -14,7 +14,8 @@ const updateSqlObj = {
   `,
   '0.0.2':`
   alter table chat add column MessageCeiling INTEGER
-  `
+  `,
+  '0.0.3':`alter table chat add column focus INTEGER`
 }
 
 const versionAry = Object.keys(updateSqlObj)
