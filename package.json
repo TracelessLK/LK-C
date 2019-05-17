@@ -1,9 +1,11 @@
 {
   "name": "@lk/LK-C",
-  "version": "0.0.27",
+  "version": "0.0.30",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint --fix --ext .js ."
+    "flow": "flow",
+    "lint": "eslint --fix --ext .js .",
+    "open-esdoc": "ESDoc && open ./docs/index.html"
   },
   "dependencies": {
     "crypto-js": "^3.1.9-1",
@@ -13,14 +15,16 @@
     "react-native-rsa": "0.0.3",
     "uuid": "^3.2.1"
   },
-  "repository": "https://github.com/tracelessman/LK-C.git#dev",
   "devDependencies": {
+    "@babel/preset-env": "^7.4.4",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^24.7.1",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "babel-preset-flow": "^6.23.0",
+    "esdoc": "^1.1.0",
+    "esdoc-standard-plugin": "^1.0.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-standard": "^12.0.0",
@@ -31,6 +35,8 @@
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-react": "^7.12.4",
-    "eslint-plugin-standard": "^4.0.0"
-  }
+    "eslint-plugin-standard": "^4.0.0",
+    "flow-bin": "^0.98.1"
+  },
+  "repository": "https://github.com/TracelessLK/LK-C.git#dev"
 }

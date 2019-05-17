@@ -23,6 +23,15 @@ module.exports = {
         }
     },
     "rules": {
+        'prefer-const':0,
+        'object-curly-newline':0,
+        'lines-between-class-members':0,//要求或禁止类成员之间出现空行
+        'quotes':0,//强制使用一致的反勾号、双引号或单引号
+        'standard/object-curly-even-spacing':0,//在大括号内强制一致的间距
+        'object-curly-spacing':0,//强制在大括号中使用一致的空格
+        'eol-last':0,
+        'prefer-template':0,//要求使用模板字面量而非字符串连接
+        "indent": ["error", 2],//
         'no-tabs':0,//禁用 tab
         'no-use-before-define':0,//禁止在变量定义之前使用它们
         'no-nested-ternary':0,//禁用嵌套的三元表达式
@@ -53,7 +62,7 @@ module.exports = {
         "no-throw-literal": 0,//禁止抛出异常字面量
         "no-extra-parens": 2,
         "no-iterator": 2,
-        "no-shadow": 2,
+        "no-shadow": 0,
         "no-labels": 2,
         "sort-vars": 2,
         "object-shorthand": 2,
@@ -79,7 +88,7 @@ module.exports = {
         "eqeqeq": 0,
         "no-lone-blocks": 2,
         "no-new": 0,
-        "no-new-wrappers": 2,
+        "no-new-wrappers": 0,//禁止对 String，Number 和 Boolean 使用 new 操作符
         "no-return-assign": 2,
         "no-return-await": 2,
         "no-self-compare": 2,
