@@ -43,7 +43,7 @@ create table if not exists db_version(
         await DbUtil.runSqlBatch(insertDbVersionSqlAry)
       }
       const sqlAry = [
-        "create table if not exists chat(id TEXT,ownerUserId TEXT,name TEXT,createTime INTEGER,topTime INTEGER,isGroup INTEGER,reserve1 TEXT,PRIMARY KEY(ownerUserId,id))",
+        "create table if not exists chat(id TEXT,ownerUserId TEXT,name TEXT,createTime INTEGER,topTime INTEGER,isGroup INTEGER,reserve1 TEXT,MessageCeiling INTEGER,focus INTEGER,PRIMARY KEY(ownerUserId,id))",
         "create table if not exists groupMember(ownerUserId TEXT,chatId TEXT,contactId TEXT,reserve1 TEXT,primary key(chatId,contactId))",
         //include org members 0 & foreign contacts 1 & group contacts 2
         "create table if not exists contact(id TEXT,name TEXT,pic TEXT,serverIP TEXT,serverPort INTEGER,relation INTEGER,orgId TEXT,mCode TEXT,ownerUserId TEXT,reserve1 TEXT,PRIMARY KEY(id,ownerUserId))",

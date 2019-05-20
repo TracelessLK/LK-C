@@ -45,7 +45,6 @@ class ChatManager extends EventTarget {
     this._sendOrderSeed = Date.now()
     this._allChatSendOrder = {}
   }
-
   init(user) {
     this._recentChats = []//
     this._recentChatsIndex = {}
@@ -453,11 +452,15 @@ class ChatManager extends EventTarget {
 
   async asyResetGroups(groups, userId) {
     const top = await Chat.getChatID(userId)
+    let m = new Map()
+    for (let i of top) {
+      m[i.id] = i
+    }
     let ps = []
     // 先清空所有的group chat和group member,否则会重复插入
     await Chat.deleteGroups(userId)
-    groups.forEach((group, i) => {
-      ps.push(Chat.addGroupChat(userId, group.id, group.name, top[i].topTime, top[i].MessageCeiling, top[i].focus, top[i].reserve1))
+    groups.forEach((group) => {
+      ps.push(Chat.addGroupChat(userId, group.id, group.name, m[group.id].topTime, m[group.id].MessageCeiling, m[group.id].focus, m[group.id].reserve1))
       ps.push(Chat.addGroupMembers(userId, group.id, group.members))
     })
     await Promise.all(ps)
