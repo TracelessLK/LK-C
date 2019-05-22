@@ -235,7 +235,7 @@ create table if not exists db_version(
     for (let ele of nameAry) {
       const ps = new Promise(async (resolve) => {
         const recordAry = await DbUtil.runSql(`
-        select * from ${ele}
+        select * from ${ele} order by id
       `)
         obj[ele] = recordAry
         resolve()

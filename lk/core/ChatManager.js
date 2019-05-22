@@ -1,5 +1,7 @@
 const UUID = require('uuid/v4')
 const RSAKey = require("react-native-rsa")
+const _ = require('lodash')
+
 const EventTarget = require('../../common/core/EventTarget')
 //const ContactManager = require('./ContactManager')
 
@@ -451,27 +453,25 @@ class ChatManager extends EventTarget {
   }
 
   async asyResetGroups(groups, userId) {
-    const top = await Chat.getChatID(userId)
-    let m = {}
-    if (top.length > 0) {
-      top.forEach((item) => {
-        m[item.id] = item
-      })
-    }
-    let ps = []
+    const groupChatAry = await Chat.getChatID(userId)
+    const obj = groupChatAry.reduce((accum, ele) => {
+      const objVal = _.cloneDeep(accum)
+      objVal[ele.id] = ele
+      return objVal
+    }, {})
+    console.log({groups, obj})
+
+
+    const ps = []
     // 先清空所有的group chat和group member,否则会重复插入
-    await Chat.deleteGroups(userId)
-    if (Object.keys(m).length === 0) {
-      groups.forEach((group) => {
-        ps.push(Chat.addGroupChat(userId, group.id, group.name, null, null, null, null))
+    // await Chat.deleteGroups(userId)
+    groups.forEach((group) => {
+      const orginalGroup = obj[group.id]
+      if (!orginalGroup) {
+        ps.push(Chat.addGroupChat(userId, group.id, group.name, null, null, false, null))
         ps.push(Chat.addGroupMembers(userId, group.id, group.members))
-      })
-    } else {
-      groups.forEach((group) => {
-        ps.push(Chat.addGroupChat(userId, group.id, group.name, m[group.id].topTime, m[group.id].MessageCeiling, m[group.id].focus, m[group.id].reserve1 ))
-        ps.push(Chat.addGroupMembers(userId, group.id, group.members))
-      })
-    }
+      }
+    })
     await Promise.all(ps)
     this.fire('msgChanged')
   }
