@@ -452,15 +452,26 @@ class ChatManager extends EventTarget {
 
   async asyResetGroups(groups, userId) {
     const top = await Chat.getChatID(userId)
-    let m = new Map()
-    top.forEach(item => m.set(item.id, item))
+    let m = {}
+    if (top.length > 0) {
+      top.forEach((item) => {
+        m[item.id] = item
+      })
+    }
     let ps = []
     // 先清空所有的group chat和group member,否则会重复插入
     await Chat.deleteGroups(userId)
-    groups.forEach((group) => {
-      ps.push(Chat.addGroupChat(userId, group.id, group.name, m.get(group.id).topTime, m.get(group.id).MessageCeiling, m.get(group.id).focus, m.get(group.id).reserve1))
-      ps.push(Chat.addGroupMembers(userId, group.id, group.members))
-    })
+    if (Object.keys(m).length === 0) {
+      groups.forEach((group) => {
+        ps.push(Chat.addGroupChat(userId, group.id, group.name, null, null, null, null))
+        ps.push(Chat.addGroupMembers(userId, group.id, group.members))
+      })
+    } else {
+      groups.forEach((group) => {
+        ps.push(Chat.addGroupChat(userId, group.id, group.name, m[group.id].topTime, m[group.id].MessageCeiling, m[group.id].focus, m[group.id].reserve1 ))
+        ps.push(Chat.addGroupMembers(userId, group.id, group.members))
+      })
+    }
     await Promise.all(ps)
     this.fire('msgChanged')
   }
