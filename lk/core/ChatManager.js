@@ -459,8 +459,6 @@ class ChatManager extends EventTarget {
       objVal[ele.id] = ele
       return objVal
     }, {})
-    console.log({groups, obj})
-
 
     const ps = []
     // 先清空所有的group chat和group member,否则会重复插入
