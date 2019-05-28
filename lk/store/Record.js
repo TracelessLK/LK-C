@@ -364,6 +364,20 @@ class Record {
     })
   }
 
+  getMessageSearch(userId, content) {
+    return new Promise((resolve, reject) => {
+      const sql = 'select * from record where ownerUserId = ? and content like ? and type=0 group by chatId'
+      const db = new DBProxy()
+      db.transaction(() => {
+        db.getAll(sql, [userId, '%' + content + '%'], (results) => {
+          resolve(results)
+        }, (err) => {
+          reject(err)
+        })
+      })
+    })
+  }
+
   getMsgsNotRead(userId, chatId) {
     return new Promise((resolve, reject) => {
       const db = new DBProxy()
