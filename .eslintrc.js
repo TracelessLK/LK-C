@@ -23,6 +23,7 @@ module.exports = {
         }
     },
     "rules": {
+        'import/no-extraneous-dependencies':0,
         'prefer-const':0,
         'object-curly-newline':0,
         'lines-between-class-members':0,//要求或禁止类成员之间出现空行
