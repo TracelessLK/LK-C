@@ -8,15 +8,12 @@
     "open-esdoc": "ESDoc && open ./docs/index.html"
   },
   "dependencies": {
-    "chalk": "^2.4.2",
     "crypto-js": "^3.1.9-1",
     "debug": "^4.1.1",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
-    "mysql": "^2.17.1",
     "react-native-rsa": "0.0.3",
-    "uuid": "^3.2.1",
-    "yargs": "^13.2.4"
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.4.4",
@@ -26,6 +23,7 @@
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "babel-preset-flow": "^6.23.0",
+    "chalk": "^2.4.2",
     "esdoc": "^1.1.0",
     "esdoc-standard-plugin": "^1.0.0",
     "eslint": "^5.16.0",
@@ -39,7 +37,9 @@
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-standard": "^4.0.0",
-    "flow-bin": "^0.98.1"
+    "flow-bin": "^0.98.1",
+    "mysql": "^2.17.1",
+    "yargs": "^13.2.4"
   },
   "repository": "https://github.com/TracelessLK/LK-C.git#dev"
 }
