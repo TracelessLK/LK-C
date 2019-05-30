@@ -23,6 +23,7 @@ module.exports = {
         }
     },
     "rules": {
+        'import/no-dynamic-require':0,
         'import/no-extraneous-dependencies':0,
         'prefer-const':0,
         'object-curly-newline':0,

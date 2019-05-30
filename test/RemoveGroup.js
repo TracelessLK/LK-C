@@ -1,19 +1,22 @@
 const yargs = require('yargs')
 const chalk = require('chalk')
 const mysql = require('mysql')
+const _ = require('lodash')
+const fs = require('fs')
+const path = require('path')
 
 let {argv} = yargs
-
-//使用node RemoveGroup.js chatId
+const config = {
+  host: '192.144.200.234',
+  user: '',
+  password: '',
+  database: '',
+  port: 3306,
+  multipleStatements: true
+}
+//使用node RemoveGroup.js name
 async function start(chatId) {
-  let connection = mysql.createConnection({
-    host: '192.144.200.234',
-    user: 'hfs',
-    password: 'EO:hR>lHu3Dqaa',
-    database: 'LK_S',
-    port: 3306,
-    multipleStatements: true
-  })
+  let connection = mysql.createConnection(config)
   connection.connect()
   let arr = [
     'DELETE from groupMember where gid = ?;',
@@ -33,7 +36,10 @@ async function start(chatId) {
     connection.end()
   })
 }
-
+const unversionedPath = path.resolve('../config/unversioned.js')
+if (fs.existsSync(unversionedPath)) {
+  _.merge(config, require(unversionedPath))
+}
 if (argv._.length > 0) {
   start(argv._[0])
 } else {
