@@ -36,7 +36,7 @@ async function start(chatId) {
     connection.end()
   })
 }
-const unversionedPath = path.resolve('../config/unversioned.js')
+const unversionedPath = path.resolve(__dirname, '../config/unversioned.js')
 if (fs.existsSync(unversionedPath)) {
   _.merge(config, require(unversionedPath))
 }
