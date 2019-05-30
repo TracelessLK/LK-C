@@ -454,7 +454,7 @@ class ChatManager extends EventTarget {
 
   async asyResetGroups(groups, userId) {
     const groupChatAry = await Chat.getChatID(userId)
-    console.log(groups.length, groupChatAry.length)
+    //console.log(groups.length, groupChatAry.length)
     // const obj = groupChatAry.reduce((accum, ele) => {
     // //   const objVal = _.cloneDeep(accum)
     // //   objVal[ele.id] = ele
@@ -484,6 +484,7 @@ class ChatManager extends EventTarget {
     //   }
     // })
     await Promise.all(ps)
+    this.fire('msgChanged')
     this.fire('msgChanged')
   }
 

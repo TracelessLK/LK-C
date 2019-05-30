@@ -8,12 +8,15 @@
     "open-esdoc": "ESDoc && open ./docs/index.html"
   },
   "dependencies": {
+    "chalk": "^2.4.2",
     "crypto-js": "^3.1.9-1",
     "debug": "^4.1.1",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
+    "mysql": "^2.17.1",
     "react-native-rsa": "0.0.3",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "yargs": "^13.2.4"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.4.4",
