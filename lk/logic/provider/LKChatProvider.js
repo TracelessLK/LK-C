@@ -13,6 +13,9 @@ class LKChatProvider {
   asyGetChat(userId, chatId) {
     return Chat.getChat(userId, chatId)
   }
+  asyGetChatName(userId, name) {
+    return Chat.getChatName(userId, name)
+  }
 
   asyGetGroupMembers(chatId) {
     return Chat.getGroupMembers(chatId)

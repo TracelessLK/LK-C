@@ -560,6 +560,10 @@ class ChatManager extends EventTarget {
     return LKChatProvider.asyGetChat(userId, chatId)
   }
 
+  asyGetChatName(userId, name) {
+    return LKChatProvider.asyGetChatName(userId, name)
+  }
+
   /**
      * @param userId
      * @param chatId

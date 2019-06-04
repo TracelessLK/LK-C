@@ -55,6 +55,20 @@ class Chat {
     })
   }
 
+  getChatName(userId, name) {
+    return new Promise((resolve, reject) => {
+      let db = new DBProxy()
+      db.transaction(() => {
+        let sql = "select * from chat where name=? and ownerUserId=? and isGroup=1 "
+        db.get(sql, [name, userId], (row) => {
+          resolve(row)
+        }, (err) => {
+          reject(err)
+        })
+      })
+    })
+  }
+
   getGroupMembers(chatId) {
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
