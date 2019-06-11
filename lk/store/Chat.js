@@ -124,14 +124,14 @@ class Chat {
     })
   }
 
-  async _addGroupMember(userId, chatId, contactId) {
+  async _addGroupMember(userId, chatId, contactId, groupAdministrator) {
     let cur = await this.getGroupMember(chatId, contactId)
     if (!cur) {
       return new Promise((resolve, reject) => {
         let db = new DBProxy()
         db.transaction(() => {
-          let sql = "insert into groupMember(ownerUserId,chatId,contactId) values (?,?,?)"
-          db.run(sql, [userId, chatId, contactId], () => {
+          let sql = "insert into groupMember(ownerUserId,chatId,contactId,groupAdministrator) values (?,?,?,?)"
+          db.run(sql, [userId, chatId, contactId, groupAdministrator], () => {
             resolve()
           }, (err) => {
             reject(err)
