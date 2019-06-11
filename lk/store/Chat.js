@@ -143,12 +143,12 @@ class Chat {
     }
   }
 
-  addGroupMembers(userId, chatId, members) {
+  addGroupMembers(userId, chatId, members, groupAdministrator) {
     return new Promise((resolve, reject) => {
       let ps = []
       members.forEach((contact) => {
         let contactId = contact.id
-        ps.push(this._addGroupMember(userId, chatId, contactId))
+        ps.push(this._addGroupMember(userId, chatId, contactId, groupAdministrator))
       })
       Promise.all(ps).then(() => {
         resolve()

@@ -413,18 +413,18 @@ class ChatManager extends EventTarget {
      * @returns {Promise.<Promise|*>}
      */
 
-  async newGroupChat(name, members) {
+  async newGroupChat(name, members, groupAdministrator) {
     let chatId = UUID()
     await Application.getCurrentApp().getLKWSChannel().addGroupChat(chatId, name, members)
-    await this.addGroupChat(chatId, name, members, true)
+    await this.addGroupChat(chatId, name, members, true, groupAdministrator)
   }
 
-  async addGroupChat(chatId, name, members, local) {
+  async addGroupChat(chatId, name, members, local, groupAdministrator) {
     let userId = Application.getCurrentApp().getCurrentUser().id
     const chat = await Chat.getChat(userId, chatId)
     if (!chat) {
       if (!local) { await Contact.addNewGroupContactIFNotExist(members, userId) }
-      await Promise.all([Chat.addGroupChat(userId, chatId, name, Date.now(), null, null, null), Chat.addGroupMembers(userId, chatId, members)])
+      await Promise.all([Chat.addGroupChat(userId, chatId, name, Date.now(), null, null, null), Chat.addGroupMembers(userId, chatId, members, groupAdministrator)])
       this.fire("recentChanged")
     }
   }

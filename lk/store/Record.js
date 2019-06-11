@@ -366,7 +366,7 @@ class Record {
 
   getMessageSearch(userId, content) {
     return new Promise((resolve, reject) => {
-      const sql = 'select * from record where ownerUserId = ? and content like ? and type=0 group by chatId'
+      const sql = 'select * from contact where ownerUserId = ? and name like ?'
       const db = new DBProxy()
       db.transaction(() => {
         db.getAll(sql, [userId, '%' + content + '%'], (results) => {
