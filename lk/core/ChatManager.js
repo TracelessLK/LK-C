@@ -603,6 +603,9 @@ class ChatManager extends EventTarget {
   asyGetMsgs(userId, chatId, limit) {
     return LKChatProvider.asyGetMsgs(userId, chatId, limit)
   }
+  asyGetGroupMember(chatId, contactId) {
+    return Chat.getGroupMember(chatId, contactId)
+  }
 
   /**
      *

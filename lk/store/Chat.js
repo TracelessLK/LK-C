@@ -73,7 +73,7 @@ class Chat {
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
       db.transaction(() => {
-        let sql = "select c.* from groupMember as m,contact as c where m.contactId=c.id and m.chatId=? group by c.id"
+        let sql = "select c.*, m.groupAdministrator from groupMember as m,contact as c where m.contactId=c.id and m.chatId=? group by c.id"
         db.getAll(sql, [chatId], (results) => {
           resolve(results)
         }, (err) => {
