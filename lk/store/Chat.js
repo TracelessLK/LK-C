@@ -87,7 +87,7 @@ class Chat {
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
       db.transaction(() => {
-        let sql = "select c.* from groupMember as m,contact as c where m.contactId=c.id and m.chatId=? group by c.id"
+        let sql = "select c.*, m.groupAdministrator from groupMember as m,contact as c where m.contactId=c.id and m.chatId=? group by c.id"
         db.getAll(sql, [chatId], (results) => {
           resolve(results)
         }, (err) => {
@@ -138,14 +138,14 @@ class Chat {
     })
   }
 
-  async _addGroupMember(userId, chatId, contactId) {
+  async _addGroupMember(userId, chatId, contactId, groupAdministrator) {
     let cur = await this.getGroupMember(chatId, contactId)
     if (!cur) {
       return new Promise((resolve, reject) => {
         let db = new DBProxy()
         db.transaction(() => {
-          let sql = "insert into groupMember(ownerUserId,chatId,contactId) values (?,?,?)"
-          db.run(sql, [userId, chatId, contactId], () => {
+          let sql = "insert into groupMember(ownerUserId,chatId,contactId,groupAdministrator) values (?,?,?,?)"
+          db.run(sql, [userId, chatId, contactId, groupAdministrator], () => {
             resolve()
           }, (err) => {
             reject(err)
@@ -157,12 +157,12 @@ class Chat {
     }
   }
 
-  addGroupMembers(userId, chatId, members) {
+  addGroupMembers(userId, chatId, members, groupAdministrator) {
     return new Promise((resolve, reject) => {
       let ps = []
       members.forEach((contact) => {
         let contactId = contact.id
-        ps.push(this._addGroupMember(userId, chatId, contactId))
+        ps.push(this._addGroupMember(userId, chatId, contactId, groupAdministrator))
       })
       Promise.all(ps).then(() => {
         resolve()

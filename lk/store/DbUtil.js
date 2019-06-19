@@ -16,7 +16,8 @@ const updateSqlObj = {
   '0.0.2': `
   alter table chat add column MessageCeiling INTEGER
   `,
-  '0.0.3': `alter table chat add column focus INTEGER`
+  '0.0.3': `alter table chat add column focus INTEGER`,
+  '0.0.4': `alter table groupMember add column groupAdministrator TEXT`
 }
 
 const versionAry = Object.keys(updateSqlObj)
@@ -45,7 +46,7 @@ create table if not exists db_version(
         }
         const sqlAry = [
           "create table if not exists chat(id TEXT,ownerUserId TEXT,name TEXT,createTime INTEGER,topTime INTEGER,isGroup INTEGER,reserve1 TEXT,MessageCeiling INTEGER,focus INTEGER,PRIMARY KEY(ownerUserId,id))",
-          "create table if not exists groupMember(ownerUserId TEXT,chatId TEXT,contactId TEXT,reserve1 TEXT,primary key(chatId,contactId))",
+          "create table if not exists groupMember(ownerUserId TEXT,chatId TEXT,contactId TEXT,reserve1 TEXT,groupAdministrator TEXT,primary key(chatId,contactId))",
           //include org members 0 & foreign contacts 1 & group contacts 2
           "create table if not exists contact(id TEXT,name TEXT,pic TEXT,serverIP TEXT,serverPort INTEGER,relation INTEGER,orgId TEXT,mCode TEXT,ownerUserId TEXT,reserve1 TEXT,PRIMARY KEY(id,ownerUserId))",
           "create table if not exists device(ownerUserId TEXT,id TEXT PRIMARY KEY NOT NULL,publicKey TEXT,contactId TEXT,remark TEXT,reserve1 TEXT)",
