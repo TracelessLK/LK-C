@@ -15,6 +15,20 @@ class Chat {
       })
     })
   }
+  getAllNew(userId) {
+    return new Promise((resolve, reject) => {
+      let db = new DBProxy()
+      db.transaction(() => {
+        let sql1 = "select t1.* ,(select count(*) from record t2 where t2.ownerUserId=? and t2.chatId=t1.Id and t2.senderUid<>? and t2.readState<1 ) as \"notReadNum\" from chat t1 where t1.ownerUserId=?  order by MessageCeiling desc,topTime desc,createTime desc"
+        let sql = "select * from chat where ownerUserId=? order by MessageCeiling desc,topTime desc,createTime desc"
+        db.getAll(sql1, [userId,userId,userId], (results) => {
+          resolve(results)
+        }, (err) => {
+          reject(err)
+        })
+      })
+    })
+  }
   getChatID(userId) {
     return new Promise((resolve, reject) => {
       let db = new DBProxy()

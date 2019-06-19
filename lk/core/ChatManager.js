@@ -623,6 +623,10 @@ class ChatManager extends EventTarget {
     return LKChatProvider.asyGetAll(userId)
   }
 
+  asyGetAllNew(userId) {
+    return LKChatProvider.asyGetAllNew(userId)
+  }
+
   /**
      *
      * @param userId
@@ -650,6 +654,10 @@ class ChatManager extends EventTarget {
     */
   asyGetLastMsg(userId, chatId) {
     return Record.getLastMsg(userId, chatId)
+  }
+
+  asyGetAllLastMsg(userId) {
+    return Record.getAllLastMsg(userId)
   }
 
   asyGetMessageSearch(userId, content) {

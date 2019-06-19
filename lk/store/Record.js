@@ -549,6 +549,19 @@ class Record {
       })
     })
   }
+  getAllLastMsg(userId) {
+      return new Promise((resolve, reject) => {
+          const sql = 'select t2.name,t1.* from record t1 join contact t2 where  t1.senderUid = t2.id and   t1.ownerUserId=? order by sendTime desc limit 1'
+          const db = new DBProxy()
+          db.transaction(() => {
+              db.getAll(sql, [userId], (results) => {
+                  resolve(results)
+              }, (err) => {
+                  reject(err)
+              })
+          })
+      })
+  }
 }
 
 module.exports = new Record()

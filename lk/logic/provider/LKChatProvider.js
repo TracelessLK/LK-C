@@ -6,6 +6,10 @@ class LKChatProvider {
     return Chat.getAll(userId)
   }
 
+  asyGetAllNew(userId) {
+      return Chat.getAllNew(userId,userId,userId)
+  }
+
   asyDeleteChat(userId, chatId) {
     return Chat.deleteChat(userId, chatId)
   }
