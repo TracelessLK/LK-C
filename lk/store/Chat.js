@@ -19,7 +19,8 @@ class Chat {
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
       db.transaction(() => {
-        let sql1 = "select t1.isGroup as isGroup,t1.name as name,t1.createTime as createTime,t1.id as chatId,(select count(*) from record t2 where t2.ownerUserId=? and t2.chatId=t1.Id and t2.senderUid<>? and t2.readState<1 ) as notReadNum,t3.content as content, t3.type as type, t3.sendTime as sendTime, t4.name as sendName from chat t1 join record t3 on t1.id = t3.chatId join contact t4 on t3.senderUid = t4.id where t1.ownerUserId=? group by t3.chatId having max(t3.sendTime) order by t1.MessageCeiling desc,t1.topTime desc,t1.createTime desc"
+        let sql1 = "select t1.* ,(select count(*) from record t2 where t2.ownerUserId=? and t2.chatId=t1.Id and t2.senderUid<>? and t2.readState<1 ) as \"notReadNum\" from chat t1 where t1.ownerUserId=?  order by MessageCeiling desc,topTime desc,createTime desc"
+        let sql = "select * from chat where ownerUserId=? order by MessageCeiling desc,topTime desc,createTime desc"
         db.getAll(sql1, [userId,userId,userId], (results) => {
           resolve(results)
         }, (err) => {
