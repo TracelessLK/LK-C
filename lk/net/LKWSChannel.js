@@ -481,11 +481,12 @@ class LKChannel extends WSChannel {
         let chat = result[0]
         let oldMsg = result[1]
         if (oldMsg) {
+          const contentData = oldMsg.type === ChatManager.MESSAGE_TYPE_TEXT ? oldMsg.content : JSON.parse(oldMsg.content)
           if (oldMsg.type === ChatManager.MESSAGE_TYPE_IMAGE || oldMsg.type === ChatManager.MESSAGE_TYPE_AUDIO) {
-            oldMsg.content.data = LZBase64String.compressToUTF16(oldMsg.content.data)
-            oldMsg.content.compress = true
+            contentData.data = LZBase64String.compressToUTF16(oldMsg.data)
+            contentData.compress = true
           }
-          this._asyNewRequest("sendMsg2", {type: oldMsg.type, data: oldMsg.type == "0" ? oldMsg.content : JSON.parse(oldMsg.content)}, {isGroup: chat.isGroup, time: oldMsg.sendTime, chatId, relativeMsgId: oldMsg.relativeMsgId, id: oldMsg.id, targets: added, order: oldMsg.order}).then((req) => {
+          this._asyNewRequest("sendMsg2", {type: oldMsg.type, data: contentData}, {isGroup: chat.isGroup, time: oldMsg.sendTime, chatId, relativeMsgId: oldMsg.relativeMsgId, id: oldMsg.id, targets: added, order: oldMsg.order}).then((req) => {
             this._sendMessage(req).then(() => {
               this._reportMsgHandled(header.flowId, header.flowType)
               LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, ChatManager.MESSAGE_STATE_SERVER_RECEIVE).then(() => {
