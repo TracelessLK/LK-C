@@ -19,12 +19,29 @@ class Chat {
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
       db.transaction(() => {
-        let sql = "select t1.isGroup as isGroup,t1.name as name,t1.createTime as createTime,t1.id as chatId,(select count(*) from record t2 where t2.ownerUserId=? and t2.chatId=t1.Id and t2.senderUid<>? and t2.readState<1 ) as notReadNum,t3.content as content, t3.type as type, t3.sendTime as sendTime, t4.name as sendName,t4.pic as pic,t4.id as contactId,t5.groupAdministrator as groupAdministrator \n" +
-            "from chat t1 \n" +
-            "left join record t3 on t1.id = t3.chatId \n" +
-            "left join contact t4 on t3.senderUid = t4.id \n" +
-            "left join groupMember t5 on t4.id = t5.contactId \n" +
-            "where t1.ownerUserId=? group by ifnull(t3.chatId,t1.name) having ifnull(max(t3.sendTime),t1.name)  order by t1.MessageCeiling desc,t1.topTime desc,t1.createTime desc"
+        let sql = `
+        select 
+        t1.isGroup as isGroup,
+        t1.name as name,
+        t1.createTime as createTime,
+        t1.id as chatId,
+        (select count(*) from record t2 where t2.ownerUserId=? and t2.chatId=t1.Id and t2.senderUid<>? and t2.readState<1 ) as notReadNum,
+        t3.content as content, 
+        t3.type as type,
+         t3.sendTime as sendTime, 
+         t4.name as sendName,
+         t4.pic as pic,
+         t4.id as contactId,
+         t5.groupAdministrator as groupAdministrator 
+        from chat t1
+        left join record t3 on t1.id = t3.chatId
+        left join contact t4 on t3.senderUid = t4.id
+        left join groupMember t5 on t4.id = t5.contactId
+        where 
+        t1.ownerUserId=? 
+        group by ifnull(t3.chatId,t1.name) having ifnull(max(t3.sendTime),t1.name)  
+        order by t1.MessageCeiling desc,t1.topTime desc,t1.createTime desc
+        `
         db.getAll(sql, [userId, userId, userId], (results) => {
           resolve(results)
         }, (err) => {
