@@ -1,7 +1,7 @@
 const EventTarget = require('../../common/core/EventTarget')
 const LKMagicCodeProvider = require('../logic/provider/LKMagicCodeProvider')
 const LKMagicCodeHandler = require('../logic/handler/LKMagicCodeHandler')
-const Application = require('../LKApplication')
+const Application = require('../../common/core/Application')
 const MagicCode = require('../store/MagicCode')
 
 class MagicCodeManager extends EventTarget {

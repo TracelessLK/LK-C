@@ -1,7 +1,7 @@
-const Application = require('../LKApplication')
+const Application = require('../../common/core/Application')
 const EventTarget = require('../../common/core/EventTarget')
 const MFApply = require('../store/MFApply')
-const ConfigManager = require('../../common/core/ConfigManager')
+const Manifest = require('../../Manifest')
 
 class MFApplyManager extends EventTarget {
   asyAddNewMFApply(apply) {
@@ -31,7 +31,7 @@ class MFApplyManager extends EventTarget {
       MFApply.accept(contactId, userId).then(() => {
         MFApply.get(contactId, userId).then((friend) => {
           Application.getCurrentApp().getLKWSChannel().acceptMF(contactId, friend.name, friend.pic, friend.serverIP, friend.serverPort, friend.mCode).then(() => {
-            ConfigManager.getContactManager().asyAddNewFriend(friend).then(() => {
+            Manifest.ContactManager.asyAddNewFriend(friend).then(() => {
               resolve()
             })
           })

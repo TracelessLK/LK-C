@@ -1,11 +1,11 @@
-const Application = require('../LKApplication')
+const Application = require('../../common/core/Application')
 const EventTarget = require('../../common/core/EventTarget')
 const LKContactHandler = require('../logic/handler/LKContactHandler')
 const LKMagicCodeHandler = require('../logic/handler/LKMagicCodeHandler')
 const MagicCodeManager = require('./MagicCodeManager')
 const Contact = require('../store/Contact')
 const Device = require('../store/Device')
-const ConfigManager = require('../../common/core/ConfigManager')
+const Manifest = require('../../Manifest')
 const LKContactProvider = require('../logic/provider/LKContactProvider')
 const LKDeviceProvider = require('../logic/provider/LKDeviceProvider')
 
@@ -27,8 +27,8 @@ class ContactManager extends EventTarget {
       for (let i = 0; i < newMembers.length; i++) {
         const m = newMembers[i]
         if (m.id === userId) {
-          ConfigManager.getUserManager().setUserName(m.name)
-          ConfigManager.getUserManager().setUserPic(m.pic)
+          Manifest.UserManager.setUserName(m.name)
+          Manifest.UserManager.setUserPic(m.pic)
           break
         }
       }

@@ -1,4 +1,4 @@
-const DBProxy = require('./DBInit')
+const DBProxy = require('../../common/store/DBProxy')
 const Record = require('./Record')
 //order默认创建时间 如果置顶order=当前时间&onTop=1
 class Chat {

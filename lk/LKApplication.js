@@ -1,8 +1,15 @@
 const RSAKey = require('react-native-rsa')
 
 const Application = require('../common/core/Application')
-const ConfigManager = require('../common/core/ConfigManager')
+
 const DbUtil = require('./store/DbUtil')
+const WSChannel = require('./net/LKWSChannel')
+const ChatManager = require('./core/ChatManager')
+const ContactManager = require('./core/ContactManager')
+const UserManager = require('./core/UserManager')
+const OrgManager = require('./core/OrgManager')
+const MagicCodeManager = require('./core/MagicCodeManager')
+const MFApplyManager = require('./core/MFApplyManager')
 
 const { prepareDb } = DbUtil
 
@@ -23,7 +30,7 @@ class LKApplication extends Application {
         delete this._channel
       }
       if (url) {
-        this._channel = new (ConfigManager.getWSChannel())(`ws://${user.serverIP}:${user.serverPort}`, true)
+        this._channel = new WSChannel(`ws://${user.serverIP}:${user.serverPort}`, true)
         this._channel.on('connectionFail', () => {
           this.fire('netStateChanged', false)
         })
@@ -34,8 +41,8 @@ class LKApplication extends Application {
     }
 
     this.fire('currentUserChanged', user)
-    ConfigManager.getChatManager().init(user)
-    ConfigManager.getMagicCodeManager().init(user)
+    ChatManager.init(user)
+    MagicCodeManager.init(user)
     if (preventAutoLogin !== true) {
       this.login()
     }
@@ -98,7 +105,7 @@ class LKApplication extends Application {
   register({
     user, venderDid, checkCode, qrcode, description, introducerDid, requestName
   }) {
-    const channel = new (ConfigManager.getWSChannel())(`ws://${user.serverIP}:${user.serverPort}`, true)
+    const channel = new (WSChannel)(`ws://${user.serverIP}:${user.serverPort}`, true)
     return new Promise((resolve, reject) => {
       channel.asyRegister(user.serverIP, user.serverPort, user.id, user.deviceId, venderDid, user.publicKey, checkCode, qrcode, description, introducerDid, requestName).then((msg) => {
         const { content } = msg.body
@@ -114,11 +121,11 @@ class LKApplication extends Application {
           const { friends } = content
           const { groupContacts } = content
           const { groups } = content
-          ConfigManager.getMagicCodeManager().asyReset(orgMCode, memberMCode, user.id).then(() => ConfigManager.getOrgManager().asyResetOrgs(orgMCode, orgs, user.id)).then(() => ConfigManager.getContactManager().asyResetContacts(memberMCode, members, friends, groupContacts, user.id))
-            .then(() => ConfigManager.getChatManager().asyResetGroups(groups, user.id))
+          MagicCodeManager.asyReset(orgMCode, memberMCode, user.id).then(() => OrgManager.asyResetOrgs(orgMCode, orgs, user.id)).then(() => ContactManager.asyResetContacts(memberMCode, members, friends, groupContacts, user.id))
+            .then(() => ChatManager.asyResetGroups(groups, user.id))
             .then(() => {
               user.serverPublicKey = serverPK
-              return ConfigManager.getUserManager().asyAddLKUser(user)
+              return UserManager.asyAddLKUser(user)
             })
             .then(() => {
               resolve(user)
@@ -134,12 +141,12 @@ class LKApplication extends Application {
   async asyUnRegister() {
     await this._channel.asyUnRegister()
     const userId = this.getCurrentUser().id
-    await ConfigManager.getChatManager().removeAll(userId)
-    await ConfigManager.getContactManager().removeAll(userId)
-    await ConfigManager.getMagicCodeManager().removeAll(userId)
-    await ConfigManager.getMFApplyManager().removeAll(userId)
-    await ConfigManager.getOrgManager().removeAll(userId)
-    await ConfigManager.getUserManager().asyRemoveLKUser(userId)
+    await ChatManager.removeAll(userId)
+    await ContactManager.removeAll(userId)
+    await MagicCodeManager.removeAll(userId)
+    await MFApplyManager.removeAll(userId)
+    await OrgManager.removeAll(userId)
+    await UserManager.asyRemoveLKUser(userId)
     this.setCurrentUser(null)
   }
 

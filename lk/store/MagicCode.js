@@ -1,4 +1,4 @@
-const DBProxy = require('./DBInit')
+const DBProxy = require('../../common/store/DBProxy')
 
 class MagicCode {
   getMagicCode(userId) {

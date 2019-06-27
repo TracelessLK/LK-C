@@ -1,5 +1,4 @@
-const DBProxy = require('./DBInit')
-
+const DBProxy = require('../../common/store/DBProxy')
 class Record {
   constructor() {
     this.MESSAGE_TYPE_TEXT = 0
@@ -73,10 +72,10 @@ class Record {
           }
           if (t === this.MESSAGE_TYPE_IMAGE) {
             newContent = { width: oldContent.width, height: oldContent.height, url }
-            console.info(`addMsg:img,${url}`)
+            // console.info(`addMsg:img,${url}`)
           } else {
             newContent = { url }
-            console.info(`addMsg:audio,${url}`)
+            // console.info(`addMsg:audio,${url}`)
           }
           if (!newContent.width && !newContent.height) {
             newContent.data = oldContent.data

@@ -1,4 +1,3 @@
-const ConfigManager = require('./common/core/ConfigManager')
 const Application = require('./lk/LKApplication')
 const WSChannel = require('./lk/net/LKWSChannel')
 const ChatManager = require('./lk/core/ChatManager')
@@ -7,17 +6,36 @@ const OrgManager = require('./lk/core/OrgManager')
 const UserManager = require('./lk/core/UserManager')
 const MagicCodeManager = require('./lk/core/MagicCodeManager')
 const MFApplyManager = require('./lk/core/MFApplyManager')
-const DBProxy = require('./lk/store/DBInit')
+const DBProxy = require('./common/store/DBProxy')
 
+class Manifest {
+    static get Application() {
+        return Application
+    }
+    static get WSChannel() {
+        return WSChannel
+    }
+    static get ChatManager() {
+        return ChatManager
+    }
+    static get ContactManager() {
+        return ContactManager
+    }
+    static get OrgManager() {
+        return OrgManager
+    }
+    static get UserManager() {
+        return UserManager
+    }
+    static get MagicCodeManager() {
+        return MagicCodeManager
+    }
+    static get MFApplyManager() {
+        return MFApplyManager
+    }
+    static get DBProxy() {
+        return DBProxy
+    }
+}
 
-ConfigManager.configure('Application', Application)
-ConfigManager.configure('WSChannel', WSChannel)
-ConfigManager.configure('ChatManager', ChatManager)
-ConfigManager.configure('ContactManager', ContactManager)
-ConfigManager.configure('OrgManager', OrgManager)
-ConfigManager.configure('UserManager', UserManager)
-ConfigManager.configure('MagicCodeManager', MagicCodeManager)
-ConfigManager.configure('MFApplyManager', MFApplyManager)
-ConfigManager.configure('DBProxy', DBProxy)
-
-module.exports = ConfigManager
+module.exports = Manifest

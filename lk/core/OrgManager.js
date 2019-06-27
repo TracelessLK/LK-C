@@ -1,4 +1,5 @@
-const Application = require('../LKApplication')
+const Application = require('../../common/core/Application')
+
 const EventTarget = require('../../common/core/EventTarget')
 const LKOrgHandler = require('../logic/handler/LKOrgHandler')
 const LKOrgProvider = require('../logic/provider/LKOrgProvider')

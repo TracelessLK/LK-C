@@ -14,7 +14,7 @@ const Chat = require('../store/Chat')
 const DbUtil = require('../store/DbUtil')
 const Contact = require('../store/Contact')
 const Record = require('../store/Record')
-const Application = require('../LKApplication')
+const Application = require('../../common/core/Application')
 
 class ChatManager extends EventTarget {
   constructor() {
