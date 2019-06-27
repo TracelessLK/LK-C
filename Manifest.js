@@ -8,34 +8,16 @@ const MagicCodeManager = require('./lk/core/MagicCodeManager')
 const MFApplyManager = require('./lk/core/MFApplyManager')
 const DBProxy = require('./common/store/DBProxy')
 
-class Manifest {
-    static get Application() {
-        return Application
-    }
-    static get WSChannel() {
-        return WSChannel
-    }
-    static get ChatManager() {
-        return ChatManager
-    }
-    static get ContactManager() {
-        return ContactManager
-    }
-    static get OrgManager() {
-        return OrgManager
-    }
-    static get UserManager() {
-        return UserManager
-    }
-    static get MagicCodeManager() {
-        return MagicCodeManager
-    }
-    static get MFApplyManager() {
-        return MFApplyManager
-    }
-    static get DBProxy() {
-        return DBProxy
-    }
+const Manifest = {
+  Application,
+  WSChannel,
+  ChatManager,
+  ContactManager,
+  OrgManager,
+  UserManager,
+  MagicCodeManager,
+  MFApplyManager,
+  DBProxy
 }
-
+Object.freeze(Manifest)
 module.exports = Manifest
