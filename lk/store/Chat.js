@@ -15,38 +15,50 @@ class Chat {
       })
     })
   }
-  getAllNew(userId) {
+  getAllNew() {
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
       db.transaction(() => {
-        let sql = `
-        select 
-        count(*) as count,
-         case when t1.isGroup is 1 then group_concat(t6.name, "@seq@") else t4.pic end pic,
-        case when t1.isGroup is 1 then t1.id else t4.id end as otherSideId,
-        t1.isGroup as isGroup,
-        t1.name as name,
-        ifnull(t1.topTime,t1.createTime) as activeTime,
-        t1.id as chatId,
-        t1.id as id,
-        (select count(*) from record t2 where t2.ownerUserId=? and t2.chatId=t1.Id and t2.senderUid<>? and t2.readState<1 ) as notReadNum,
-        t3.content as content, 
-        t3.type as type,
-         t3.sendTime as sendTime, 
-         t4.name as sendName,
-         t4.id as contactId
-        from 
-        chat t1
-        left join record t3 on t1.id = t3.chatId
-        left join contact t4 on t3.senderUid = t4.id
-       left join groupMember t5 on t1.id = t5.chatId
-       left join contact t6 on t6.id = t5.contactId
-        where 
-        t1.ownerUserId=? 
-         group by t1.id having t1.name is not null or max(t3.sendTime)  
-        order by t1.MessageCeiling desc,t1.topTime desc,t1.createTime desc
-        `
-        db.getAll(sql, [userId, userId, userId], (results) => {
+        const sql = `
+select
+t5.*,
+case when t5.isGroup is 1 then group_concat(t7.pic, "@sep@") else t5.pic end avatar
+
+from
+(
+   select
+   t1.id,
+   ifnull(t1.name, t3.name) as chatName,
+   ifnull(t1.topTime,t1.createTime) as activeTime,
+   t1.isGroup,
+   t1.reserve1 as craft,
+   t1.MessageCeiling,
+   t1.focus,
+   t2.type as msgType,
+   t2.senderUid,
+   t4.name as senderName,
+   t2.content as msgContent,
+   t2.sendTime as msgSendTime,
+   t3.pic,
+   sum(t2.readState<1 and t2.senderUid <> (select id from lkuser)) as notReadNum
+   from
+   chat as t1
+   left join record as t2
+   on t2.chatId = t1.id
+   left join contact as t3
+   on t1.id = t3.id
+   left join contact as t4
+   on t2.senderUid = t4.id
+   where t1.ownerUserId = (select id from lkuser)
+   group by t1.id having max(t2.sendTime) or t1.id is not null
+) as t5
+left join groupMember  as t6
+on t6.chatId = t5.id
+left join contact as t7
+on t7.id = t6.contactId
+group by t5.id
+`
+        db.getAll(sql, [], (results) => {
           resolve(results)
         }, (err) => {
           reject(err)
