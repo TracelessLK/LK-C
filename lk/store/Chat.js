@@ -15,6 +15,25 @@ class Chat {
       })
     })
   }
+
+  getMsgContent(content, type) {
+    const maxDisplay = 15
+    if (type === chatManager.MESSAGE_TYPE_TEXT) {
+      const { length } = content
+      content = content.replace(/&nbsp;/g, ' ')
+      if (length > maxDisplay) {
+        content = `${stripNewline(content.substring(0, maxDisplay))}......`
+      }
+    } else if (type === chatManager.MESSAGE_TYPE_IMAGE) {
+      content = '[图片]'
+    } else if (type === chatManager.MESSAGE_TYPE_FILE) {
+      content = '[文件]'
+    } else if (type === chatManager.MESSAGE_TYPE_AUDIO) {
+      content = '[语音]'
+    }
+    return content
+  }
+
   getAllNew() {
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
@@ -22,25 +41,26 @@ class Chat {
         const sql = `
 select
 t5.*,
-case when t5.isGroup is 1 then group_concat(t7.pic, "@sep@") else t5.pic end avatar
-
+case when t5.isGroup is 1 then group_concat(t7.pic, "@sep@") else t5.pic end avatar,
+ifnull(t5.content, "一起LK吧") as msgContent
 from
 (
    select
    t1.id,
    ifnull(t1.name, t3.name) as chatName,
+   t1.createTime,
+   t1.topTime,
    ifnull(t1.topTime,t1.createTime) as activeTime,
    t1.isGroup,
    t1.reserve1 as craft,
    t1.MessageCeiling,
    t1.focus,
-   t2.type as msgType,
    t2.senderUid,
    t4.name as senderName,
-   t2.content as msgContent,
+  case t2.type when 0 then t2.content when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end  as content,
    t2.sendTime as msgSendTime,
    t3.pic,
-   sum(t2.readState<1 and t2.senderUid <> (select id from lkuser)) as notReadNum
+   sum(t2.readState<1 and t2.senderUid <> (select id from lkuser)) as newMsgNum
    from
    chat as t1
    left join record as t2
@@ -139,7 +159,7 @@ group by t5.id
       let db = new DBProxy()
       db.transaction(() => {
         let sql = "insert into chat(id,ownerUserId,createTime,topTime,isGroup) values (?,?,?,?,?)"
-        db.run(sql, [chatId, userId, Date.now(), 0, 0], () => {
+        db.run(sql, [chatId, userId, Date.now(), null, 0], () => {
           resolve()
         }, (err) => {
           reject(err)
