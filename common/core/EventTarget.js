@@ -19,11 +19,14 @@ class EventTarget {
     ary.splice(ary.indexOf(fun), 1)
   }
 
-  fire(event, ...params) {
+  fire(event, param) {
     const ary = this._listeners.get(event)
     if (ary) {
       ary.forEach((o) => {
-        o(...params)
+        o({
+          event,
+          param
+        })
       })
     }
   }
