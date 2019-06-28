@@ -16,25 +16,12 @@ class Chat {
     })
   }
 
-  getMsgContent(content, type) {
-    const maxDisplay = 15
-    if (type === chatManager.MESSAGE_TYPE_TEXT) {
-      const { length } = content
-      content = content.replace(/&nbsp;/g, ' ')
-      if (length > maxDisplay) {
-        content = `${stripNewline(content.substring(0, maxDisplay))}......`
-      }
-    } else if (type === chatManager.MESSAGE_TYPE_IMAGE) {
-      content = '[图片]'
-    } else if (type === chatManager.MESSAGE_TYPE_FILE) {
-      content = '[文件]'
-    } else if (type === chatManager.MESSAGE_TYPE_AUDIO) {
-      content = '[语音]'
-    }
-    return content
-  }
+  getAllNew(option = {}) {
+    const {
+      maxDisplay = 15,
+      ellipsis = "..."
+    } = option
 
-  getAllNew() {
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
       db.transaction(() => {
@@ -42,14 +29,12 @@ class Chat {
 select
 t5.*,
 case when t5.isGroup is 1 then group_concat(t7.pic, "@sep@") else t5.pic end avatar,
-ifnull(t5.content, "一起LK吧") as msgContent
+ifnull(case when length(t5.content) > ${maxDisplay} then substr(content, 0, ${maxDisplay})||"${ellipsis}" else content end, "一起LK吧") as msgContent
 from
 (
    select
    t1.id,
    ifnull(t1.name, t3.name) as chatName,
-   t1.createTime,
-   t1.topTime,
    ifnull(t1.topTime,t1.createTime) as activeTime,
    t1.isGroup,
    t1.reserve1 as craft,
@@ -57,7 +42,7 @@ from
    t1.focus,
    t2.senderUid,
    t4.name as senderName,
-  case t2.type when 0 then t2.content when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end  as content,
+  case t2.type when 0 then replace(replace(trim(t2.content),"\n"," "), "&nbsp;", " ") when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end  as content,
    t2.sendTime as msgSendTime,
    t3.pic,
    sum(t2.readState<1 and t2.senderUid <> (select id from lkuser)) as newMsgNum
@@ -77,6 +62,7 @@ on t6.chatId = t5.id
 left join contact as t7
 on t7.id = t6.contactId
 group by t5.id
+order by t5.MessageCeiling desc,t5.activeTime desc
 `
         db.getAll(sql, [], (results) => {
           resolve(results)
