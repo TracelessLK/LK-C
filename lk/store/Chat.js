@@ -16,7 +16,7 @@ class Chat {
     })
   }
 
-  getAllNew(option = {}) {
+  getAllChat(option = {}) {
     const {
       maxDisplay = 15,
       ellipsis = "..."

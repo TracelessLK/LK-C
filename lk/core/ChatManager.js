@@ -611,8 +611,8 @@ class ChatManager extends EventTarget {
     return LKChatProvider.asyGetAll(userId)
   }
 
-  asyGetAllNew(userId) {
-    return Chat.getAllNew(userId, userId, userId)
+    getAllChat(userId) {
+    return Chat.getAllChat(userId, userId, userId)
   }
 
   /**
