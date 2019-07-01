@@ -612,7 +612,7 @@ class ChatManager extends EventTarget {
   }
 
     getAllChat(userId) {
-    return Chat.getAllChat(userId, userId, userId)
+    return Chat.getAllChat({userId})
   }
 
   /**
