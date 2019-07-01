@@ -120,6 +120,7 @@ class ContactManager extends EventTarget {
 
   async setContactName(name, id) {
     await Contact.setContactName(name, id)
+    // todo: fire personChanged
     // this.fire("contactChanged");
   }
 

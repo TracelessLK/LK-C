@@ -23,7 +23,7 @@ class UserManager extends EventTarget {
     const user = Application.getCurrentApp().getCurrentUser()
     await LKUserHandler.asySetUserName(name, user.id)
     user.name = name
-    this.fire('nameChanged')
+    this.fire('selfInfoChanged')
   }
 
   async setUserPic(pic) {
@@ -31,7 +31,7 @@ class UserManager extends EventTarget {
     const user = Application.getCurrentApp().getCurrentUser()
     await LKUserHandler.asySetUserPic(pic, user.id)
     user.pic = pic
-    this.fire('picChanged')
+    this.fire('selfInfoChanged')
   }
 
   async asyLogin(userId, password, pwdHash) {

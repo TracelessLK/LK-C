@@ -12,7 +12,6 @@ class OrgManager extends EventTarget {
   asyResetOrgs(newOrgMCode, orgs, userId) {
     return LKOrgHandler.asyResetOrgs(orgs, userId).then(() => LKMagicCodeHandler.asyUpdateOrgMagicCode(newOrgMCode, userId)).then(() => {
       MagicCodeManager.setOrgMagicCode(newOrgMCode)
-      this.fire('orgChanged')
     })
   }
 
