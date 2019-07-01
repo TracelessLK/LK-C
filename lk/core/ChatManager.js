@@ -46,6 +46,28 @@ class ChatManager extends EventTarget {
 
     this._sendOrderSeed = Date.now()
     this._allChatSendOrder = {}
+
+    this.on('otherMsgRead', ({param}) => {
+      const {chatId} = param
+      fireChatNotReadNum(chatId)
+    })
+
+    this.on('otherMsgReceived', ({param}) => {
+      const {chatId} = param
+      fireChatNotReadNum(chatId)
+      this.fire('recentChange')
+    })
+  }
+
+  fireChatNotReadNum = (chatId) => {
+    let curUser = Application.getCurrentApp().getCurrentUser()
+    let userId = curUser.id
+    this.asyGetNewMsgNum(chatId).then((chatNotReadNum) => {
+      this.fire('chatChange', {chatId, chatNotReadNum})
+    })
+    this.asyGetAllMsgNotReadNum(userId).then(num => {
+      this.fire('msgBadgeChanged', {num})
+    })
   }
   init(user) {
     this._recentChats = []//
@@ -229,7 +251,7 @@ class ChatManager extends EventTarget {
       targets.get(record.senderUid).push(record.id)
     })
     await LKChatHandler.asyUpdateReadState(readNewMsgs, this.MESSAGE_READSTATE_READ)
-    this.fire("msgRead", chatId)
+    this.fire("otherMsgRead", {chatId})
     // console.log({num})
     LKChatProvider.asyGetChat(userId, chatId).then((chat) => {
       targets.forEach((v, k) => {
@@ -314,8 +336,6 @@ class ChatManager extends EventTarget {
     let userId = Application.getCurrentApp().getCurrentUser().id
     let newMsgs = await LKChatProvider.asyGetMsgsNotRead(userId, chatId)
     return newMsgs.length
-    // let newMsgNum = this._allChatNewMsgNums[chatId];
-    // return newMsgNum?newMsgNum:0;
   }
 
   // increaseNewMsgNum(chatId){
@@ -469,8 +489,7 @@ class ChatManager extends EventTarget {
     }
 
     await Promise.all(ps)
-    this.fire('msgChanged')
-    this.fire('msgChanged')
+    this.fire('recentChange')
   }
 
   /**

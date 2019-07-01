@@ -630,9 +630,8 @@ class LKChannel extends WSChannel {
       toUid: header.target.id,
       focus: ChatData.focus
     }
-    //this._delayFire("msgReceived", option);
     await ChatManager.asytopChat(userId, chatId)
-    ChatManager.fire("msgReceived", option)
+    ChatManager.fire("otherMsgReceived", option)
   }
 
   async _getReceiveOrder(chatId, relativeMsgId, senderUid, senderDid, sendOrder) {
