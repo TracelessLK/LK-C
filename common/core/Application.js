@@ -42,7 +42,6 @@ class Application extends EventTarget {
   start(db, platform) {
     this._platform = platform
     this._dataSource = db
-    this.fire('dbReady', db)
   }
 
   getDataSource() {

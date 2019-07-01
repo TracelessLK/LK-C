@@ -1,11 +1,10 @@
 const EventTarget = require('../core/EventTarget')
 
 class WSChannel extends EventTarget {
-  constructor(url, keepAlive) {
+  constructor(url) {
     super()
     this._reconnectDelay = 0
     this._url = url
-    this._keepAlive = keepAlive
   }
 
   // todo: applyChannel 要先判断网络情况
@@ -14,6 +13,10 @@ class WSChannel extends EventTarget {
       try {
         this._ws = new WebSocket(this._url)
       } catch (e) {
+        this.fire('channelChange', {
+          isConnected: false,
+          error: e
+        })
         delete this._ws
         return Promise.reject(e)
       }
@@ -23,9 +26,13 @@ class WSChannel extends EventTarget {
         }
         this._ws.onerror = (event) => {
           this._onerror(event)
+          this.fire('channelChange', {
+            isConnected: false,
+            error: event
+          })
         }
         this._ws.onclose = () => {
-          if (!this._foreClosed && this._keepAlive) {
+          if (!this._foreClosed) {
             this._reconnect()
           }
         }

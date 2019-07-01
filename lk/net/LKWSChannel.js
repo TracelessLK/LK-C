@@ -16,7 +16,7 @@ const LZBase64String = require('../../common/util/lz-base64-string')
 
 class LKChannel extends WSChannel {
   constructor(url) {
-    super(url, true)
+    super(url)
     this._callbacks = {}
     this._timeout = 30000
     this._chatMsgPool = new Map()
