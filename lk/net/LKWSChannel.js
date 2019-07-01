@@ -443,18 +443,13 @@ class LKChannel extends WSChannel {
       // console.log(`before: ${content.data.data.length / mSize}`)
       // console.log(`after: ${sendContent.data.data.length / mSize}`)
       // console.log(`ratio: ${sendContent.data.data.length / content.data.data.length}`)
-
     } else if (content.type === ChatManager.MESSAGE_TYPE_AUDIO) {
       sendContent = {type: content.type, data: {compress: true, ext: content.data.ext}}
       sendContent.data.data = LZBase64String.compressToUTF16(content.data.data)
     } else {
       sendContent = {type: content.type, data: content.data}
     }
-    const step1 = Date.now()
-    // console.log(`compress: ${(step1 -step0) / 1000}`)
     let result = await Promise.all([this.applyChannel(), this._asyNewRequest("sendMsg", sendContent, {isGroup, chatId, relativeMsgId})])
-    const step2 = Date.now()
-    // console.log(`applyChannel: ${(step2 -step1) / 1000}`)
     let msgId = result[1].header.id
     let time = result[1].header.time
     let curTime = Date.now()
@@ -468,28 +463,19 @@ class LKChannel extends WSChannel {
       ChatManager.asytopChat(userId, chatId)]
     const dbChangePs = Promise.all(psAry).then(() => {
       ChatManager.fire("msgChanged", chatId)
-    }).then(() => {
-      // console.log(`dbChange: ${(Date.now() -step2) / 1000}`)
-
     })
     try {
       const psAry2 = [
-        result[0]._sendMessage(result[1]).then(() => {
-          // console.log(`sendMsg: ${(Date.now() -step2) / 1000}`)
-
-        }),
+        result[0]._sendMessage(result[1]),
         dbChangePs
       ]
       await Promise.all(psAry2)
-      const step3 = Date.now()
-      // console.log(`all: ${(step3 -step2) / 1000}`)
       await LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, ChatManager.MESSAGE_STATE_SERVER_RECEIVE)
-    } catch(err) {
+    } catch (err) {
       await dbChangePs
       await LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, ChatManager.MESSAGE_STATE_SERVER_NOT_RECEIVE)
     }
     ChatManager.fire("msgChanged", chatId)
-
   }
 
   async msgDeviceDiffReportHandler(msg) {
