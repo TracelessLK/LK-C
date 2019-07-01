@@ -31,11 +31,10 @@ class LKApplication extends Application {
       }
       if (url) {
         this._channel = new WSChannel(`ws://${user.serverIP}:${user.serverPort}`, true)
-        this._channel.on('connectionFail', () => {
-          this.fire('netStateChanged', false)
-        })
-        this._channel.on('connectionOpen', () => {
-          this.fire('netStateChanged', true)
+        this._channel.on('channelChange', ({
+          param
+        }) => {
+          this.fire('netStateChanged', param)
         })
       }
     }

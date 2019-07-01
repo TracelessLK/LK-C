@@ -24,20 +24,26 @@ class WSChannel extends EventTarget {
           this._onmessage(msg)
         }
         this._ws.onerror = (event) => {
-          this._onerror(event)
           this.fire('channelChange', {
             isConnected: false,
             error: event
           })
         }
-        this._ws.onclose = () => {
+        this._ws.onclose = (event) => {
+          this.fire('channelChange', {
+            isConnected: false,
+            error: event,
+            type: 'close'
+          })
           if (!this._forceClosed) {
             this._reconnect()
           }
         }
         this._openPromise = new Promise((resolve) => {
           this._ws.onopen = () => {
-            this.fire('connectionOpen')
+            this.fire('channelChange', {
+              isConnected: true
+            })
             resolve(this)
           }
         })
