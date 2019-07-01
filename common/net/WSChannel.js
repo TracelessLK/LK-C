@@ -32,7 +32,7 @@ class WSChannel extends EventTarget {
           })
         }
         this._ws.onclose = () => {
-          if (!this._foreClosed) {
+          if (!this._forceClosed) {
             this._reconnect()
           }
         }
@@ -97,7 +97,7 @@ class WSChannel extends EventTarget {
   }
 
   close() {
-    this._foreClosed = true
+    this._forceClosed = true
     try {
       this._ws.close()
     } catch (e) {

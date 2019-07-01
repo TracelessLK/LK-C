@@ -254,7 +254,7 @@ class LKChannel extends WSChannel {
   }
 
   async _ping() {
-    if (this._foreClosed) {
+    if (this._forceClosed) {
       return
     }
     let deprecated = false
