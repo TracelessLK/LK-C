@@ -17,6 +17,7 @@ class Chat {
   }
 
   getAllChat(option = {}) {
+    const { userId } = option
     const {
       maxDisplay = 15,
       ellipsis = "..."
@@ -45,7 +46,7 @@ from
   case t2.type when 0 then replace(replace(trim(t2.content),"\n"," "), "&nbsp;", " ") when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end  as content,
    t2.sendTime as msgSendTime,
    t3.pic,
-   sum(t2.readState<1 and t2.senderUid <> (select id from lkuser)) as newMsgNum
+   sum(t2.readState<1 and t2.senderUid <> ?   ) as newMsgNum
    from
    chat as t1
    left join record as t2
@@ -54,7 +55,7 @@ from
    on t1.id = t3.id
    left join contact as t4
    on t2.senderUid = t4.id
-   where t1.ownerUserId = (select id from lkuser)
+   where t1.ownerUserId = ?   
    group by t1.id having max(t2.sendTime) or t1.id is not null
 ) as t5
 left join groupMember  as t6
@@ -64,7 +65,7 @@ on t7.id = t6.contactId
 group by t5.id
 order by t5.MessageCeiling desc,t5.activeTime desc
 `
-        db.getAll(sql, [], (results) => {
+        db.getAll(sql, [userId, userId], (results) => {
           resolve(results)
         }, (err) => {
           reject(err)
