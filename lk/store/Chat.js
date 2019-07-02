@@ -415,5 +415,24 @@ order by t2.name
       paramAry: [userId, chatId]
     })
   }
+
+  getNonGroupMember({
+    userId, chatId
+  }) {
+    const sql = `
+    select 
+id, pic, name 
+from 
+contact 
+where id not in (
+select contactId from groupMember where chatId = ?
+) and ownerUserId = ?
+oder by name
+    `
+    return SqlUtil.transaction({
+      sql,
+      paramAry: [chatId, userId]
+    })
+  }
 }
 module.exports = new Chat()

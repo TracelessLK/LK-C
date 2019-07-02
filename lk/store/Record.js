@@ -342,13 +342,13 @@ from
 record as t1
 join contact as  t2
 on t1.senderUid = t2.id
-where chatId = ?
+where chatId = ? and t1.ownerUserId = ?
 order by sendTime DESC
 ${limitStm}
 )
 order by sendTime 
     `
-    const paramAry = [userId, chatId]
+    const paramAry = [userId, chatId, userId]
     if (limit) {
       paramAry.push(limit)
     }

@@ -454,11 +454,6 @@ class ChatManager extends EventTarget {
      * @returns {Promise.<void>}
      */
   async newGroupMembers(chatId, name, newMembers) {
-    // let oldMembers = await LKChatProvider.asyGetGroupMembers(chatId);
-    // let curMembers = [];
-    // oldMembers.forEach(function (m) {
-    //     curMembers.push(m.id);
-    // });
     let userId = Application.getCurrentApp().getCurrentUser().id
     await Application.getCurrentApp().getLKWSChannel().addGroupMembers(chatId, name, newMembers)
     await Chat.addGroupMembers(userId, chatId, newMembers)
@@ -743,6 +738,15 @@ class ChatManager extends EventTarget {
     let curUser = Application.getCurrentApp().getCurrentUser()
     let userId = curUser.id
     return Chat.getAllGroupMember({
+      chatId, userId
+    })
+  }
+
+  getNonGroupMember(option) {
+    const {chatId} = option
+    let curUser = Application.getCurrentApp().getCurrentUser()
+    let userId = curUser.id
+    return Chat.getNonGroupMember({
       chatId, userId
     })
   }
