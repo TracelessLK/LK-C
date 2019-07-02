@@ -74,10 +74,8 @@ class Record {
           }
           if (t === this.MESSAGE_TYPE_IMAGE) {
             newContent = { width: oldContent.width, height: oldContent.height, url }
-            // console.info(`addMsg:img,${url}`)
           } else {
             newContent = { url }
-            // console.info(`addMsg:audio,${url}`)
           }
           if (!newContent.width && !newContent.height) {
             newContent.data = oldContent.data
@@ -294,30 +292,6 @@ class Record {
     })
   }
 
-  getMsgs(userId, chatId, limit) {
-    return new Promise((resolve, reject) => {
-      const db = new DBProxy()
-      let sql = 'select * from record where ownerUserId=? and chatId=?'
-      if (limit && limit > 0) {
-        // sql += " order by relativeOrder desc,receiveOrder desc,sendOrder desc";
-        sql += ' order by sendTime desc'
-        sql += ' limit '
-        sql += limit
-      } else {
-        // sql += " order by relativeOrder,receiveOrder,sendOrder";
-        sql += ' order by sendTime'
-      }
-      db.transaction(() => {
-        db.getAll(sql, [userId, chatId], (results) => {
-          let rs = results
-          if (limit && limit > 0) { rs = rs.reverse() }
-          resolve(rs)
-        }, (err) => {
-          reject(err)
-        })
-      })
-    })
-  }
 
   getAllMsg(option) {
     const {userId, chatId, limit} = option
@@ -589,19 +563,6 @@ order by sendTime
       })
     })
   }
-  getAllLastMsg(userId) {
-    return new Promise((resolve, reject) => {
-      const sql = 'select t2.name,t1.* from record t1 join contact t2 where  t1.senderUid = t2.id and   t1.ownerUserId=? order by sendTime desc limit 1'
-      const db = new DBProxy()
-      db.transaction(() => {
-        db.getAll(sql, [userId], (results) => {
-          resolve(results)
-        }, (err) => {
-          reject(err)
-        })
-      })
-    })
-  }
 
   getAllReadState({msgId}) {
     const sql = `
@@ -625,6 +586,19 @@ and t3.contactId <> t1.senderUid
     return SqlUtil.transaction({
       sql,
       paramAry: [msgId]
+    })
+  }
+
+
+  getTotalMsgCount({
+    chatId
+  }) {
+    const sql = `
+    select count(*) from record where chatId = ?
+    `
+    return SqlUtil.transaction({
+      sql,
+      paramAry: [chatId]
     })
   }
 }

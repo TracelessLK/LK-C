@@ -598,16 +598,7 @@ class ChatManager extends EventTarget {
     return LKChatProvider.asyGetGroupMembers(chatId)
   }
 
-  /**
-     *
-     * @param userId
-     * @param chatId
-     * @param limit
-     * @returns {*}
-     */
-  asyGetMsgs(userId, chatId, limit) {
-    return LKChatProvider.asyGetMsgs(userId, chatId, limit)
-  }
+
   asyGetGroupMember(chatId, contactId) {
     return Chat.getGroupMember(chatId, contactId)
   }
@@ -664,9 +655,6 @@ class ChatManager extends EventTarget {
     return Record.getLastMsg(userId, chatId)
   }
 
-  asyGetAllLastMsg(userId) {
-    return Record.getAllLastMsg(userId)
-  }
 
   asyGetMessageSearch(userId, content) {
     return Record.getMessageSearch(userId, content)
@@ -781,6 +769,10 @@ class ChatManager extends EventTarget {
     return Chat.getNonGroupMember({
       chatId, userId
     })
+  }
+
+  getTotalCount(option) {
+    return Record.getTotalMsgCount(option)
   }
 }
 

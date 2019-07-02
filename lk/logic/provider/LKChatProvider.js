@@ -6,7 +6,6 @@ class LKChatProvider {
     return Chat.getAll(userId)
   }
 
-
   asyDeleteChat(userId, chatId) {
     return Chat.deleteChat(userId, chatId)
   }
@@ -20,10 +19,6 @@ class LKChatProvider {
 
   asyGetGroupMembers(chatId) {
     return Chat.getGroupMembers(chatId)
-  }
-
-  asyGetMsgs(userId, chatId, limit) {
-    return Record.getMsgs(userId, chatId, limit)
   }
 
   asyGetMsgsNotRead(userId, chatId) {
