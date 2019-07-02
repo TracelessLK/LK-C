@@ -235,11 +235,8 @@ class ChatManager extends EventTarget {
      * @param limit
      * @returns {Promise.<{msgs: *, newMsgs: *}>}
      */
-  async asyReadMsgs(chatId, limit) {
+  async asyReadMsgs(chatId) {
     let userId = Application.getCurrentApp().getCurrentUser().id
-    let records = await LKChatProvider.asyGetMsgs(userId, chatId, limit)
-    // this._allChatNewMsgNums[chatId] = 0;
-    // LKChatHandler.asyUpdateNewMsgNum(userId,chatId,0);
     let newMsgs = await LKChatProvider.asyGetMsgsNotRead(userId, chatId)
     let readNewMsgs = []
     let targets = new Map()
@@ -260,9 +257,6 @@ class ChatManager extends EventTarget {
         })
       })
     })
-
-
-    return {msgs: records, newMsgs}
   }
 
   /**

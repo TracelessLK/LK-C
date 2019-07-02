@@ -321,12 +321,12 @@ class Record {
 
   getAllMsg(option) {
     const {userId, chatId, limit} = option
-    const sql = `
+    const limitStm = limit ? 'limit ?' : ''
+    let sql = `
 select 
 * from 
 (
 select
-t1.chatId,
 t1.id as msgId,
 t1.type,
 replace(t1.content, "&nbsp;", " ") content,
@@ -344,13 +344,17 @@ join contact as  t2
 on t1.senderUid = t2.id
 where chatId = ?
 order by sendTime DESC
-limit ?
+${limitStm}
 )
 order by sendTime 
     `
+    const paramAry = [userId, chatId]
+    if (limit) {
+      paramAry.push(limit)
+    }
     return SqlUtil.transaction({
       sql,
-      paramAry: [userId, chatId, limit]
+      paramAry
     })
   }
 
