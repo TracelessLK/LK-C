@@ -737,6 +737,15 @@ class ChatManager extends EventTarget {
   getAllReadState(option) {
     return Record.getAllReadState(option)
   }
+
+  getAllGroupMember(option) {
+    const {chatId} = option
+    let curUser = Application.getCurrentApp().getCurrentUser()
+    let userId = curUser.id
+    return Chat.getAllGroupMember({
+      chatId, userId
+    })
+  }
 }
 
 

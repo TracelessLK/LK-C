@@ -1,5 +1,7 @@
 const DBProxy = require('../../common/store/DBProxy')
 const Record = require('./Record')
+const SqlUtil = require('../../util/SqlUtil')
+
 //order默认创建时间 如果置顶order=当前时间&onTop=1
 class Chat {
   getAll(userId) {
@@ -390,6 +392,27 @@ order by t5.MessageCeiling desc,t5.activeTime desc
           reject(err)
         })
       })
+    })
+  }
+
+  getAllGroupMember({
+    userId, chatId
+  }) {
+    const sql = `
+    select 
+t1.contactId,
+t2.pic,
+case when t1.contactId = ? then t2.name||" (我) " else t2.name end as name
+from 
+groupMember as t1
+join contact as t2
+on t1.contactId = t2.id
+where chatId = ?
+order by t2.name
+    `
+    return SqlUtil.transaction({
+      sql,
+      paramAry: [userId, chatId]
     })
   }
 }
