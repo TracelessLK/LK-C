@@ -49,12 +49,12 @@ class ChatManager extends EventTarget {
 
     this.on('otherMsgRead', ({param}) => {
       const {chatId} = param
-      fireChatNotReadNum(chatId)
+      this.fireChatNotReadNum(chatId)
     })
 
     this.on('otherMsgReceived', ({param}) => {
       const {chatId} = param
-      fireChatNotReadNum(chatId)
+      this.fireChatNotReadNum(chatId)
       this.fire('recentChange')
     })
   }
@@ -731,6 +731,10 @@ class ChatManager extends EventTarget {
   // }
   getAllMsg(option) {
     return Record.getAllMsg(option)
+  }
+
+  getAllReadState(option) {
+    return Record.getAllReadState(option)
   }
 }
 

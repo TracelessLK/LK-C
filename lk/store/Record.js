@@ -1,4 +1,5 @@
 const DBProxy = require('../../common/store/DBProxy')
+const SqlUtil = require('../../util/SqlUtil')
 
 class Record {
   constructor() {
@@ -347,24 +348,9 @@ limit ?
 )
 order by sendTime 
     `
-    return this.trasaction({
+    return SqlUtil.transaction({
       sql,
       paramAry: [userId, chatId, limit]
-    })
-  }
-
-  trasaction(option) {
-    const {sql, paramAry} = option
-    const db = new DBProxy()
-
-    return new Promise((resolve, reject) => {
-      db.transaction(() => {
-        db.getAll(sql, paramAry, (result) => {
-          resolve(result)
-        }, (err) => {
-          reject(err)
-        })
-      })
     })
   }
 
@@ -610,6 +596,31 @@ order by sendTime
           reject(err)
         })
       })
+    })
+  }
+
+  getAllReadState({msgId}) {
+    const sql = `
+    select
+t4.name,
+t3.contactId,
+t4.pic,
+t5.state
+from
+record as t1
+join groupMember as t3
+on t3.chatId = t5.chatId
+join contact t4
+on t4.id = t3.contactId
+join group_record_state t5
+on t5.reporterUid = t4.id and t5.msgId = t1.id
+where
+t1.id = ?
+and t3.contactId <> t1.senderUid
+`
+    return SqlUtil.transaction({
+      sql,
+      paramAry: [msgId]
     })
   }
 }
