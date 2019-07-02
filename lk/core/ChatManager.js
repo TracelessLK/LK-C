@@ -726,6 +726,12 @@ class ChatManager extends EventTarget {
       return '[语音消息]'
     }
   }
+  // option {
+  // userId, chatId, limit
+  // }
+  getAllMsg(option) {
+    return Record.getAllMsg(option)
+  }
 }
 
 

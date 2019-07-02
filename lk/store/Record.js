@@ -1,4 +1,5 @@
 const DBProxy = require('../../common/store/DBProxy')
+
 class Record {
   constructor() {
     this.MESSAGE_TYPE_TEXT = 0
@@ -317,6 +318,56 @@ class Record {
     })
   }
 
+  getAllMsg(option) {
+    const {userId, chatId, limit} = option
+    const sql = `
+select 
+* from 
+(
+select
+t1.chatId,
+t1.id as msgId,
+t1.type,
+replace(t1.content, "&nbsp;", " ") content,
+t1.sendTime,
+t1.state,
+t1.readState, 
+t1.playState,
+t1.readTime,
+t2.name as senderName,
+t2.pic,
+t1.senderUid = ? isSelf
+from
+record as t1
+join contact as  t2
+on t1.senderUid = t2.id
+where chatId = ?
+order by sendTime DESC
+limit ?
+)
+order by sendTime 
+    `
+    return this.trasaction({
+      sql,
+      paramAry: [userId, chatId, limit]
+    })
+  }
+
+  trasaction(option) {
+    const {sql, paramAry} = option
+    const db = new DBProxy()
+
+    return new Promise((resolve, reject) => {
+      db.transaction(() => {
+        db.getAll(sql, paramAry, (result) => {
+          resolve(result)
+        }, (err) => {
+          reject(err)
+        })
+      })
+    })
+  }
+
   updateReadState(msgIds, state) {
     return new Promise((resolve, reject) => {
       let sql = 'update record set readState=?'
@@ -549,17 +600,17 @@ class Record {
     })
   }
   getAllLastMsg(userId) {
-      return new Promise((resolve, reject) => {
-          const sql = 'select t2.name,t1.* from record t1 join contact t2 where  t1.senderUid = t2.id and   t1.ownerUserId=? order by sendTime desc limit 1'
-          const db = new DBProxy()
-          db.transaction(() => {
-              db.getAll(sql, [userId], (results) => {
-                  resolve(results)
-              }, (err) => {
-                  reject(err)
-              })
-          })
+    return new Promise((resolve, reject) => {
+      const sql = 'select t2.name,t1.* from record t1 join contact t2 where  t1.senderUid = t2.id and   t1.ownerUserId=? order by sendTime desc limit 1'
+      const db = new DBProxy()
+      db.transaction(() => {
+        db.getAll(sql, [userId], (results) => {
+          resolve(results)
+        }, (err) => {
+          reject(err)
+        })
       })
+    })
   }
 }
 
