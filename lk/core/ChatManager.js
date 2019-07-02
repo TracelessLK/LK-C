@@ -55,7 +55,11 @@ class ChatManager extends EventTarget {
     this.on('otherMsgReceived', ({param}) => {
       const {chatId} = param
       this.fireChatNotReadNum(chatId)
-      this.fire('recentChange')
+    })
+
+    this.on('groupNameChange', ({param}) => {
+      const {chatId, name} = param
+      this.fire('chatChange', {chatId, name})
     })
   }
 
@@ -65,7 +69,7 @@ class ChatManager extends EventTarget {
     this.asyGetNewMsgNum(chatId).then((chatNotReadNum) => {
       this.fire('chatChange', {chatId, chatNotReadNum})
     })
-    this.asyGetAllMsgNotReadNum(userId).then(num => {
+    this.asyGetAllMsgNotReadNum(userId).then((num) => {
       this.fire('msgBadgeChanged', {num})
     })
   }
@@ -220,7 +224,7 @@ class ChatManager extends EventTarget {
           resovle(true)
         } else {
           LKChatHandler.asyAddSingleChat(userId, contactId).then(() => {
-            this.fire("recentChanged")
+            this.fire("recentChange")
             resovle(true)
           })
         }
@@ -417,7 +421,7 @@ class ChatManager extends EventTarget {
      */
   async clear() {
     await LKChatHandler.asyClear(Application.getCurrentApp().getCurrentUser().id)
-    this.fire("recentChanged")
+    this.fire("recentChange")
   }
 
   /**
@@ -439,7 +443,7 @@ class ChatManager extends EventTarget {
     if (!chat) {
       if (!local) { await Contact.addNewGroupContactIFNotExist(members, userId) }
       await Promise.all([Chat.addGroupChat(userId, chatId, name, Date.now(), null, null, null), Chat.addGroupMembers(userId, chatId, members, groupAdministrator)])
-      this.fire("recentChanged")
+      this.fire("recentChange")
     }
   }
 
@@ -493,7 +497,7 @@ class ChatManager extends EventTarget {
   async leaveGroup(chatId) {
     await Application.getCurrentApp().getLKWSChannel().leaveGroup(chatId)
     await this.deleteGroup(chatId)
-    this.fire("recentChanged")
+    this.fire("recentChange")
   }
 
   deleteGroup(chatId) {
@@ -541,7 +545,10 @@ class ChatManager extends EventTarget {
   async asySetGroupName(chatId, name) {
     await Application.getCurrentApp().getLKWSChannel().setGroupName(chatId, name)
     this.asyUpdateGroupName(chatId, name)
-    this.fire("recentChanged")
+    this.fire('groupNameChange', {
+      chatId,
+      name
+    })
   }
 
   asyUpdateGroupName(chatId, name) {
