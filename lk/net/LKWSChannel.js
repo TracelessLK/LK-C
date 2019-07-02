@@ -399,9 +399,12 @@ class LKChannel extends WSChannel {
     let result = await Promise.all([LKChatProvider.asyGetChat(userId, chatId), LKChatProvider.asyGetMsg(userId, chatId, msgId, true)])
     let chat = result[0]
     let oldMsg = result[1]
+
     if (oldMsg) {
-      LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, ChatManager.MESSAGE_STATE_SENDING).then(() => {
-        ChatManager.fire("msgChanged", chatId)
+      this.updateMsgState({
+        chatId,
+        msgId,
+        state: ChatManager.MESSAGE_STATE_SENDING
       })
       if (oldMsg.type === ChatManager.MESSAGE_TYPE_IMAGE || oldMsg.type === ChatManager.MESSAGE_TYPE_AUDIO) {
         oldMsg.content.data = LZBase64String.compressToUTF16(oldMsg.content.data)
@@ -409,15 +412,30 @@ class LKChannel extends WSChannel {
       }
       let result = await Promise.all([this.applyChannel(), this._asyNewRequest("sendMsg", {type: oldMsg.type, data: oldMsg.type == "0" ? oldMsg.content : JSON.parse(oldMsg.content)}, {isGroup: chat.isGroup, time: oldMsg.sendTime, chatId, relativeMsgId: oldMsg.relativeMsgId, id: oldMsg.id, order: oldMsg.order})])
       result[0]._sendMessage(result[1]).then(() => {
-        LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, ChatManager.MESSAGE_STATE_SERVER_RECEIVE).then(() => {
-          ChatManager.fire("msgChanged", chatId)
+        this.updateMsgState({
+          chatId,
+          msgId,
+          state: ChatManager.MESSAGE_STATE_SERVER_RECEIVE
         })
       }).catch(() => {
-        LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, ChatManager.MESSAGE_STATE_SERVER_NOT_RECEIVE).then(() => {
-          ChatManager.fire("msgChanged", chatId)
+        this.updateMsgState({
+          chatId,
+          msgId,
+          state: ChatManager.MESSAGE_STATE_SERVER_NOT_RECEIVE
         })
       })
     }
+  }
+
+  updateMsgState(option) {
+    const {chatId, msgId, state} = option
+    let curApp = Application.getCurrentApp()
+    let userId = curApp.getCurrentUser().id
+    LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, state).then(() => {
+      ChatManager.fire("msgStateChanged", {
+        chatId, msgId, state
+      })
+    })
   }
   sendGroupText(chatId, text, relativeMsgId) {
     this.sendText(chatId, text, relativeMsgId, true)
@@ -431,7 +449,6 @@ class LKChannel extends WSChannel {
 
   async _sendMsg(chatId, content, relativeMsgId, isGroup) {
     // console.log('_sendMsg')
-    const step0 = Date.now()
     let curApp = Application.getCurrentApp()
     let userId = curApp.getCurrentUser().id
     let did = curApp.getCurrentUser().deviceId
@@ -462,7 +479,7 @@ class LKChannel extends WSChannel {
       LKChatHandler.asyAddMsg(userId, chatId, msgId, userId, did, content.type, content.data, time, ChatManager.MESSAGE_STATE_SENDING, relativeMsgId, relativeOrder, curTime, result[1].body.order),
       ChatManager.asytopChat(userId, chatId)]
     const dbChangePs = Promise.all(psAry).then(() => {
-      ChatManager.fire("msgChanged", chatId)
+      ChatManager.fire("msgListChange", chatId)
     })
     try {
       const psAry2 = [
@@ -470,12 +487,19 @@ class LKChannel extends WSChannel {
         dbChangePs
       ]
       await Promise.all(psAry2)
-      await LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, ChatManager.MESSAGE_STATE_SERVER_RECEIVE)
+      this.updateMsgState({
+        chatId,
+        msgId,
+        state: ChatManager.MESSAGE_STATE_SERVER_RECEIVE
+      })
     } catch (err) {
       await dbChangePs
-      await LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, ChatManager.MESSAGE_STATE_SERVER_NOT_RECEIVE)
+      this.updateMsgState({
+        chatId,
+        msgId,
+        state: ChatManager.MESSAGE_STATE_SERVER_NOT_RECEIVE
+      })
     }
-    ChatManager.fire("msgChanged", chatId)
   }
 
   async msgDeviceDiffReportHandler(msg) {
@@ -500,12 +524,16 @@ class LKChannel extends WSChannel {
           this._asyNewRequest("sendMsg2", {type: oldMsg.type, data: contentData}, {isGroup: chat.isGroup, time: oldMsg.sendTime, chatId, relativeMsgId: oldMsg.relativeMsgId, id: oldMsg.id, targets: added, order: oldMsg.order}).then((req) => {
             this._sendMessage(req).then(() => {
               this._reportMsgHandled(header.flowId, header.flowType)
-              LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, ChatManager.MESSAGE_STATE_SERVER_RECEIVE).then(() => {
-                ChatManager.fire("msgChanged", chatId)
+              this.updateMsgState({
+                chatId,
+                msgId,
+                state: ChatManager.MESSAGE_STATE_SERVER_RECEIVE
               })
             }).catch(() => {
-              LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, ChatManager.MESSAGE_STATE_SERVER_NOT_RECEIVE).then(() => {
-                ChatManager.fire("msgChanged", chatId)
+              this.updateMsgState({
+                chatId,
+                msgId,
+                state: ChatManager.MESSAGE_STATE_SERVER_NOT_RECEIVE
               })
             })
           })
@@ -616,8 +644,9 @@ class LKChannel extends WSChannel {
     await LKChatHandler.asyAddMsg(userId, chatId, header.id, header.uid, header.did, content.type, content.data, header.time, state, body.relativeMsgId, relativeOrder, receiveOrder, body.order)
     this._reportMsgHandled(header.flowId, header.flowType)
     this._checkChatMsgPool(chatId, header.id, receiveOrder)
-    this._delayFire("msgChanged", chatId)
-    //ChatManager.fire("msgChanged",chatId);
+    this.fire("msgListChange", {
+      chatId
+    })
     let MsgsOneData = await ChatManager.asyGetLastMsg(userId, chatId)
     let ChatData = await ChatManager.asyGetChat(userId, chatId)
     const option = {
