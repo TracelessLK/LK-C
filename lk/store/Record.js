@@ -301,6 +301,7 @@ select
 * from 
 (
 select
+count(*) as readNum,
 t1.id as msgId,
 t1.type,
 replace(t1.content, "&nbsp;", " ") content,
@@ -316,7 +317,10 @@ from
 record as t1
 join contact as  t2
 on t1.senderUid = t2.id
-where chatId = ? and t1.ownerUserId = ?
+left join group_record_state as t3
+on t3.msgId = t1.id
+where t1.chatId = ? and t1.ownerUserId = ?
+group by t1.id
 order by sendTime DESC
 ${limitStm}
 )

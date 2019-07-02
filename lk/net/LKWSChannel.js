@@ -725,15 +725,8 @@ class LKChannel extends WSChannel {
 
   async readReport(chatId, isGroup, senderUid, serverIP, serverPort, msgIds) {
     let result = await Promise.all([this.applyChannel(), this._asyNewRequest("readReport", {msgIds, chatId, isGroup}, {target: {id: senderUid, serverIP, serverPort}})])
-    result[0]._sendMessage(result[1]).then(async () => {
-      await LKChatHandler.asyUpdateReadState(msgIds, ChatManager.MESSAGE_READSTATE_READREPORT)
-      msgIds.forEach(msgId => {
-        this.fire('selfMsgRead', {
-          msgId,
-          readState: ChatManager.MESSAGE_READSTATE_READREPORT
-        })
-      })
-    })
+    await result[0]._sendMessage(result[1])
+    LKChatHandler.asyUpdateReadState(msgIds, ChatManager.MESSAGE_READSTATE_READREPORT)
   }
   readReportHandler(msg) {
     let userId = Application.getCurrentApp().getCurrentUser().id
@@ -744,7 +737,14 @@ class LKChannel extends WSChannel {
 
     ChatManager.msgReadReport(msg.header.uid, chatId, msgIds, ChatManager.MESSAGE_STATE_TARGET_READ).then((result) => {
       if (result.isAllUpdate) { this._reportMsgHandled(msg.header.flowId, msg.header.flowType) }
-      if (result.updateNum >= 0) { ChatManager.fire("msgChanged", chatId) }
+      if (result.updateNum >= 0) {
+        msgIds.forEach(msgId => {
+          ChatManager.fire("msgStateChanged", {
+            msgId,
+            state: ChatManager.MESSAGE_STATE_TARGET_READ
+          })
+        })
+      }
     })
   }
 
