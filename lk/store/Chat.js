@@ -46,7 +46,7 @@ from
    t2.senderUid,
    t2.state,
    t4.name as senderName,
-  case t2.type when 0 then replace(replace(trim(t2.content),"\n"," "), "&nbsp;", " ") when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end  as content,
+  case when senderUid = ? then "我" else t4.name end ||":" ||(case t2.type when 0 then replace(replace(trim(t2.content),"\n"," "), "&nbsp;", " ") when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end)  as content,
    t2.sendTime as msgSendTime,
    t3.pic,
    sum(t2.readState<1 and t2.senderUid <> ?   ) as newMsgNum
@@ -68,7 +68,7 @@ on t7.id = t6.contactId
 group by t5.id
 order by t5.MessageCeiling desc,t5.activeTime desc
 `
-        db.getAll(sql, [userId, userId], (results) => {
+        db.getAll(sql, [userId, userId, userId], (results) => {
           resolve(results)
         }, (err) => {
           reject(err)

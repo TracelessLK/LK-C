@@ -711,16 +711,31 @@ class ChatManager extends EventTarget {
      * @param content 消息内容
      * @returns {*} 返回结果
      */
-  asyMessageType(stat, content) {
-    if (stat === 0) {
+  asyMessageType(type, content) {
+    if (type === 0) {
       return content
-    } if (stat === 1) {
+    } if (type === 1) {
       return '[图片]'
-    } if (stat === 2) {
+    } if (type === 2) {
       return '[文件]'
-    } if (stat === 3) {
+    } if (type === 3) {
       return '[语音消息]'
     }
+  }
+
+  getLastMsgContent({
+    type, content
+  }) {
+    if (type === this.MESSAGE_TYPE_TEXT) {
+      return content
+    } if (type === this.MESSAGE_TYPE_IMAGE) {
+      return '[图片]'
+    } if (type === this.MESSAGE_TYPE_FILE) {
+      return '[文件]'
+    } if (type === this.MESSAGE_TYPE_AUDIO) {
+      return '[语音]'
+    }
+
   }
   // option {
   // userId, chatId, limit

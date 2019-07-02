@@ -448,7 +448,6 @@ class LKChannel extends WSChannel {
   }
 
   async _sendMsg(chatId, content, relativeMsgId, isGroup) {
-    // console.log('_sendMsg')
     let curApp = Application.getCurrentApp()
     let userId = curApp.getCurrentUser().id
     let did = curApp.getCurrentUser().deviceId
@@ -456,10 +455,6 @@ class LKChannel extends WSChannel {
     if (content.type === ChatManager.MESSAGE_TYPE_IMAGE) {
       sendContent = {type: content.type, data: {width: content.data.width, height: content.data.height, compress: true}}
       sendContent.data.data = LZBase64String.compressToUTF16(content.data.data)
-      // const mSize = 1024 * 1024
-      // console.log(`before: ${content.data.data.length / mSize}`)
-      // console.log(`after: ${sendContent.data.data.length / mSize}`)
-      // console.log(`ratio: ${sendContent.data.data.length / content.data.data.length}`)
     } else if (content.type === ChatManager.MESSAGE_TYPE_AUDIO) {
       sendContent = {type: content.type, data: {compress: true, ext: content.data.ext}}
       sendContent.data.data = LZBase64String.compressToUTF16(content.data.data)
@@ -479,7 +474,7 @@ class LKChannel extends WSChannel {
       LKChatHandler.asyAddMsg(userId, chatId, msgId, userId, did, content.type, content.data, time, ChatManager.MESSAGE_STATE_SENDING, relativeMsgId, relativeOrder, curTime, result[1].body.order),
       ChatManager.asytopChat(userId, chatId)]
     const dbChangePs = Promise.all(psAry).then(() => {
-      ChatManager.fire("msgListChange", chatId)
+      ChatManager.fire("msgSend", {chatId, msgId, senderName: curApp.getCurrentUser().name})
     })
     try {
       const psAry2 = [
