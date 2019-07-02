@@ -15,6 +15,7 @@ const DbUtil = require('../store/DbUtil')
 const Contact = require('../store/Contact')
 const Record = require('../store/Record')
 const Application = require('../../common/core/Application')
+const config = require('../../config')
 
 class ChatManager extends EventTarget {
   constructor() {
@@ -724,18 +725,29 @@ class ChatManager extends EventTarget {
   }
 
   getLastMsgContent({
-    type, content
+    type, content, senderUid, senderName
   }) {
-    if (type === this.MESSAGE_TYPE_TEXT) {
-      return content
-    } if (type === this.MESSAGE_TYPE_IMAGE) {
-      return '[图片]'
-    } if (type === this.MESSAGE_TYPE_FILE) {
-      return '[文件]'
-    } if (type === this.MESSAGE_TYPE_AUDIO) {
-      return '[语音]'
+    let result
+    let curUser = Application.getCurrentApp().getCurrentUser()
+    let userId = curUser.id
+    let prefix
+    if (userId === senderUid) {
+      prefix = "我"
+    } else {
+      prefix = senderName
     }
-
+    prefix += ': '
+    if (type === this.MESSAGE_TYPE_TEXT) {
+      result = content
+    } if (type === this.MESSAGE_TYPE_IMAGE) {
+      result = '[图片]'
+    } if (type === this.MESSAGE_TYPE_FILE) {
+      result = '[文件]'
+    } if (type === this.MESSAGE_TYPE_AUDIO) {
+      result = '[语音]'
+    }
+    result = prefix + result
+    return result
   }
   // option {
   // userId, chatId, limit

@@ -1,6 +1,7 @@
 const DBProxy = require('../../common/store/DBProxy')
 const Record = require('./Record')
 const SqlUtil = require('../../util/SqlUtil')
+const config = require('../../config')
 
 //order默认创建时间 如果置顶order=当前时间&onTop=1
 class Chat {
@@ -21,9 +22,11 @@ class Chat {
   getAllChat(option = {}) {
     const { userId } = option
     const {
-      maxDisplay = 15,
       ellipsis = "..."
     } = option
+
+    const maxDisplay = config.chatMsgMaxDisplay
+
 
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
@@ -46,7 +49,7 @@ from
    t2.senderUid,
    t2.state,
    t4.name as senderName,
-  case when senderUid = ? then "我" else t4.name end ||":" ||(case t2.type when 0 then replace(replace(trim(t2.content),"\n"," "), "&nbsp;", " ") when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end)  as content,
+  case when senderUid = ? then "我" else t4.name end ||": " ||(case t2.type when 0 then replace(replace(trim(t2.content),"\n"," "), "&nbsp;", " ") when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end)  as content,
    t2.sendTime as msgSendTime,
    t3.pic,
    sum(t2.readState<1 and t2.senderUid <> ?   ) as newMsgNum
