@@ -62,6 +62,10 @@ class ChatManager extends EventTarget {
       const {chatId, name} = param
       this.fire('chatChange', {chatId, name})
     })
+
+    this.on('msgSend', ({param}) => {
+      this.fire('msgListChange')
+    })
   }
 
   fireChatNotReadNum = (chatId) => {
@@ -738,6 +742,7 @@ class ChatManager extends EventTarget {
     }
     prefix += ': '
     if (type === this.MESSAGE_TYPE_TEXT) {
+      content = content.trim().replace(/&nbsp||\n/g, ' ').substring(0, config.chatMsgMaxDisplay)
       result = content
     } if (type === this.MESSAGE_TYPE_IMAGE) {
       result = '[图片]'
