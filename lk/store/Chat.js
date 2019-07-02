@@ -427,7 +427,7 @@ contact
 where id not in (
 select contactId from groupMember where chatId = ?
 ) and ownerUserId = ?
-oder by name
+order by name
     `
     return SqlUtil.transaction({
       sql,
