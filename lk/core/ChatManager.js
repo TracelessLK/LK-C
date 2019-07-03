@@ -63,8 +63,12 @@ class ChatManager extends EventTarget {
       })
     })
 
-    this.on('msgSend', () => {
-      this.fire('msgListChange',)
+    this.on('msgSend', ({param}) => {
+      this.fire('msgListChange', {
+          source: 'chatManager constructor',
+          sourceEvent: 'msgSend',
+        chatId: param.chatId
+      })
     })
   }
 
