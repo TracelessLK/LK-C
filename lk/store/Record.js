@@ -272,27 +272,6 @@ class Record {
     return this._updateMsgState(userId, chatId, msgIds, state)
   }
 
-  getGroupMsgReadReport(userId, chatId, msgId) {
-    return new Promise((resolve, reject) => {
-      const db = new DBProxy()
-      db.transaction(() => {
-        const sql = `select contact.id,contact.name,group_record_state.state from group_record_state ,contact 
-                where group_record_state.reporterUid = contact.id 
-                and group_record_state.ownerUserId=? 
-                and group_record_state.chatId=? 
-                and group_record_state.msgId=? 
-                and contact.ownerUserId=?
-                `
-        db.getAll(sql, [userId, chatId, msgId, userId], (results) => {
-          resolve(results)
-        }, (err) => {
-          reject(err)
-        })
-      })
-    })
-  }
-
-
   getAllMsg(option) {
     const {userId, chatId, limit} = option
     const limitStm = limit ? 'limit ?' : ''
@@ -300,40 +279,33 @@ class Record {
 select 
 * from 
 (
-select
-count(*) as readNum,
-t1.id as msgId,
-t1.type,
-replace(t1.content, "&nbsp;", " ") content,
-t1.sendTime,
-t1.state,
-t1.readState, 
-t1.playState,
-t1.readTime,
-t1.senderUid,
-t2.name as senderName,
-t2.pic,
-t1.senderUid = ? isSelf
-from
-record as t1
-join contact as  t2
-on t1.senderUid = t2.id and t2.ownerUserId = ?
-left join group_record_state as t3
-on t3.msgId = t1.id
-where t1.chatId = ? and t1.ownerUserId = ?
-group by t1.id
+  select 
+  * 
+  from 
+  recordTableView
+where chatId = ? and ownerUserId = ?
 order by sendTime DESC
 ${limitStm}
 )
 order by sendTime 
     `
-    const paramAry = [userId, userId, chatId, userId]
+    const paramAry = [chatId, userId]
     if (limit) {
       paramAry.push(limit)
     }
     return SqlUtil.transaction({
       sql,
       paramAry
+    })
+  }
+
+  getSingleMsg({msgId}) {
+    const sql = `
+      select * from recordTableView where msgId = ?
+    `
+    return SqlUtil.transaction({
+      sql,
+      paramAry: [msgId]
     })
   }
 
@@ -569,7 +541,7 @@ order by sendTime
     })
   }
 
-  getAllReadState({msgId, userId}) {
+  getAllReadState({msgId}) {
     const sql = `
     select
 t4.name,
@@ -577,12 +549,12 @@ t3.contactId,
 t4.pic,
 t5.state
 from
-record as t1
-join groupMember as t3
-on t3.chatId = t5.chatId
+groupMember as t3
+join record as t1
+on t3.chatId = t1.chatId
 join contact t4
-on t4.id = t3.contactId and t4.ownerUserId = ?
-join group_record_state t5
+on t4.id = t3.contactId and t4.ownerUserId = t1.ownerUserId
+left join group_record_state t5
 on t5.reporterUid = t4.id and t5.msgId = t1.id
 where
 t1.id = ?
@@ -590,7 +562,7 @@ and t3.contactId <> t1.senderUid
 `
     return SqlUtil.transaction({
       sql,
-      paramAry: [userId, msgId]
+      paramAry: [msgId]
     })
   }
 

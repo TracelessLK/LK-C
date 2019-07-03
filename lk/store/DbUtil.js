@@ -245,8 +245,32 @@ on t6.chatId = t5.id
 left join contact as t7
 on t7.id = t6.contactId and t7.ownerUserId = t5.ownerUserId
 group by t5.id
-order by t5.MessageCeiling desc,t5.activeTime desc
-`
+`,
+      recordTableView: `
+      select
+count(*) as readNum,
+t1.chatId,
+t1.ownerUserId,
+t1.id as msgId,
+t1.type,
+replace(t1.content, "&nbsp;", " ") content,
+t1.sendTime,
+t1.state,
+t1.readState, 
+t1.playState,
+t1.readTime,
+t1.senderUid,
+t2.name as senderName,
+t2.pic,
+t1.senderUid = t1.ownerUserId isSelf
+from
+record as t1
+join contact as  t2
+on t1.senderUid = t2.id 
+left join group_record_state as t3
+on t3.msgId = t1.id
+group by t1.id
+      `
     }
 
     return DbUtil.createView({viewWrapper})

@@ -22,7 +22,15 @@ class Chat {
     const { userId } = option
 
     return SqlUtil.transaction({
-      sql: `select * from chatTableView where ownerUserId = ?`,
+      sql: `
+      select 
+      * 
+      from 
+      chatTableView 
+      where ownerUserId = ?
+      order by MessageCeiling desc, activeTime desc
+
+      `,
       paramAry: [userId]
     })
   }

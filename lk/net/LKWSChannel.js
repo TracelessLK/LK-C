@@ -432,8 +432,8 @@ class LKChannel extends WSChannel {
     let curApp = Application.getCurrentApp()
     let userId = curApp.getCurrentUser().id
     LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, state).then(() => {
-      ChatManager.fire("msgStateChanged", {
-        chatId, msgId, state
+      ChatManager.fire("msgStateChange", {
+        msgId, state
       })
     })
   }
@@ -739,9 +739,9 @@ class LKChannel extends WSChannel {
       if (result.isAllUpdate) { this._reportMsgHandled(msg.header.flowId, msg.header.flowType) }
       if (result.updateNum >= 0) {
         msgIds.forEach(msgId => {
-          ChatManager.fire("msgStateChanged", {
+          ChatManager.fire('selfMsgRead', {
             msgId,
-            state: ChatManager.MESSAGE_STATE_TARGET_READ
+            source: 'readReportHandler'
           })
         })
       }

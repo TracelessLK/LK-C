@@ -43,6 +43,7 @@ class ChatManager extends EventTarget {
 
     this._sendOrderSeed = Date.now()
     this._allChatSendOrder = {}
+    const source = 'chatManager constructor'
 
     this.on('otherMsgRead', ({param}) => {
       const {chatId} = param
@@ -59,15 +60,25 @@ class ChatManager extends EventTarget {
       this.fire('chatChange', {
         chatId,
         sourceEvent: "groupNameChange",
-        source: 'chatManager constructor'
+        source
       })
     })
 
     this.on('msgSend', ({param}) => {
-      this.fire('msgListChange', {
-          source: 'chatManager constructor',
-          sourceEvent: 'msgSend',
+      const option = {
+        source,
+        sourceEvent: 'msgSend',
         chatId: param.chatId
+      }
+      this.fire('msgListChange', option)
+      this.fire('chatChange', option)
+      this.fire('recentChange', option)
+    })
+
+    this.on('selfMsgRead', ({param}) => {
+      const {msgId, state} = param
+      this.fire("msgStateChange", {
+        msgId, state, source
       })
     })
   }
@@ -549,17 +560,6 @@ class ChatManager extends EventTarget {
   }
 
   /**
-     * get read report detail of group msg
-     * @param chatId
-     * @param msgId
-     * @returns [{name,state}]
-     */
-  asyGetGroupMsgReadReport(chatId, msgId) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
-    return Record.getGroupMsgReadReport(userId, chatId, msgId)
-  }
-
-  /**
      * update group name
      * @param chatId
      * @param name
@@ -808,6 +808,10 @@ class ChatManager extends EventTarget {
     return Chat.getSingeChat({
       chatId, userId
     })
+  }
+
+  getSingleMsg(option) {
+    return Record.getSingleMsg(option)
   }
 }
 
