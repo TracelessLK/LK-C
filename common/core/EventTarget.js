@@ -24,6 +24,7 @@ class EventTarget {
     if (ary) {
       ary.forEach((o) => {
         o({
+          funcLength: ary.length,
           event,
           param
         })

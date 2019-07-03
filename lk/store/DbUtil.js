@@ -203,7 +203,13 @@ WHERE
       chatTableView: `
 select 
 count(*) as memberCount,
-t5.*,
+t5.id,
+t5.chatName,
+t5.activeTime,
+t5.isGroup,
+t5.MessageCeiling,
+t5.focus,
+t5.senderUid,
 case when t5.isGroup is 1 then group_concat(t7.pic||"@id@"||t7.id, "@sep@") else t5.pic end avatar,
 ifnull(case when length(t5.content) > ${maxDisplay} then substr(content, 0, ${maxDisplay})||"${ellipsis}" else content end, "一起LK吧") as msgContent
 from
