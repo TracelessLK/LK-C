@@ -62,17 +62,17 @@ from
    on t1.id = t3.id
    left join contact as t4
    on t2.senderUid = t4.id
-   where t1.ownerUserId = ?   
+   where t1.ownerUserId = ?   and t3.ownerUserId = ? and t4.ownerUserId = ?
    group by t1.id having max(t2.sendTime) or t1.id is not null
 ) as t5
 left join groupMember  as t6
 on t6.chatId = t5.id
 left join contact as t7
-on t7.id = t6.contactId
+on t7.id = t6.contactId and t7.ownerUserId = ?
 group by t5.id
 order by t5.MessageCeiling desc,t5.activeTime desc
 `
-        db.getAll(sql, [userId, userId, userId], (results) => {
+        db.getAll(sql, [userId, userId, userId, userId, userId, userId], (results) => {
           resolve(results)
         }, (err) => {
           reject(err)
