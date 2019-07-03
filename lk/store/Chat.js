@@ -73,7 +73,6 @@ group by t5.id
 order by t5.MessageCeiling desc,t5.activeTime desc
 `
         db.getAll(sql, [userId, userId, userId, userId, userId, userId], (results) => {
-          console.log({results})
           resolve(results)
         }, (err) => {
           reject(err)
