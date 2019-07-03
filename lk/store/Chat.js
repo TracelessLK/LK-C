@@ -21,58 +21,12 @@ class Chat {
 
   getAllChat(option = {}) {
     const { userId } = option
-    const {
-      ellipsis = "..."
-    } = option
-
-    const maxDisplay = config.chatMsgMaxDisplay
-
 
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
       db.transaction(() => {
-        const sql = `
-select
-count(*) as memberCount,
-t5.*,
-case when t5.isGroup is 1 then group_concat(t7.pic||"@id@"||t7.id, "@sep@") else t5.pic end avatar,
-ifnull(case when length(t5.content) > ${maxDisplay} then substr(content, 0, ${maxDisplay})||"${ellipsis}" else content end, "一起LK吧") as msgContent
-from
-(
-   select
-   t1.id,
-   ifnull(t1.name, t3.name) as chatName,
-   ifnull(t1.topTime,t1.createTime) as activeTime,
-   t1.isGroup,
-   t1.reserve1 as craft,
-   t1.MessageCeiling,
-   t1.focus,
-   t2.senderUid,
-   t2.state,
-   t4.name as senderName,
-  case when senderUid = ? then "我" else t4.name end ||": " ||(case t2.type when 0 then replace(replace(trim(t2.content),"\n"," "), "&nbsp;", " ") when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end)  as content,
-   t2.sendTime as msgSendTime,
-   t3.pic,
-   sum(t2.readState<1 and t2.senderUid <> ?   ) as newMsgNum
-   from
-   chat as t1
-   left join record as t2
-   on t2.chatId = t1.id 
-   left join contact as t3
-   on t1.id = t3.id and t3.ownerUserId = ?
-   left join contact as t4
-   on t2.senderUid = t4.id and t4.ownerUserId = ?
-   where t1.ownerUserId = ?  
-   group by t1.id having max(t2.sendTime) or t1.id is not null
-) as t5
-left join groupMember  as t6
-on t6.chatId = t5.id
-left join contact as t7
-on t7.id = t6.contactId and t7.ownerUserId = ?
-group by t5.id
-order by t5.MessageCeiling desc,t5.activeTime desc
-`
-        db.getAll(sql, [userId, userId, userId, userId, userId, userId], (results) => {
+        const sql = `select * from chatTableView where ownerUserId = ?`
+        db.getAll(sql, [userId], (results) => {
           resolve(results)
         }, (err) => {
           reject(err)
@@ -80,6 +34,7 @@ order by t5.MessageCeiling desc,t5.activeTime desc
       })
     })
   }
+
   getChatID(userId) {
     return new Promise((resolve, reject) => {
       let db = new DBProxy()

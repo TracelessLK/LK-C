@@ -5,7 +5,8 @@ const config = {
   pingInterval: 1000 * 60,
   // 打印数据库所有数据
   displayAllData: false,
-  chatMsgMaxDisplay: 15
+  chatMsgMaxDisplay: 15,
+  ellipsis: "..."
 }
 
 

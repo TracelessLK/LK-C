@@ -61,6 +61,7 @@ create table if not exists db_version(
         let psAry = sqlAry.map(ele => DbUtil.runSql(ele))
         await Promise.all(psAry)
         await DbUtil.updateDb()
+        await DbUtil.createBusinessView()
         resolve()
         prepareDbAsyncTask()
       })
@@ -105,96 +106,14 @@ create table if not exists db_version(
     }
   }
 
-  static async createView() {
-    //const db = new DBProxy()
+  static async createView({viewWrapper}) {
     let psAry = []
-    const viewWrapper = {
-      contactView: `create view if not exists contactView as 
-        select 
-		t3.name lkuserName,
-        t2.name orgName, 
-		t1.*
-        from 
-        contact t1
-        join org t2 
-		join lkuser t3
-        on
-        t1.orgId = t2.id
-		and t1.ownerUserId = t3.id`,
-      deviceView: `create view if not exists deviceView as 
-        select 
-        t2.name contactName,
-        t1.* 
-        from 
-        device t1 
-        join contact t2   
-        on 
-        t1.contactId = t2.id 
-        order by t2.name`,
-      flowCursorView: `create view if not exists flowCursorView as 
-        select 
-        t2.name lkuserName,
-        t1.* 
-        from 
-        flowCursor t1 
-        join lkuser t2 
-        on 
-        t1.ownerUserId = t2.id`,
-      groupMemberView: `create view if not exists groupMemberView as
-        select
-        t2.name chatName,
-        t3.name contactName, 
-        t1. * 
-        from groupMember t1 
-        join chat t2 
-        join contact t3 
-        on 
-        t1.chatId = t2.id and 
-        t1.contactId = t3.id`,
-      group_record_stateView: `create view if not exists group_record_stateView as
-        select 
-        t2.name lkuserName,
-        t3.name chatName,
-        t1.* 
-        from 
-        group_record_state t1 join 
-        lkuser t2 join 
-        chat t3   
-        on 
-        t1.ownerUserId = t2.id and 
-        t1.chatId = t3.id`,
-      magicCodeView: `create view if NOT EXISTS magicCodeView AS 
-        SELECT t2.name lkuserName,
-		t1.*
-        FROM magicCode t1
-        JOIN lkuser t2
-	    ON t1.ownerUserId = t2 .id `,
-      orgView: `create view if NOT EXISTS orgView AS 
-        SELECT t2.name lkuserName,
-		t1.*
-        FROM org t1
-        JOIN lkuser t2
-        ON t1.ownerUserId = t2.id `,
-      recordView: `create view if NOT EXISTS recordView AS
-        SELECT t2.name lkuserName,
-		t3.name chatName,
-		t4.name senderName,
-		t1.*
-        FROM record t1
-        JOIN lkuser t2
-        JOIN chat t3
-        join contact t4
-	    ON t1.ownerUserId = t2.id
-		AND t1.chatId = t3.id
-		and t4.id = t1.senderUid
-		
-		`
-    }
+
     const viewAry = Object.keys(viewWrapper)
     // drop all view
     psAry = viewAry.map(ele => DbUtil.runSql(`drop view if exists ${ele}`))
     await Promise.all(psAry)
-    psAry = viewAry.map(ele => DbUtil.runSql(viewWrapper[ele]))
+    psAry = viewAry.map(ele => DbUtil.runSql(`create view if NOT EXISTS ${ele} AS ${viewWrapper[ele]}`))
 
     await Promise.all(psAry)
   }
@@ -275,11 +194,146 @@ WHERE
     name NOT LIKE 'sqlite_%' order by name`)
     return nameAry.map(ele => ele.name)
   }
+
+  static createBusinessView() {
+    const maxDisplay = config.chatMsgMaxDisplay
+    const ellipsis = config.ellipsis
+
+    const viewWrapper = {
+      chatTableView: `
+select 
+count(*) as memberCount,
+t5.*,
+case when t5.isGroup is 1 then group_concat(t7.pic||"@id@"||t7.id, "@sep@") else t5.pic end avatar,
+ifnull(case when length(t5.content) > ${maxDisplay} then substr(content, 0, ${maxDisplay})||"${ellipsis}" else content end, "一起LK吧") as msgContent
+from
+(
+   select
+   t1.ownerUserId,
+   t1.id,
+   ifnull(t1.name, t3.name) as chatName,
+   ifnull(t1.topTime,t1.createTime) as activeTime,
+   t1.isGroup,
+   t1.reserve1 as craft,
+   t1.MessageCeiling,
+   t1.focus,
+   t2.senderUid,
+   t2.state,
+   t4.name as senderName,
+  case when t2.senderUid = t2.ownerUserId then "我" else t4.name end ||": " ||(case t2.type when 0 then replace(replace(trim(t2.content),"\n"," "), "&nbsp;", " ") when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end)  as content,
+   t2.sendTime as msgSendTime,
+   t3.pic,
+   sum(t2.readState<1 and t2.senderUid <> t1.ownerUserId   ) as newMsgNum
+   from
+   chat as t1
+   left join record as t2
+   on t2.chatId = t1.id 
+   left join contact as t3
+   on t1.id = t3.id and t3.ownerUserId = t1.ownerUserId
+   left join contact as t4
+   on t2.senderUid = t4.id and t4.ownerUserId = t1.ownerUserId
+   group by t1.id having max(t2.sendTime) or t1.id is not null
+) as t5
+left join groupMember  as t6
+on t6.chatId = t5.id
+left join contact as t7
+on t7.id = t6.contactId and t7.ownerUserId = t5.ownerUserId
+group by t5.id
+order by t5.MessageCeiling desc,t5.activeTime desc
+`
+    }
+
+    return DbUtil.createView({viewWrapper})
+  }
 }
 
 
 async function prepareDbAsyncTask() {
-  await DbUtil.createView()
+  const viewWrapper = {
+    contactView: ` 
+        select 
+		t3.name lkuserName,
+        t2.name orgName, 
+		t1.*
+        from 
+        contact t1
+        join org t2 
+		join lkuser t3
+        on
+        t1.orgId = t2.id
+		and t1.ownerUserId = t3.id`,
+    deviceView: ` 
+        select 
+        t2.name contactName,
+        t1.* 
+        from 
+        device t1 
+        join contact t2   
+        on 
+        t1.contactId = t2.id 
+        order by t2.name`,
+    flowCursorView: ` 
+        select 
+        t2.name lkuserName,
+        t1.* 
+        from 
+        flowCursor t1 
+        join lkuser t2 
+        on 
+        t1.ownerUserId = t2.id`,
+    groupMemberView: `
+        select
+        t2.name chatName,
+        t3.name contactName, 
+        t1. * 
+        from groupMember t1 
+        join chat t2 
+        join contact t3 
+        on 
+        t1.chatId = t2.id and 
+        t1.contactId = t3.id`,
+    group_record_stateView: `
+        select 
+        t2.name lkuserName,
+        t3.name chatName,
+        t1.* 
+        from 
+        group_record_state t1 join 
+        lkuser t2 join 
+        chat t3   
+        on 
+        t1.ownerUserId = t2.id and 
+        t1.chatId = t3.id`,
+    magicCodeView: ` 
+        SELECT t2.name lkuserName,
+		t1.*
+        FROM magicCode t1
+        JOIN lkuser t2
+	    ON t1.ownerUserId = t2 .id `,
+    orgView: `
+        SELECT t2.name lkuserName,
+		t1.*
+        FROM org t1
+        JOIN lkuser t2
+        ON t1.ownerUserId = t2.id `,
+    recordView: `
+        SELECT t2.name lkuserName,
+		t3.name chatName,
+		t4.name senderName,
+		t1.*
+        FROM record t1
+        JOIN lkuser t2
+        JOIN chat t3
+        join contact t4
+	    ON t1.ownerUserId = t2.id
+		AND t1.chatId = t3.id
+		and t4.id = t1.senderUid
+		
+		`
+  }
+  await DbUtil.createView({
+    viewWrapper
+  })
   if (displayAllData) {
     const result = await DbUtil.getAllTableAry()
     console.log(result)
