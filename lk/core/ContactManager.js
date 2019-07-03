@@ -63,12 +63,11 @@ class ContactManager extends EventTarget {
   }
 
   /**
-     *
-     * @param userId
      * @param contactId
      * @returns {*}
      */
-  asyGet(userId, contactId) {
+  getSingleContact({contactId}) {
+    const userId = Application.getCurrentApp().getCurrentUser().id
     return LKContactProvider.asyGet(userId, contactId)
   }
 

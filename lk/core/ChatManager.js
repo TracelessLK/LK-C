@@ -70,8 +70,7 @@ class ChatManager extends EventTarget {
   }
 
   fireChatNotReadNum = ({chatId, sourceEvent}) => {
-    let curUser = Application.getCurrentApp().getCurrentUser()
-    let userId = curUser.id
+    const userId = Application.getCurrentApp().getCurrentUser().id
     const source = 'fireChatNotReadNum'
     this.asyGetNewMsgNum(chatId).then((chatNotReadNum) => {
       this.fire('chatChange', {
@@ -655,8 +654,12 @@ class ChatManager extends EventTarget {
      * @param chatId
      * @returns {*}
      */
-  asyDeleteChat(userId, chatId) {
-    return LKChatProvider.asyDeleteChat(userId, chatId)
+  async asyDeleteChat({chatId}) {
+    const userId = Application.getCurrentApp().getCurrentUser().id
+    await LKChatProvider.asyDeleteChat(userId, chatId)
+    this.fire('recentChange', {
+      source: 'asyDeleteChat'
+    })
   }
 
   /**
@@ -796,6 +799,14 @@ class ChatManager extends EventTarget {
 
   getTotalCount(option) {
     return Record.getTotalMsgCount(option)
+  }
+
+  getSingeChat({chatId}) {
+    let curUser = Application.getCurrentApp().getCurrentUser()
+    let userId = curUser.id
+    return Chat.getSingeChat({
+      chatId, userId
+    })
   }
 }
 

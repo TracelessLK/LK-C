@@ -1,7 +1,6 @@
 const DBProxy = require('../../common/store/DBProxy')
 const Record = require('./Record')
 const SqlUtil = require('../../util/SqlUtil')
-const config = require('../../config')
 
 //order默认创建时间 如果置顶order=当前时间&onTop=1
 class Chat {
@@ -22,16 +21,16 @@ class Chat {
   getAllChat(option = {}) {
     const { userId } = option
 
-    return new Promise((resolve, reject) => {
-      let db = new DBProxy()
-      db.transaction(() => {
-        const sql = `select * from chatTableView where ownerUserId = ?`
-        db.getAll(sql, [userId], (results) => {
-          resolve(results)
-        }, (err) => {
-          reject(err)
-        })
-      })
+    return SqlUtil.transaction({
+      sql: `select * from chatTableView where ownerUserId = ?`,
+      paramAry: [userId]
+    })
+  }
+
+  getSingeChat({userId, chatId}) {
+    return SqlUtil.transaction({
+      sql: `select * from chatTableView where ownerUserId = ? and id = ?`,
+      paramAry: [userId, chatId]
     })
   }
 
