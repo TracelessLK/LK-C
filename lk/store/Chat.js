@@ -411,13 +411,13 @@ case when t1.contactId = ? then t2.name||" (我) " else t2.name end as name
 from 
 groupMember as t1
 join contact as t2
-on t1.contactId = t2.id
+on t1.contactId = t2.id and t2.ownerUserId = ?
 where chatId = ?
 order by t2.name
     `
     return SqlUtil.transaction({
       sql,
-      paramAry: [userId, chatId]
+      paramAry: [userId, userId, chatId]
     })
   }
 

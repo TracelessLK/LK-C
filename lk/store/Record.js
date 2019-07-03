@@ -316,7 +316,7 @@ t1.senderUid = ? isSelf
 from
 record as t1
 join contact as  t2
-on t1.senderUid = t2.id
+on t1.senderUid = t2.id and t2.ownerUserId = ?
 left join group_record_state as t3
 on t3.msgId = t1.id
 where t1.chatId = ? and t1.ownerUserId = ?
@@ -326,7 +326,7 @@ ${limitStm}
 )
 order by sendTime 
     `
-    const paramAry = [userId, chatId, userId]
+    const paramAry = [userId, userId, chatId, userId]
     if (limit) {
       paramAry.push(limit)
     }
