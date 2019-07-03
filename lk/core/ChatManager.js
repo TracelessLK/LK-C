@@ -50,32 +50,48 @@ class ChatManager extends EventTarget {
 
     this.on('otherMsgRead', ({param}) => {
       const {chatId} = param
-      this.fireChatNotReadNum(chatId)
+      this.fireChatNotReadNum(chatId, 'otherMsgRead')
     })
 
     this.on('otherMsgReceived', ({param}) => {
       const {chatId} = param
-      this.fireChatNotReadNum(chatId)
+      this.fireChatNotReadNum(chatId, 'otherMsgReceived')
     })
 
     this.on('groupNameChange', ({param}) => {
       const {chatId, name} = param
-      this.fire('chatChange', {chatId, name})
+      this.fire('chatChange', {
+        chatId,
+        name,
+        sourceEvent: "groupNameChange",
+        source: 'chatManager constructor'
+      })
     })
 
-    this.on('msgSend', ({param}) => {
-      this.fire('msgListChange')
+    this.on('msgSend', () => {
+      this.fire('msgListChange',)
     })
   }
 
-  fireChatNotReadNum = (chatId) => {
+  fireChatNotReadNum = (chatId, sourceEvent) => {
     let curUser = Application.getCurrentApp().getCurrentUser()
     let userId = curUser.id
+    const source = 'fireChatNotReadNum'
     this.asyGetNewMsgNum(chatId).then((chatNotReadNum) => {
-      this.fire('chatChange', {chatId, chatNotReadNum})
+      this.fire('chatChange', {
+        chatId,
+        chatNotReadNum,
+        sourceEvent,
+        source
+      })
     })
     this.asyGetAllMsgNotReadNum(userId).then((num) => {
-      this.fire('msgBadgeChanged', {num})
+      this.fire('msgBadgeChanged',
+        {
+          num,
+          sourceEvent,
+          source
+        })
     })
   }
   init(user) {
@@ -229,7 +245,9 @@ class ChatManager extends EventTarget {
           resovle(true)
         } else {
           LKChatHandler.asyAddSingleChat(userId, contactId).then(() => {
-            this.fire("recentChange")
+            this.fire("recentChange", {
+              source: 'asyEnsureSingleChat'
+            })
             resovle(true)
           })
         }
@@ -426,7 +444,9 @@ class ChatManager extends EventTarget {
      */
   async clear() {
     await LKChatHandler.asyClear(Application.getCurrentApp().getCurrentUser().id)
-    this.fire("recentChange")
+    this.fire("recentChange", {
+      source: 'clearChat'
+    })
   }
 
   /**
@@ -448,7 +468,9 @@ class ChatManager extends EventTarget {
     if (!chat) {
       if (!local) { await Contact.addNewGroupContactIFNotExist(members, userId) }
       await Promise.all([Chat.addGroupChat(userId, chatId, name, Date.now(), null, null, null), Chat.addGroupMembers(userId, chatId, members, groupAdministrator)])
-      this.fire("recentChange")
+      this.fire("recentChange", {
+        source: 'addGroupChat'
+      })
     }
   }
 
@@ -485,9 +507,12 @@ class ChatManager extends EventTarget {
         ps.push(Chat.deleteGroup(userId, group.id))
       })
     }
-
-    await Promise.all(ps)
-    this.fire('recentChange')
+    if (ps.length) {
+      await Promise.all(ps)
+      this.fire('recentChange', {
+        source: 'asyResetGroups'
+      })
+    }
   }
 
   /**
@@ -497,7 +522,9 @@ class ChatManager extends EventTarget {
   async leaveGroup(chatId) {
     await Application.getCurrentApp().getLKWSChannel().leaveGroup(chatId)
     await this.deleteGroup(chatId)
-    this.fire("recentChange")
+    this.fire("recentChange", {
+      source: 'leaveGroup'
+    })
   }
 
   deleteGroup(chatId) {
