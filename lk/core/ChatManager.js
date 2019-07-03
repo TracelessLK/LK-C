@@ -55,7 +55,7 @@ class ChatManager extends EventTarget {
     })
 
     this.on('groupNameChange', ({param}) => {
-      const {chatId, name} = param
+      const {chatId} = param
       this.fire('chatChange', {
         chatId,
         sourceEvent: "groupNameChange",
@@ -71,12 +71,10 @@ class ChatManager extends EventTarget {
   fireChatNotReadNum = ({chatId, sourceEvent}) => {
     const userId = Application.getCurrentApp().getCurrentUser().id
     const source = 'fireChatNotReadNum'
-    this.asyGetNewMsgNum(chatId).then((chatNotReadNum) => {
-      this.fire('chatChange', {
-        chatId,
-        sourceEvent,
-        source
-      })
+    this.fire('chatChange', {
+      chatId,
+      sourceEvent,
+      source
     })
     this.asyGetAllMsgNotReadNum(userId).then((num) => {
       this.fire('msgBadgeChanged',
@@ -268,8 +266,9 @@ class ChatManager extends EventTarget {
       targets.get(record.senderUid).push(record.id)
     })
     await LKChatHandler.asyUpdateReadState(readNewMsgs, this.MESSAGE_READSTATE_READ)
-    this.fire("otherMsgRead", {chatId})
-    // console.log({num})
+    if (newMsgs.length) {
+      this.fire("otherMsgRead", {chatId})
+    }
     LKChatProvider.asyGetChat(userId, chatId).then((chat) => {
       targets.forEach((v, k) => {
         Contact.get(userId, k).then((contact) => {
