@@ -27,11 +27,18 @@ class Chat {
     })
   }
 
-  getSingeChat({userId, chatId}) {
-    return SqlUtil.transaction({
+  async getSingeChat({userId, chatId}) {
+    let result
+    const returnAry = await SqlUtil.transaction({
       sql: `select * from chatTableView where ownerUserId = ? and id = ?`,
       paramAry: [userId, chatId]
     })
+
+    if (returnAry.length) {
+      result = returnAry[0]
+    }
+
+    return result
   }
 
   getChatID(userId) {
