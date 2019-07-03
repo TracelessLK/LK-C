@@ -214,14 +214,12 @@ from
    ifnull(t1.name, t3.name) as chatName,
    ifnull(t1.topTime,t1.createTime) as activeTime,
    t1.isGroup,
-   t1.reserve1 as craft,
    t1.MessageCeiling,
    t1.focus,
    t2.senderUid,
    t2.state,
    t4.name as senderName,
   case when t2.senderUid = t2.ownerUserId then "我" else t4.name end ||": " ||(case t2.type when 0 then replace(replace(trim(t2.content),"\n"," "), "&nbsp;", " ") when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end)  as content,
-   t2.sendTime as msgSendTime,
    t3.pic,
    sum(t2.readState<1 and t2.senderUid <> t1.ownerUserId   ) as newMsgNum
    from

@@ -58,7 +58,6 @@ class ChatManager extends EventTarget {
       const {chatId, name} = param
       this.fire('chatChange', {
         chatId,
-        name,
         sourceEvent: "groupNameChange",
         source: 'chatManager constructor'
       })
@@ -75,7 +74,6 @@ class ChatManager extends EventTarget {
     this.asyGetNewMsgNum(chatId).then((chatNotReadNum) => {
       this.fire('chatChange', {
         chatId,
-        chatNotReadNum,
         sourceEvent,
         source
       })
