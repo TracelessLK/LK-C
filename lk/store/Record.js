@@ -310,6 +310,7 @@ t1.state,
 t1.readState, 
 t1.playState,
 t1.readTime,
+t1.senderUid,
 t2.name as senderName,
 t2.pic,
 t1.senderUid = ? isSelf
