@@ -53,6 +53,16 @@ class ChatManager extends EventTarget {
     this.on('otherMsgReceived', ({param}) => {
       const {chatId} = param
       this.fireChatNotReadNum({chatId, sourceEvent: 'otherMsgReceived'})
+      this.fire('recentChange', {
+        sourceEvent: 'otherMsgReceived',
+        source
+      })
+
+      this.fire('msgListChange', {
+        sourceEvent: 'otherMsgReceived',
+        source,
+        chatId
+      })
     })
 
     this.on('groupNameChange', ({param}) => {
@@ -673,15 +683,6 @@ class ChatManager extends EventTarget {
   asyGetMsg(userId, chatId, msgId, fetchData) {
     return LKChatProvider.asyGetMsg(userId, chatId, msgId, fetchData)
   }
-
-  /*
-    * @param userId
-    * @param chatId
-    */
-  asyGetLastMsg(userId, chatId) {
-    return Record.getLastMsg(userId, chatId)
-  }
-
 
   asyGetMessageSearch(userId, content) {
     return Record.getMessageSearch(userId, content)

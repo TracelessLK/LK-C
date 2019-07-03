@@ -522,25 +522,6 @@ order by sendTime
     })
   }
 
-  getLastMsg(userId, chatId) {
-    return new Promise((resolve, reject) => {
-      const sql = 'select t2.name,t1.* from record t1 join contact t2 where  t1.senderUid = t2.id and   t1.ownerUserId=? and t1.chatId=?  order by sendTime desc limit 1'
-      const db = new DBProxy()
-      db.transaction(() => {
-        db.getAll(sql, [userId, chatId], (recordAry) => {
-          const { length } = recordAry
-          let result
-          if (length) {
-            result = recordAry[0]
-          } else {
-            result = null
-          }
-          resolve(result)
-        }, reject)
-      })
-    })
-  }
-
   getAllReadState({msgId}) {
     const sql = `
     select

@@ -642,17 +642,9 @@ class LKChannel extends WSChannel {
     this.fire("msgListChange", {
       chatId
     })
-    let MsgsOneData = await ChatManager.asyGetLastMsg(userId, chatId)
-    let ChatData = await ChatManager.asyGetChat(userId, chatId)
     const option = {
-      isFromSelf: userId === header.uid,
       chatId,
-      content: MsgsOneData.content,
-      name: MsgsOneData.name,
-      fromUid: header.uid,
-      type: MsgsOneData.type,
-      toUid: header.target.id,
-      focus: ChatData.focus
+      source: '_receiveMsg'
     }
     await ChatManager.asytopChat(userId, chatId)
     ChatManager.fire("otherMsgReceived", option)
