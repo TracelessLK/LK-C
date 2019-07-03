@@ -3,7 +3,6 @@ const RSAKey = require("react-native-rsa")
 const _ = require('lodash')
 
 const EventTarget = require('../../common/core/EventTarget')
-//const ContactManager = require('./ContactManager')
 
 const LKChatProvider = require('../logic/provider/LKChatProvider')
 const LKContactProvider = require('../logic/provider/LKContactProvider')
@@ -28,9 +27,6 @@ class ChatManager extends EventTarget {
     //接收消息的random缓存
     this._hotChatRandomReceived = {}
 
-    //all chat newmsgnum
-    // _allChatNewMsgNums = {}
-
     this.MESSAGE_STATE_SENDING = 0
     this.MESSAGE_STATE_SERVER_NOT_RECEIVE = 1
     this.MESSAGE_STATE_SERVER_RECEIVE = 2
@@ -50,12 +46,12 @@ class ChatManager extends EventTarget {
 
     this.on('otherMsgRead', ({param}) => {
       const {chatId} = param
-      this.fireChatNotReadNum(chatId, 'otherMsgRead')
+      this.fireChatNotReadNum({chatId, sourceEvent: 'otherMsgRead'})
     })
 
     this.on('otherMsgReceived', ({param}) => {
       const {chatId} = param
-      this.fireChatNotReadNum(chatId, 'otherMsgReceived')
+      this.fireChatNotReadNum({chatId, sourceEvent: 'otherMsgReceived'})
     })
 
     this.on('groupNameChange', ({param}) => {
@@ -73,7 +69,7 @@ class ChatManager extends EventTarget {
     })
   }
 
-  fireChatNotReadNum = (chatId, sourceEvent) => {
+  fireChatNotReadNum = ({chatId, sourceEvent}) => {
     let curUser = Application.getCurrentApp().getCurrentUser()
     let userId = curUser.id
     const source = 'fireChatNotReadNum'
