@@ -568,7 +568,7 @@ order by sendTime
     })
   }
 
-  getAllReadState({msgId}) {
+  getAllReadState({msgId, userId}) {
     const sql = `
     select
 t4.name,
@@ -580,7 +580,7 @@ record as t1
 join groupMember as t3
 on t3.chatId = t5.chatId
 join contact t4
-on t4.id = t3.contactId
+on t4.id = t3.contactId and t4.ownerUserId = ?
 join group_record_state t5
 on t5.reporterUid = t4.id and t5.msgId = t1.id
 where
@@ -589,7 +589,7 @@ and t3.contactId <> t1.senderUid
 `
     return SqlUtil.transaction({
       sql,
-      paramAry: [msgId]
+      paramAry: [userId, msgId]
     })
   }
 
