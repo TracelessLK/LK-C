@@ -4,20 +4,6 @@ const SqlUtil = require('../../util/SqlUtil')
 
 //order默认创建时间 如果置顶order=当前时间&onTop=1
 class Chat {
-  getAll(userId) {
-    return new Promise((resolve, reject) => {
-      let db = new DBProxy()
-      db.transaction(() => {
-        let sql = "select * from chat where ownerUserId=? order by MessageCeiling desc,topTime desc,createTime desc"
-        db.getAll(sql, [userId], (results) => {
-          resolve(results)
-        }, (err) => {
-          reject(err)
-        })
-      })
-    })
-  }
-
   getAllChat(option = {}) {
     const { userId } = option
 
@@ -29,7 +15,6 @@ class Chat {
       chatTableView 
       where ownerUserId = ?
       order by MessageCeiling desc, activeTime desc
-
       `,
       paramAry: [userId]
     })

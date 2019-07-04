@@ -657,15 +657,6 @@ class ChatManager extends EventTarget {
     return LKChatProvider.asyGetAllMsgNotReadNum(id)
   }
 
-  /**
-     *
-     * @param userId
-     * @returns {*}
-     */
-  asyGetAll(userId) {
-    return LKChatProvider.asyGetAll(userId)
-  }
-
   getAllChat(userId) {
     return Chat.getAllChat({userId})
   }
