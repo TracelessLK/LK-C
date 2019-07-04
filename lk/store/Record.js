@@ -387,8 +387,13 @@ order by sendTime
     return new Promise((resolve, reject) => {
       const db = new DBProxy()
       db.transaction(() => {
-        const sql = 'select * from record where ownerUserId=? and senderUid<>? and readState<1'
-        db.getAll(sql, [userId, userId], (results) => {
+        const sql = `
+        select 
+        * 
+        from 
+        record 
+        where ownerUserId=? and senderUid<>ownerUserId and readState<1`
+        db.getAll(sql, [userId], (results) => {
           const len = results.length
           resolve(len)
         }, (err) => {

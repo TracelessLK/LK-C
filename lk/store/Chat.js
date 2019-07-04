@@ -392,5 +392,34 @@ order by name
       paramAry: [chatId, userId]
     })
   }
+
+  getAll(userId) {
+    return new Promise((resolve, reject) => {
+      let db = new DBProxy()
+      db.transaction(() => {
+        let sql = "select * from chat where ownerUserId=? order by MessageCeiling desc,topTime desc,createTime desc"
+        db.getAll(sql, [userId], (results) => {
+          resolve(results)
+        }, (err) => {
+          reject(err)
+        })
+      })
+    })
+  }
+
+  getNotExistUnreadChat({userId}) {
+    const sql = `
+     select 
+        * 
+        from 
+        record 
+        where senderUid<>ownerUserId and readState<1 and ownerUserId = ?
+and sendUid not in (select id from chat where ownerUserId = ?)
+    `
+    return SqlUtil.transaction({
+      sql,
+      paramAry: [userId, userId]
+    })
+  }
 }
 module.exports = new Chat()
