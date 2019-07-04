@@ -407,14 +407,14 @@ order by name
     })
   }
 
-  getNotExistUnreadChat({userId}) {
+  getNotExistUnreadContact({userId}) {
     const sql = `
      select 
         * 
         from 
         record 
         where senderUid<>ownerUserId and readState<1 and ownerUserId = ?
-and sendUid not in (select id from chat where ownerUserId = ?)
+and senderUid not in (select id from chat where ownerUserId = ?)
     `
     return SqlUtil.transaction({
       sql,

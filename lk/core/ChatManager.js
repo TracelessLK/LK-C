@@ -265,7 +265,7 @@ class ChatManager extends EventTarget {
      * @returns {Promise}
      */
   asyEnsureSingleChat(contactId) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
+    const userId = Application.getCurrentApp().getCurrentUser().id
     return new Promise((resovle) => {
       LKChatProvider.asyGetChat(userId, contactId).then((chat) => {
         if (chat) {
@@ -280,6 +280,13 @@ class ChatManager extends EventTarget {
         }
       })
     })
+  }
+
+  async ensureNotReadChat() {
+    const userId = Application.getCurrentApp().getCurrentUser().id
+
+    const result = await Chat.getNotExistUnreadContact({userId})
+    console.log({result})
   }
 
 
