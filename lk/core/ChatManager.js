@@ -91,6 +91,17 @@ class ChatManager extends EventTarget {
         msgId, state, source
       })
     })
+
+    this.on('groupMemberChange', ({param, event}) => {
+      const {chatId} = param
+      const option = {
+        chatId,
+        sourceEvent: event,
+        source
+      }
+      this.fire('chatChange', option)
+      this.fire('msgListChange', option)
+    })
   }
 
   fireChatNotReadNum = ({chatId, sourceEvent}) => {
@@ -102,7 +113,7 @@ class ChatManager extends EventTarget {
       source
     })
     this.asyGetAllMsgNotReadNum(userId).then((num) => {
-      this.fire('msgBadgeChanged',
+      this.fire('msgBadgeChange',
         {
           num,
           sourceEvent,
@@ -501,7 +512,7 @@ class ChatManager extends EventTarget {
     let userId = Application.getCurrentApp().getCurrentUser().id
     await Application.getCurrentApp().getLKWSChannel().addGroupMembers(chatId, name, newMembers)
     await Chat.addGroupMembers(userId, chatId, newMembers)
-    this.fire('groupMemberChange', chatId)
+    this.fire('groupMemberChange', {chatId})
   }
 
   async addGroupMembers(chatId, newMembers) {
