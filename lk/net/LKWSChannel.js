@@ -726,13 +726,14 @@ class LKChannel extends WSChannel {
     let msgIds = content.msgIds
     let isGroup = content.isGroup
     let chatId = isGroup ? content.chatId : userId === msg.header.uid ? content.chatId : msg.header.uid
-
-    ChatManager.msgReadReport(msg.header.uid, chatId, msgIds, ChatManager.MESSAGE_STATE_TARGET_READ).then((result) => {
+    const state = ChatManager.MESSAGE_STATE_TARGET_READ
+    ChatManager.msgReadReport(msg.header.uid, chatId, msgIds, state).then((result) => {
       if (result.isAllUpdate) { this._reportMsgHandled(msg.header.flowId, msg.header.flowType) }
       if (result.updateNum >= 0) {
         msgIds.forEach(msgId => {
           ChatManager.fire('selfMsgRead', {
             msgId,
+            state,
             source: 'readReportHandler'
           })
         })
