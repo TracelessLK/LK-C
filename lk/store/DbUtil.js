@@ -243,13 +243,13 @@ from
    on t1.id = t3.id and t3.ownerUserId = t1.ownerUserId
    left join contact as t4
    on t2.senderUid = t4.id and t4.ownerUserId = t1.ownerUserId
-   group by t1.id having max(t2.sendTime) or t1.id is not null
+   group by t1.id, t1.ownerUserId having max(t2.sendTime) or t1.id is not null
 ) as t5
 left join groupMember  as t6
 on t6.chatId = t5.id
 left join contact as t7
 on t7.id = t6.contactId and t7.ownerUserId = t5.ownerUserId
-group by t5.id
+group by t5.id, t5.ownerUserId 
 `,
       recordTableView: `
       select
@@ -364,7 +364,25 @@ async function prepareDbAsyncTask() {
 		AND t1.chatId = t3.id
 		and t4.id = t1.senderUid
 		
-		`
+		`,
+
+    testView: `
+  select
+   t1.ownerUserId,
+   t1.id as id2,
+   ifnull(t1.name, t3.name) as chatName
+   from
+   chat as t1
+   left join record as t2 
+   on t2.chatId = t1.id 
+   left join contact as t3
+   on t1.id = t3.id and t3.ownerUserId = t1.ownerUserId
+      group by t1.id having max(t2.sendTime) or t1.id is not null
+
+`,
+    testView2: `
+    select * from chat where id = "33b947c5-9ede-4620-8136-b2c0eaf1d0d9"
+    `
   }
   await DbUtil.createView({
     viewWrapper
