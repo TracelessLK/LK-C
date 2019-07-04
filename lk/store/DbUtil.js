@@ -213,6 +213,9 @@ t5.focus,
 t5.senderUid,
 t5.newMsgNum,
 t5.state,
+  datetime(t5.activeTime/1000, 'unixepoch', 'localtime') as displayTime,
+  datetime(t5.topTime/1000, 'unixepoch', 'localtime') as topTime,
+  datetime(t5.createTime/1000, 'unixepoch', 'localtime') as createTime,
 case when t5.isGroup is 1 then group_concat(t7.pic||"@id@"||t7.id, "@sep@") else t5.pic end avatar,
 ifnull(case when length(t5.content) > ${maxDisplay} then substr(content, 0, ${maxDisplay})||"${ellipsis}" else content end, "一起LK吧") as msgContent
 from
@@ -222,6 +225,8 @@ from
    t1.id,
    ifnull(t1.name, t3.name) as chatName,
    ifnull(t1.topTime,t1.createTime) as activeTime,
+   t1.topTime,
+   t1.createTime,
    t1.isGroup,
    t1.MessageCeiling,
    t1.focus,
