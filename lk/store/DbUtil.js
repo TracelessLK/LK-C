@@ -234,7 +234,7 @@ from
    t2.state,
   case when t2.senderUid = t2.ownerUserId then "我" else t4.name end ||": " ||(case t2.type when 0 then replace(replace(trim(t2.content),"\n"," "), "&nbsp;", " ") when 1 then "[图片]" when 2 then "[文件]" when 3 then "[语音]" end)  as content,
    t3.pic,
-   sum(t2.readState<1 and t2.senderUid <> t1.ownerUserId   ) as newMsgNum
+   sum(t2.readState<1 and t2.senderUid <> t1.ownerUserId  and t2.ownerUserId = t1.ownerUserId ) as newMsgNum
    from
    chat as t1
    left join record as t2
