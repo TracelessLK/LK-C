@@ -809,10 +809,14 @@ class LKChannel extends WSChannel {
     let inNewMembers = false
     for (let i = 0; i < newMembers.length; i++) {
       let member = newMembers[i]
-      if (member.id === user.id) {
-        inNewMembers = true
-        break
+      // fixme: ,member is null
+      if (member) {
+        if (member.id === user.id) {
+          inNewMembers = true
+          break
+        }
       }
+
     }
     if (inNewMembers) {
       let name = content.name
@@ -824,9 +828,12 @@ class LKChannel extends WSChannel {
     } else {
       let chat = await LKChatProvider.asyGetChat(user.id, chatId)
       if (chat) {
-        ChatManager.addGroupMembers(chatId, newMembers).then(() => {
-          this._reportMsgHandled(header.flowId, header.flowType)
-        })
+        // fixme: member is null
+        if (newMembers[0]) {
+          ChatManager.addGroupMembers(chatId, newMembers).then(() => {
+            this._reportMsgHandled(header.flowId, header.flowType)
+          })
+        }
       }
     }
   }
