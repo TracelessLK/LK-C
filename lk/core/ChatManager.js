@@ -285,8 +285,10 @@ class ChatManager extends EventTarget {
   async ensureNotReadChat() {
     const userId = Application.getCurrentApp().getCurrentUser().id
 
-    const result = await Chat.getNotExistUnreadContact({userId})
-    console.log({result})
+    const itemAry = await Chat.getNotExistUnreadContact({userId})
+    itemAry.forEach(item => {
+      this.asyEnsureSingleChat(item.chatId)
+    })
   }
 
 
