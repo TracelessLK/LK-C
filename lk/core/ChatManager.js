@@ -401,13 +401,6 @@ class ChatManager extends EventTarget {
     }
   }
 
-  // async _initAllChatNewMsgNums(userId){
-  //     let chats = await LKChatProvider.asyGetAll(userId);
-  //     chats.forEach((chat)=>{
-  //         this._allChatNewMsgNums[chat.id] = chat.newMsgNum;
-  //     });
-  // }
-
   /**
      * get new msg num
      * @param chatId
@@ -418,14 +411,6 @@ class ChatManager extends EventTarget {
     let newMsgs = await LKChatProvider.asyGetMsgsNotRead(userId, chatId)
     return newMsgs.length
   }
-
-  // increaseNewMsgNum(chatId){
-  //     let newMsgNum = this._allChatNewMsgNums[chatId];
-  //     this._allChatNewMsgNums[chatId]= (newMsgNum?newMsgNum:0)+1;
-  //     let userId = Application.getCurrentApp().getCurrentUser().id;
-  //     // LKChatHandler.asyUpdateNewMsgNum(userId,chatId,this._allChatNewMsgNums[chatId]);
-  //
-  // }
 
   getChatSendOrder(chatId) {
     let sendOrder = this._allChatSendOrder[chatId]
