@@ -85,10 +85,17 @@ class ChatManager extends EventTarget {
       this.fire('recentChange', option)
     })
 
-    this.on('selfMsgRead', ({param}) => {
+    this.on('selfMsgRead', ({param, event}) => {
       const {msgId, state} = param
       this.fire("msgStateChange", {
-        msgId, state, source
+        msgId, state, source, sourceEvent: event
+      })
+    })
+
+    this.on('msgStateChange', ({param, event}) => {
+      const {msgId} = param
+      this.fire('msgItemChange', {
+        msgId, source, sourceEvent: event
       })
     })
 

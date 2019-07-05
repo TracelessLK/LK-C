@@ -253,7 +253,7 @@ group by t5.id, t5.ownerUserId
 `,
       recordTableView: `
       select
-count(*) as readNum,
+count(t3.msgId = t1.id) as readNum,
 t1.chatId,
 t1.ownerUserId,
 t1.id as msgId,
@@ -261,7 +261,6 @@ t1.type,
 replace(t1.content, "&nbsp;", " ") content,
 t1.sendTime,
 t1.state,
-t1.readState, 
 t1.playState,
 t1.readTime,
 t1.senderUid,
@@ -271,7 +270,7 @@ t1.senderUid = t1.ownerUserId isSelf
 from
 record as t1
 join contact as  t2
-on t1.senderUid = t2.id 
+on t1.senderUid = t2.id and t2.ownerUserId = t1.ownerUserId
 left join group_record_state as t3
 on t3.msgId = t1.id
 group by t1.id
@@ -367,17 +366,23 @@ async function prepareDbAsyncTask() {
 		`,
 
     testView: `
-  select
-   t1.ownerUserId,
-   t1.id as id2,
-   ifnull(t1.name, t3.name) as chatName
-   from
-   chat as t1
-   left join record as t2 
-   on t2.chatId = t1.id 
-   left join contact as t3
-   on t1.id = t3.id and t3.ownerUserId = t1.ownerUserId
-      group by t1.id having max(t2.sendTime) or t1.id is not null
+   select
+   count(t3.msgId = t1.id),
+t1.chatId,
+replace(t1.content, "&nbsp;", " ") content,
+t1.state,
+t2.name as senderName,
+t3.*
+from
+record as t1
+join contact as  t2
+on t1.senderUid = t2.id and t2.ownerUserId = t1.ownerUserId
+left join group_record_state as t3
+on t3.msgId = t1.id
+join chat t4
+on t1.chatId = t4.id and t4.isGroup = 1
+group by t1.id
+
 
 `,
     testView2: `

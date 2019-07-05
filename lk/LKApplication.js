@@ -104,7 +104,7 @@ class LKApplication extends Application {
   register({
     user, venderDid, checkCode, qrcode, description, introducerDid, requestName
   }) {
-    const channel = new (WSChannel)(`ws://${user.serverIP}:${user.serverPort}`, true)
+    const channel = new WSChannel(`ws://${user.serverIP}:${user.serverPort}`, true)
     return new Promise((resolve, reject) => {
       channel.asyRegister(user.serverIP, user.serverPort, user.id, user.deviceId, venderDid, user.publicKey, checkCode, qrcode, description, introducerDid, requestName).then((msg) => {
         const { content } = msg.body
@@ -138,7 +138,12 @@ class LKApplication extends Application {
   }
 
   async asyUnRegister() {
-    await this._channel.asyUnRegister()
+    // todo: 处理服务端报错和设备在服务端删除的情况
+    try {
+      await this._channel.asyUnRegister()
+    } catch (err) {
+      console.error(err)
+    }
     const userId = this.getCurrentUser().id
     await ChatManager.removeAll(userId)
     await ContactManager.removeAll(userId)

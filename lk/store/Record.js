@@ -299,14 +299,21 @@ order by sendTime
     })
   }
 
-  getSingleMsg({msgId}) {
+  async getSingleMsg({msgId}) {
     const sql = `
       select * from recordTableView where msgId = ?
     `
-    return SqlUtil.transaction({
+    let result
+    const returnAry = await SqlUtil.transaction({
       sql,
       paramAry: [msgId]
     })
+
+    if (returnAry.length) {
+      result = returnAry[0]
+    }
+
+    return result
   }
 
   updateReadState(msgIds, state) {
