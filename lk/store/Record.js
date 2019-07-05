@@ -552,6 +552,7 @@ on t5.reporterUid = t4.id and t5.msgId = t1.id
 where
 t1.id = ?
 and t3.contactId <> t1.senderUid
+order by t5.state, t4.name
 `
     return SqlUtil.transaction({
       sql,
