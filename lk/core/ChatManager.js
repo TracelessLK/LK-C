@@ -324,7 +324,16 @@ class ChatManager extends EventTarget {
     LKChatProvider.asyGetChat(userId, chatId).then((chat) => {
       targets.forEach((v, k) => {
         Contact.get(userId, k).then((contact) => {
-          Application.getCurrentApp().getLKWSChannel().readReport(chatId, chat.isGroup, k, contact.serverIP, contact.serverPort, v)
+          Application.getCurrentApp().getLKWSChannel().readReport(
+            {
+              chatId,
+              isGroup: chat.isGroup,
+              senderUid: k,
+              serverIP: contact.serverIP,
+              serverPort: contact.serverPort,
+              msgIds: v
+            }
+          )
         })
       })
     })
@@ -372,7 +381,14 @@ class ChatManager extends EventTarget {
             })
             targets.forEach((v, k) => {
               Contact.get(user.id, k).then((contact) => {
-                Application.getCurrentApp().getLKWSChannel().readReport(chats[i].id, chats[i].isGroup, k, contact.serverIP, contact.serverPort, v)
+                Application.getCurrentApp().getLKWSChannel().readReport({
+                  chatId: chats[i].id,
+                  isGroup: chats[i].isGroup,
+                  senderUid: k,
+                  serverIP: contact.serverIP,
+                  serverPort: contact.serverPort,
+                  msgIds: v
+                })
               })
             })
           }

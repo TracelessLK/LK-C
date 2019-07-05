@@ -213,9 +213,6 @@ t5.focus,
 t5.senderUid,
 t5.newMsgNum,
 t5.state,
-  datetime(t5.activeTime/1000, 'unixepoch', 'localtime') as displayTime,
-  datetime(t5.topTime/1000, 'unixepoch', 'localtime') as topTime,
-  datetime(t5.createTime/1000, 'unixepoch', 'localtime') as createTime,
 case when t5.isGroup is 1 then group_concat(t7.pic||"@id@"||t7.id, "@sep@") else t5.pic end avatar,
 ifnull(case when length(t5.content) > ${maxDisplay} then substr(content, 0, ${maxDisplay})||"${ellipsis}" else content end, "一起LK吧") as msgContent
 from
@@ -362,7 +359,6 @@ async function prepareDbAsyncTask() {
 	    ON t1.ownerUserId = t2.id
 		AND t1.chatId = t3.id
 		and t4.id = t1.senderUid
-		
 		`,
 
     testView: `
