@@ -639,9 +639,6 @@ class LKChannel extends WSChannel {
     await LKChatHandler.asyAddMsg(userId, chatId, header.id, header.uid, header.did, content.type, content.data, header.time, state, body.relativeMsgId, relativeOrder, receiveOrder, body.order)
     this._reportMsgHandled(header.flowId, header.flowType)
     this._checkChatMsgPool(chatId, header.id, receiveOrder)
-    this.fire("msgListChange", {
-      chatId
-    })
     const option = {
       chatId,
       source: '_receiveMsg'
