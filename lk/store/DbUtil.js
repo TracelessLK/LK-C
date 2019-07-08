@@ -196,9 +196,6 @@ WHERE
   }
 
   static createBusinessView() {
-    const maxDisplay = config.chatMsgMaxDisplay
-    const ellipsis = config.ellipsis
-
     const viewWrapper = {
       chatTableView: `
 select 
@@ -214,7 +211,7 @@ t5.senderUid,
 t5.newMsgNum,
 t5.state,
 case when t5.isGroup is 1 then group_concat(t7.pic||"@id@"||t7.id, "@sep@") else t5.pic end avatar,
-ifnull(case when length(t5.content) > ${maxDisplay} then substr(content, 0, ${maxDisplay})||"${ellipsis}" else content end, "一起LK吧") as msgContent
+ifnull(content, "一起LK吧") as msgContent
 from
 (
    select
