@@ -471,8 +471,7 @@ class LKChannel extends WSChannel {
       if (relativeMsg) { relativeOrder = relativeMsg.receiveOrder }
     }
     const psAry = [
-      LKChatHandler.asyAddMsg(userId, chatId, msgId, userId, did, content.type, content.data, time, ChatManager.MESSAGE_STATE_SENDING, relativeMsgId, relativeOrder, curTime, result[1].body.order),
-      ChatManager.asytopChat(userId, chatId)]
+      LKChatHandler.asyAddMsg(userId, chatId, msgId, userId, did, content.type, content.data, time, ChatManager.MESSAGE_STATE_SENDING, relativeMsgId, relativeOrder, curTime, result[1].body.order)]
     const dbChangePs = Promise.all(psAry).then(() => {
       ChatManager.fire("msgSend", {chatId, msgId, senderName: curApp.getCurrentUser().name})
     })
@@ -643,7 +642,6 @@ class LKChannel extends WSChannel {
       chatId,
       source: '_receiveMsg'
     }
-    await ChatManager.asytopChat(userId, chatId)
     ChatManager.fire("otherMsgReceived", option)
   }
 

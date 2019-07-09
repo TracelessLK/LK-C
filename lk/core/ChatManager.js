@@ -512,7 +512,15 @@ class ChatManager extends EventTarget {
     const chat = await Chat.getChat(userId, chatId)
     if (!chat) {
       if (!local) { await Contact.addNewGroupContactIFNotExist(members, userId) }
-      await Promise.all([Chat.addGroupChat(userId, chatId, name, Date.now(), null, null, null), Chat.addGroupMembers(userId, chatId, members, groupAdministrator)])
+      const param = {
+        userId,
+        chatId,
+        name,
+        MessageCeiling: null,
+        focus: null,
+        reserve1: null
+      }
+      await Promise.all([Chat.addGroupChat(param), Chat.addGroupMembers(userId, chatId, members, groupAdministrator)])
       this.fire("recentChange", {
         source: 'addGroupChat'
       })
@@ -544,7 +552,15 @@ class ChatManager extends EventTarget {
     const ps = []
     if (groupsAdd.length > 0) {
       groupsAdd.forEach((group) => {
-        ps.push(Chat.addGroupChat(userId, group.id, group.name, null, null, false, null))
+        const param = {
+          userId,
+          chatId: group.id,
+          name: group.name,
+          MessageCeiling: null,
+          focus: null,
+          reserve1: null
+        }
+        ps.push(Chat.addGroupChat(param))
         ps.push(Chat.addGroupMembers(userId, group.id, group.members))
       })
     } else if (groupsDelete.length > 0) {
@@ -628,15 +644,6 @@ class ChatManager extends EventTarget {
 
   asyGetChatName(userId, name) {
     return LKChatProvider.asyGetChatName(userId, name)
-  }
-
-  /**
-     * @param userId
-     * @param chatId
-     * @returns {*}
-     */
-  asytopChat(userId, chatId) {
-    return Chat.topChat(userId, chatId)
   }
 
   asyMessageCeiling(MessageCeiling, userId, chatId) {

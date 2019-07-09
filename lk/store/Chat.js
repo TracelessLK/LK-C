@@ -106,8 +106,8 @@ class Chat {
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
       db.transaction(() => {
-        let sql = "insert into chat(id,ownerUserId,createTime,topTime,isGroup) values (?,?,?,?,?)"
-        db.run(sql, [chatId, userId, Date.now(), null, 0], () => {
+        let sql = "insert into chat(id,ownerUserId,createTime,isGroup) values (?,?,?,?)"
+        db.run(sql, [chatId, userId, Date.now(), 0], () => {
           resolve()
         }, (err) => {
           reject(err)
@@ -115,12 +115,13 @@ class Chat {
       })
     })
   }
-  addGroupChat(userId, chatId, name, topTime, MessageCeiling, focus, reserve1) {
+  addGroupChat(option) {
+    const {userId, chatId, name, MessageCeiling, focus, reserve1} = option
     return new Promise(async (resolve, reject) => {
       let db = new DBProxy()
       db.transaction(() => {
-        let sql = "insert into chat(id,ownerUserId,name,createTime,topTime,isGroup,MessageCeiling,focus,reserve1) values (?,?,?,?,?,?,?,?,?)"
-        db.run(sql, [chatId, userId, name, Date.now(), topTime, 1, MessageCeiling, focus, reserve1], () => {
+        let sql = "insert into chat(id,ownerUserId,name,createTime,isGroup,MessageCeiling,focus,reserve1) values (?,?,?,?,?,?,?,?)"
+        db.run(sql, [chatId, userId, name, Date.now(), 1, MessageCeiling, focus, reserve1], () => {
           resolve()
         }, (err) => {
           reject(err)
@@ -173,20 +174,6 @@ class Chat {
         resolve()
       }).catch((err) => {
         reject(err)
-      })
-    })
-  }
-
-  topChat(userId, chatId) {
-    return new Promise((resolve, reject) => {
-      let db = new DBProxy()
-      db.transaction(() => {
-        let sql = "update chat set topTime=? where id=? and ownerUserId=?"
-        db.run(sql, [Date.now(), chatId, userId], () => {
-          resolve()
-        }, (err) => {
-          reject(err)
-        })
       })
     })
   }
@@ -397,7 +384,7 @@ order by name
     return new Promise((resolve, reject) => {
       let db = new DBProxy()
       db.transaction(() => {
-        let sql = "select * from chat where ownerUserId=? order by MessageCeiling desc,topTime desc,createTime desc"
+        let sql = "select * from chat where ownerUserId=? order by MessageCeiling desc,createTime desc"
         db.getAll(sql, [userId], (results) => {
           resolve(results)
         }, (err) => {
