@@ -359,27 +359,18 @@ async function prepareDbAsyncTask() {
 		`,
 
     testView: `
-   select
-   count(t3.msgId = t1.id),
-t1.chatId,
-replace(t1.content, "&nbsp;", " ") content,
-t1.state,
-t2.name as senderName,
-t3.*
-from
-record as t1
-join contact as  t2
-on t1.senderUid = t2.id and t2.ownerUserId = t1.ownerUserId
-left join group_record_state as t3
-on t3.msgId = t1.id
-join chat t4
-on t1.chatId = t4.id and t4.isGroup = 1
-group by t1.id
+        select 
+        chatId 
+        from 
+        record 
+        where senderUid<>ownerUserId and readState<1
+and chatId not in (select id from chat)
+    group by chatId
 
 
 `,
     testView2: `
-    select * from chat where id = "33b947c5-9ede-4620-8136-b2c0eaf1d0d9"
+    select id from chat
     `
   }
   await DbUtil.createView({
@@ -389,6 +380,13 @@ group by t1.id
     const result = await DbUtil.getAllTableAry()
     console.log(result)
   }
+
+  const sqlAry = [
+  ]
+  sqlAry.forEach(async ele => {
+    const result = await DbUtil.runSql(ele)
+    console.log({ele, result})
+  })
 }
 
 module.exports = DbUtil
