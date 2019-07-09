@@ -370,6 +370,12 @@ and chatId not in (select id from chat)
 `,
     testView2: `
     select id from chat
+    `,
+    testView3: `
+    select "test" in (select id from chat)
+    `,
+    testView4: `
+    select "96e04230-0768-4e45-a668-e47c4956a9ad"  in (select id from chat)
     `
   }
   await DbUtil.createView({
