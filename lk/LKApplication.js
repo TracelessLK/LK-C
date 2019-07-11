@@ -39,7 +39,7 @@ class LKApplication extends Application {
       }
     }
 
-    this.fire('currentUserChanged', {user})
+    this.fire('currentUserChanged', { user })
     ChatManager.init(user)
     MagicCodeManager.init(user)
     if (preventAutoLogin !== true) {

@@ -45,14 +45,14 @@ class ChatManager extends EventTarget {
     this._allChatSendOrder = {}
     const source = 'chatManager constructor'
 
-    this.on('otherMsgRead', ({param}) => {
-      const {chatId} = param
-      this.fireChatNotReadNum({chatId, sourceEvent: 'otherMsgRead'})
+    this.on('otherMsgRead', ({ param }) => {
+      const { chatId } = param
+      this.fireChatNotReadNum({ chatId, sourceEvent: 'otherMsgRead' })
     })
 
-    this.on('otherMsgReceived', ({param}) => {
-      const {chatId} = param
-      this.fireChatNotReadNum({chatId, sourceEvent: 'otherMsgReceived'})
+    this.on('otherMsgReceived', ({ param }) => {
+      const { chatId } = param
+      this.fireChatNotReadNum({ chatId, sourceEvent: 'otherMsgReceived' })
       this.fire('recentChange', {
         sourceEvent: 'otherMsgReceived',
         source
@@ -65,8 +65,8 @@ class ChatManager extends EventTarget {
       })
     })
 
-    this.on('groupNameChange', ({param}) => {
-      const {chatId} = param
+    this.on('groupNameChange', ({ param }) => {
+      const { chatId } = param
       this.fire('chatChange', {
         chatId,
         sourceEvent: "groupNameChange",
@@ -74,7 +74,7 @@ class ChatManager extends EventTarget {
       })
     })
 
-    this.on('msgSend', ({param}) => {
+    this.on('msgSend', ({ param }) => {
       const option = {
         source,
         sourceEvent: 'msgSend',
@@ -85,22 +85,22 @@ class ChatManager extends EventTarget {
       this.fire('recentChange', option)
     })
 
-    this.on('selfMsgRead', ({param, event}) => {
-      const {msgId, state} = param
+    this.on('selfMsgRead', ({ param, event }) => {
+      const { msgId, state } = param
       this.fire("msgStateChange", {
         msgId, state, source, sourceEvent: event
       })
     })
 
-    this.on('msgStateChange', ({param, event}) => {
-      const {msgId} = param
+    this.on('msgStateChange', ({ param, event }) => {
+      const { msgId } = param
       this.fire('msgItemChange', {
         msgId, source, sourceEvent: event
       })
     })
 
-    this.on('groupMemberChange', ({param, event}) => {
-      const {chatId} = param
+    this.on('groupMemberChange', ({ param, event }) => {
+      const { chatId } = param
       const option = {
         chatId,
         sourceEvent: event,
@@ -111,7 +111,7 @@ class ChatManager extends EventTarget {
     })
   }
 
-  fireChatNotReadNum = ({chatId, sourceEvent}) => {
+  fireChatNotReadNum = ({ chatId, sourceEvent }) => {
     const userId = Application.getCurrentApp().getCurrentUser().id
     const source = 'fireChatNotReadNum'
     this.fire('chatChange', {
@@ -128,6 +128,7 @@ class ChatManager extends EventTarget {
         })
     })
   }
+
   init(user) {
     this._recentChats = []//
     this._recentChatsIndex = {}
@@ -155,18 +156,18 @@ class ChatManager extends EventTarget {
      * @returns {Promise.<Array>}
      */
   async asyGetHotChatRandomSent(chatId) {
-    let curUser = Application.getCurrentApp().getCurrentUser()
-    let userId = curUser.id
-    let curIndex = this._recentChatsIndex[chatId]
+    const curUser = Application.getCurrentApp().getCurrentUser()
+    const userId = curUser.id
+    const curIndex = this._recentChatsIndex[chatId]
     if (curIndex === undefined) {
       //chat&members
-      let chat = await LKChatProvider.asyGetChat(userId, chatId)
+      const chat = await LKChatProvider.asyGetChat(userId, chatId)
       if (chat) {
-        let members = []
+        const members = []
         if (chat.isGroup) {
-          let gm = await LKChatProvider.asyGetGroupMembers(chatId)
+          const gm = await LKChatProvider.asyGetGroupMembers(chatId)
           gm.forEach((m) => {
-            let nm = {id: m.id}
+            const nm = { id: m.id }
             members.push(nm)
             if (m.serverIP) {
               nm.serverIP = m.serverIP
@@ -174,19 +175,19 @@ class ChatManager extends EventTarget {
             }
           })
         } else {
-          let contact = await LKContactProvider.asyGet(userId, chat.id)
-          let nm = {id: contact.id}
+          const contact = await LKContactProvider.asyGet(userId, chat.id)
+          const nm = { id: contact.id }
           if (contact.serverIP) {
             nm.serverIP = contact.serverIP
             nm.serverPort = contact.serverPort
           }
           members.push(nm)
-          members.push({id: userId})
+          members.push({ id: userId })
         }
 
         //delete the oldest
         if (this._recentChats.length >= this._maxRecent) {
-          let oldChatId = this._recentChats[0].chatId
+          const oldChatId = this._recentChats[0].chatId
           delete this._recentChatsIndex[oldChatId]
           this._recentChats.splice(0, 1)
           this._resortRecentChats()
@@ -198,29 +199,29 @@ class ChatManager extends EventTarget {
         chat.members = members
         this._recentChats.push(chat)
         this._recentChatsIndex[chatId] = this._recentChats.length - 1
-        let ps = []
+        const ps = []
         members.forEach((contact) => {
           ps.push(LKDeviceProvider.asyGetAll(contact.id))
         })
         //devices
-        let result = await Promise.all(ps)
+        const result = await Promise.all(ps)
         for (let i = 0; i < members.length; i++) {
-          let member = members[i]
+          const member = members[i]
           member.devices = []
-          let devices = result[i]
+          const devices = result[i]
           devices.forEach((device) => {
             if (member.id === userId && device.id === curUser.deviceId) {
               return
             }
-            let rsa = new RSAKey()
+            const rsa = new RSAKey()
             rsa.setPublicString(device.publicKey)
-            member.devices.push({id: device.id, random: rsa.encrypt(chat.key)})
+            member.devices.push({ id: device.id, random: rsa.encrypt(chat.key) })
           })
         }
       }
     } else {
-      let time = Date.now()
-      let chat = this._recentChats[curIndex]
+      const time = Date.now()
+      const chat = this._recentChats[curIndex]
       if (time - chat.keyGenTime > 600000) {
         //remove
         this._recentChats.splice(curIndex, 1)
@@ -231,7 +232,7 @@ class ChatManager extends EventTarget {
       }
       //resort
       if (curIndex != this._recentChats.length - 1) {
-        let chats = this._recentChats[curIndex]
+        const chats = this._recentChats[curIndex]
         this._recentChats.splice(curIndex, 1)
         this._recentChats.push(chats)
         this._resortRecentChats()
@@ -247,7 +248,7 @@ class ChatManager extends EventTarget {
   }
 
   getHotChatKeyReceived(chatId, senderDid, random) {
-    let curApp = Application.getCurrentApp()
+    const curApp = Application.getCurrentApp()
     let randoms = this._hotChatRandomReceived[chatId]
     if (!randoms) {
       randoms = {}
@@ -256,7 +257,7 @@ class ChatManager extends EventTarget {
     }
     let sentRandom = randoms[senderDid]
     if (!sentRandom) {
-      sentRandom = {random, key: curApp.getCurrentRSA().decrypt(random)}
+      sentRandom = { random, key: curApp.getCurrentRSA().decrypt(random) }
       randoms[senderDid] = sentRandom
     }
     if (sentRandom.random !== random) {
@@ -292,7 +293,7 @@ class ChatManager extends EventTarget {
   async ensureNotReadChat() {
     const userId = Application.getCurrentApp().getCurrentUser().id
 
-    const itemAry = await Chat.getNotExistUnreadContact({userId})
+    const itemAry = await Chat.getNotExistUnreadContact({ userId })
     itemAry.forEach(item => {
       this.asyEnsureSingleChat(item.chatId)
     })
@@ -306,10 +307,10 @@ class ChatManager extends EventTarget {
      * @returns {Promise.<{msgs: *, newMsgs: *}>}
      */
   async asyReadMsgs(chatId) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
-    let newMsgs = await LKChatProvider.asyGetMsgsNotRead(userId, chatId)
-    let readNewMsgs = []
-    let targets = new Map()
+    const userId = Application.getCurrentApp().getCurrentUser().id
+    const newMsgs = await LKChatProvider.asyGetMsgsNotRead(userId, chatId)
+    const readNewMsgs = []
+    const targets = new Map()
     newMsgs.forEach((record) => {
       readNewMsgs.push(record.id)
       if (!targets.has(record.senderUid)) {
@@ -319,7 +320,7 @@ class ChatManager extends EventTarget {
     })
     await LKChatHandler.asyUpdateReadState(readNewMsgs, this.MESSAGE_READSTATE_READ)
     if (newMsgs.length) {
-      this.fire("otherMsgRead", {chatId})
+      this.fire("otherMsgRead", { chatId })
     }
     LKChatProvider.asyGetChat(userId, chatId).then((chat) => {
       targets.forEach((v, k) => {
@@ -360,19 +361,19 @@ class ChatManager extends EventTarget {
   //each 5 minutes check readstate and send readreport
 
   async _ckReportReadstate() {
-    let user = Application.getCurrentApp().getCurrentUser()
+    const user = Application.getCurrentApp().getCurrentUser()
     if (user) {
-      let chats = await Chat.getAll(user.id)
-      let ps = []
+      const chats = await Chat.getAll(user.id)
+      const ps = []
       if (chats) {
         chats.forEach((chat) => {
           ps.push(Record.getReadNotReportMsgs(user.id, chat.id))
         })
-        let rs = await Promise.all(ps)
+        const rs = await Promise.all(ps)
         for (let i = 0; i < rs.length; i++) {
-          let msgs = rs[i]
+          const msgs = rs[i]
           if (msgs) {
-            let targets = new Map()
+            const targets = new Map()
             msgs.forEach((record) => {
               if (!targets.has(record.senderUid)) {
                 targets.set(record.senderUid, [])
@@ -407,8 +408,8 @@ class ChatManager extends EventTarget {
      * @returns {number}
      */
   async asyGetNewMsgNum(chatId) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
-    let newMsgs = await LKChatProvider.asyGetMsgsNotRead(userId, chatId)
+    const userId = Application.getCurrentApp().getCurrentUser().id
+    const newMsgs = await LKChatProvider.asyGetMsgsNotRead(userId, chatId)
     return newMsgs.length
   }
 
@@ -423,24 +424,24 @@ class ChatManager extends EventTarget {
   }
 
   async deviceChanged(chatId, changedMembers) {
-    let returnAdded = []
+    const returnAdded = []
     await this.asyGetHotChatRandomSent(chatId)//make sure the chat in the recent hot list
-    let userId = Application.getCurrentApp().getCurrentUser().id
+    const userId = Application.getCurrentApp().getCurrentUser().id
     changedMembers.forEach((changed) => {
       LKDeviceHandler.asyAddDevices(userId, changed.id, changed.added)
       LKDeviceHandler.asyRemoveDevices(changed.id, changed.removed)
     })
     // let chat = this._recentChats[this._recentChatsIndex[chatId]];
     this._recentChats.forEach((chat) => {
-      let members = chat.members
+      const members = chat.members
       for (let i = 0; i < members.length; i++) {
-        let member = members[i]
+        const member = members[i]
         for (let j = 0; j < changedMembers.length; j++) {
-          let changedMember = changedMembers[j]
+          const changedMember = changedMembers[j]
           if (member.id === changedMember.id) {
-            let localDevices = member.devices
-            let removed = changedMember.removed
-            let added = changedMember.added
+            const localDevices = member.devices
+            const removed = changedMember.removed
+            const added = changedMember.added
             for (let k = 0; k < localDevices.length; k++) {
               if (removed.indexOf(localDevices[k].id) != -1) {
                 localDevices.splice(k, 1)
@@ -448,7 +449,7 @@ class ChatManager extends EventTarget {
               }
             }
             if (added.length > 0) {
-              let addDevices = []
+              const addDevices = []
               added.forEach((addDevice) => {
                 let exists = false
                 for (let m = 0; m < localDevices.length; m++) {
@@ -459,10 +460,10 @@ class ChatManager extends EventTarget {
                   }
                 }
                 if (!exists) {
-                  let rsa = new RSAKey()
+                  const rsa = new RSAKey()
                   rsa.setPublicString(addDevice.pk)
-                  let random = rsa.encrypt(chat.key)
-                  let newD = {id: addDevice.id, random}
+                  const random = rsa.encrypt(chat.key)
+                  const newD = { id: addDevice.id, random }
                   localDevices.push(newD)
                   if (chat.id === chatId) { addDevices.push(newD) }
                 }
@@ -502,13 +503,13 @@ class ChatManager extends EventTarget {
      */
 
   async newGroupChat(name, members, groupAdministrator) {
-    let chatId = UUID()
+    const chatId = UUID()
     await Application.getCurrentApp().getLKWSChannel().addGroupChat(chatId, name, members)
     await this.addGroupChat(chatId, name, members, true, groupAdministrator)
   }
 
   async addGroupChat(chatId, name, members, local, groupAdministrator) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
+    const userId = Application.getCurrentApp().getCurrentUser().id
     const chat = await Chat.getChat(userId, chatId)
     if (!chat) {
       if (!local) { await Contact.addNewGroupContactIFNotExist(members, userId) }
@@ -534,14 +535,14 @@ class ChatManager extends EventTarget {
      * @returns {Promise.<void>}
      */
   async newGroupMembers(chatId, name, newMembers) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
+    const userId = Application.getCurrentApp().getCurrentUser().id
     await Application.getCurrentApp().getLKWSChannel().addGroupMembers(chatId, name, newMembers)
     await Chat.addGroupMembers(userId, chatId, newMembers)
-    this.fire('groupMemberChange', {chatId})
+    this.fire('groupMemberChange', { chatId })
   }
 
   async addGroupMembers(chatId, newMembers) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
+    const userId = Application.getCurrentApp().getCurrentUser().id
     await Promise.all([Contact.addNewGroupContactIFNotExist(newMembers, userId), Chat.addGroupMembers(userId, chatId, newMembers)])
   }
 
@@ -589,28 +590,28 @@ class ChatManager extends EventTarget {
   }
 
   deleteGroup(chatId) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
+    const userId = Application.getCurrentApp().getCurrentUser().id
     return Chat.deleteGroup(userId, chatId)
   }
 
   deleteGroupMember(chatId, memberId) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
+    const userId = Application.getCurrentApp().getCurrentUser().id
     return Chat.deleteGroupMember(userId, chatId, memberId)
   }
 
   async removeAll() {
-    let userId = Application.getCurrentApp().getCurrentUser().id
+    const userId = Application.getCurrentApp().getCurrentUser().id
     await Chat.removeAll(userId)
     await Record.removeAll(userId)
   }
 
   async msgReadReport(reporterUid, chatId, msgIds, state) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
-    let chat = await LKChatProvider.asyGetChat(userId, chatId)
+    const userId = Application.getCurrentApp().getCurrentUser().id
+    const chat = await LKChatProvider.asyGetChat(userId, chatId)
     if (chat) {
       return Record.msgReadReport(userId, chatId, msgIds, reporterUid, state, chat.isGroup)
     }
-    return {isAllUpdate: true, updateNum: 0}
+    return { isAllUpdate: true, updateNum: 0 }
   }
 
   /**
@@ -629,7 +630,7 @@ class ChatManager extends EventTarget {
   }
 
   asyUpdateGroupName(chatId, name) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
+    const userId = Application.getCurrentApp().getCurrentUser().id
     return Chat.setGroupName(userId, chatId, name)
   }
 
@@ -657,6 +658,7 @@ class ChatManager extends EventTarget {
   asymessageDraft(reserve1, userId, chatId) {
     return Chat.messageDraft(reserve1, userId, chatId)
   }
+
   /**
      *
      * @param chatId
@@ -677,12 +679,12 @@ class ChatManager extends EventTarget {
      * @returns {*}
      */
   asyGetAllMsgNotReadNum(userId) {
-    let id = userId || Application.getCurrentApp().getCurrentUser().id
+    const id = userId || Application.getCurrentApp().getCurrentUser().id
     return LKChatProvider.asyGetAllMsgNotReadNum(id)
   }
 
   getAllChat(userId) {
-    return Chat.getAllChat({userId})
+    return Chat.getAllChat({ userId })
   }
 
   /**
@@ -691,7 +693,7 @@ class ChatManager extends EventTarget {
      * @param chatId
      * @returns {*}
      */
-  async asyDeleteChat({chatId}) {
+  async asyDeleteChat({ chatId }) {
     const userId = Application.getCurrentApp().getCurrentUser().id
     await LKChatProvider.asyDeleteChat(userId, chatId)
     this.fire('recentChange', {
@@ -774,8 +776,8 @@ class ChatManager extends EventTarget {
     type, content, senderUid, senderName
   }) {
     let result
-    let curUser = Application.getCurrentApp().getCurrentUser()
-    let userId = curUser.id
+    const curUser = Application.getCurrentApp().getCurrentUser()
+    const userId = curUser.id
     let prefix
     if (userId === senderUid) {
       prefix = "我"
@@ -796,6 +798,7 @@ class ChatManager extends EventTarget {
     result = prefix + result
     return result
   }
+
   // option {
   // userId, chatId, limit
   // }
@@ -808,18 +811,18 @@ class ChatManager extends EventTarget {
   }
 
   getAllGroupMember(option) {
-    const {chatId} = option
-    let curUser = Application.getCurrentApp().getCurrentUser()
-    let userId = curUser.id
+    const { chatId } = option
+    const curUser = Application.getCurrentApp().getCurrentUser()
+    const userId = curUser.id
     return Chat.getAllGroupMember({
       chatId, userId
     })
   }
 
   getNonGroupMember(option) {
-    const {chatId} = option
-    let curUser = Application.getCurrentApp().getCurrentUser()
-    let userId = curUser.id
+    const { chatId } = option
+    const curUser = Application.getCurrentApp().getCurrentUser()
+    const userId = curUser.id
     return Chat.getNonGroupMember({
       chatId, userId
     })
@@ -829,9 +832,9 @@ class ChatManager extends EventTarget {
     return Record.getTotalMsgCount(option)
   }
 
-  getSingeChat({chatId}) {
-    let curUser = Application.getCurrentApp().getCurrentUser()
-    let userId = curUser.id
+  getSingeChat({ chatId }) {
+    const curUser = Application.getCurrentApp().getCurrentUser()
+    const userId = curUser.id
     return Chat.getSingeChat({
       chatId, userId
     })

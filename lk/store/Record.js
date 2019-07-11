@@ -273,9 +273,9 @@ class Record {
   }
 
   getAllMsg(option) {
-    const {userId, chatId, limit} = option
+    const { userId, chatId, limit } = option
     const limitStm = limit ? 'limit ?' : ''
-    let sql = `
+    const sql = `
 select 
 * from 
 (
@@ -299,7 +299,7 @@ order by sendTime
     })
   }
 
-  async getSingleMsg({msgId}) {
+  async getSingleMsg({ msgId }) {
     const sql = `
       select * from recordTableView where msgId = ?
     `
@@ -534,7 +534,7 @@ order by sendTime
     })
   }
 
-  getAllReadState({msgId}) {
+  getAllReadState({ msgId }) {
     const sql = `
     select
 t4.name,

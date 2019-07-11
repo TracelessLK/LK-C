@@ -4,7 +4,7 @@ const moment = require('moment')
 const DBProxy = require('../../common/store/DBProxy')
 const config = require('../../config')
 
-const {displayAllData} = config
+const { displayAllData } = config
 
 const updateSqlObj = {
   '0.0.1': `
@@ -25,7 +25,7 @@ const versionAry = Object.keys(updateSqlObj)
 class DbUtil {
   static prepareDb() {
     return new Promise((resolve) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.serialize(async () => {
         const allTableAry = await DbUtil.getAllTableAry()
 
@@ -58,7 +58,7 @@ create table if not exists db_version(
           "create table if not exists record(ownerUserId TEXT,chatId TEXT,id TEXT,senderUid TEXT,senderDid TEXT,type INTEGER,content TEXT,sendTime INTEGER,eventTime INTEGER,state INTEGER,readState INTEGER,readTime INTEGER,playState INTEGER,relativeMsgId TEXT,relativeOrder INTEGER,receiveOrder INTEGER,sendOrder INTEGER,PRIMARY KEY(ownerUserId,chatId,id))",
           "create table if not exists group_record_state(ownerUserId TEXT,chatId TEXT,msgId TEXT ,reporterUid TEXT NOT NULL,state INTEGER,PRIMARY KEY(ownerUserId,chatId,msgId,reporterUid))"
         ]
-        let psAry = sqlAry.map(ele => DbUtil.runSql(ele))
+        const psAry = sqlAry.map(ele => DbUtil.runSql(ele))
         await Promise.all(psAry)
         await DbUtil.updateDb()
         await DbUtil.createBusinessView()
@@ -88,7 +88,7 @@ create table if not exists db_version(
       updateAry = versionKeyAry.slice(versionKeyAry.indexOf(recentVersion) + 1)
     }
 
-    for (let ele of updateAry) {
+    for (const ele of updateAry) {
       const sqlBlock = updateSqlObj[ele]
       for (let sentence of sqlBlock.split(';')) {
         sentence = sentence.trim()
@@ -106,7 +106,7 @@ create table if not exists db_version(
     }
   }
 
-  static async createView({viewWrapper}) {
+  static async createView({ viewWrapper }) {
     let psAry = []
 
     const viewAry = Object.keys(viewWrapper)
@@ -127,8 +127,9 @@ create table if not exists db_version(
       })
     })
   }
+
   static async runSqlBatch(sqlAry) {
-    for (let sql of sqlAry) {
+    for (const sql of sqlAry) {
       await DbUtil.runSql(sql)
     }
   }
@@ -152,7 +153,7 @@ create table if not exists db_version(
     const obj = {}
     const psAry = []
 
-    for (let ele of nameAry) {
+    for (const ele of nameAry) {
       const ps = new Promise(async (resolve) => {
         const recordAry = await DbUtil.runSql(`
         select * from ${ele}
@@ -270,7 +271,7 @@ group by t1.id
       `
     }
 
-    return DbUtil.createView({viewWrapper})
+    return DbUtil.createView({ viewWrapper })
   }
 }
 
@@ -390,7 +391,7 @@ and chatId not in (select id from chat)
   ]
   sqlAry.forEach(async ele => {
     const result = await DbUtil.runSql(ele)
-    console.log({ele, result})
+    console.log({ ele, result })
   })
 }
 

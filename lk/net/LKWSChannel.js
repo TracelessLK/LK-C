@@ -34,11 +34,11 @@ class LKChannel extends WSChannel {
   }
 
   _resolveFlowPool(lastFlowId) {
-    let ary = this._flowPool.get(lastFlowId)
+    const ary = this._flowPool.get(lastFlowId)
     if (ary) {
       ary.forEach((msg) => {
-        let action = msg.header.action
-        let handler = this[action + "Handler"]
+        const action = msg.header.action
+        const handler = this[action + "Handler"]
         if (handler) {
           handler.call(this, msg)
         }
@@ -47,21 +47,21 @@ class LKChannel extends WSChannel {
   }
 
   _handleMsg(msg) {
-    let header = msg.header
-    let isResponse = header.response
-    let action = header.action
+    const header = msg.header
+    const isResponse = header.response
+    const action = header.action
     if (isResponse) {
-      let msgId = header.msgId
-      let callback = this._callbacks[msgId]
+      const msgId = header.msgId
+      const callback = this._callbacks[msgId]
       if (callback) {
         callback(msg)
       }
     } else if (action) {
       // console.log({msgRecieved: msg})
-      let handler = this[action + "Handler"]
+      const handler = this[action + "Handler"]
       if (handler) {
         if (header.preFlowId) {
-          let userId = Application.getCurrentApp().getCurrentUser().id
+          const userId = Application.getCurrentApp().getCurrentUser().id
           FlowCursor.getLastFlowId(userId, header.flowType).then((lastFlowId) => {
             if (lastFlowId) {
               if (header.preFlowId == lastFlowId) {
@@ -82,23 +82,23 @@ class LKChannel extends WSChannel {
 
   _reportMsgHandled(flowId, flowType) {
     if (flowId && flowType) {
-      let userId = Application.getCurrentApp().getCurrentUser().id
+      const userId = Application.getCurrentApp().getCurrentUser().id
       FlowCursor.setLastFlowId(userId, flowType, flowId).then(() => {
         this._resolveFlowPool(flowId)
       })
     }
 
     this.applyChannel().then((channel) => {
-      channel.send(JSON.stringify({header: {
+      channel.send(JSON.stringify({ header: {
         version: "1.0",
         flowId,
         response: true
-      }}))
+      } }))
     })
   }
 
   _onmessage(message) {
-    let msg = JSON.parse(message.data)
+    const msg = JSON.parse(message.data)
     if (msg.forEach) {
       msg.forEach((m) => {
         this._handleMsg(m)
@@ -121,7 +121,7 @@ class LKChannel extends WSChannel {
     if (option) {
       // console.log(option)
     }
-    let msg = {
+    const msg = {
       header: {
         version: "1.0",
         id: (option && option.id) || this._generateMsgId(),
@@ -142,8 +142,8 @@ class LKChannel extends WSChannel {
       }
     }
     if (option) {
-      let target = option.target
-      let targets = option.targets
+      const target = option.target
+      const targets = option.targets
       if (target) {
         msg.header.target = target
       }
@@ -160,10 +160,10 @@ class LKChannel extends WSChannel {
       msg.header.did = Application.getCurrentApp().getCurrentUser().deviceId
 
       if (option) {
-        let chatId = option.chatId
-        let relativeMsgId = option.relativeMsgId
+        const chatId = option.chatId
+        const relativeMsgId = option.relativeMsgId
         if (chatId) {
-          let chat = await ChatManager.asyGetHotChatRandomSent(chatId)
+          const chat = await ChatManager.asyGetHotChatRandomSent(chatId)
 
           msg.header.targets = option.targets || chat.members
           msg.body.isGroup = option.isGroup
@@ -184,26 +184,26 @@ class LKChannel extends WSChannel {
 
   __sendReq(req, timeout) {
     return new Promise((resolve, reject) => {
-      let msgId = req.header.id
-      let callback = this._callbacks[msgId]
+      const msgId = req.header.id
+      const callback = this._callbacks[msgId]
       callback._tryTimes++
       try {
         super.send(JSON.stringify(req))
       } catch (e) {
         if (callback._tryTimes < 2) {
           this.__sendReq(req, timeout).catch(() => {
-            reject({error: "timeout", req})
+            reject({ error: "timeout", req })
           })
-        } else { reject({error: "timeout", req}) }
+        } else { reject({ error: "timeout", req }) }
       }
 
       setTimeout(() => {
         if (this._callbacks[msgId]) {
           if (callback._tryTimes < 2) {
             this.__sendReq(req, timeout).catch(() => {
-              reject({error: "timeout", req})
+              reject({ error: "timeout", req })
             })
-          } else { reject({error: "timeout", req}) }
+          } else { reject({ error: "timeout", req }) }
         }
       }, timeout * callback._tryTimes)
     })
@@ -211,13 +211,13 @@ class LKChannel extends WSChannel {
 
   _sendMessage(req, timeout) {
     return new Promise((resolve, reject) => {
-      let msgId = req.header.id
-      let callback = this._callbacks[msgId] = (msg) => {
+      const msgId = req.header.id
+      const callback = this._callbacks[msgId] = (msg) => {
         delete this._callbacks[msgId]
         resolve(msg)
       }
       callback._tryTimes = 0
-      let _timeout = timeout || this._timeout
+      const _timeout = timeout || this._timeout
       this.__sendReq(req, _timeout).catch((err) => {
         reject(err)
       })
@@ -225,19 +225,19 @@ class LKChannel extends WSChannel {
   }
 
   async _checkMembersDiff(serverMembers) {
-    let curApp = Application.getCurrentApp()
-    let added = []
-    let modified = []
-    let removed = []
-    let remoteMembers = new Map()
+    const curApp = Application.getCurrentApp()
+    const added = []
+    const modified = []
+    const removed = []
+    const remoteMembers = new Map()
     serverMembers.forEach((m) => {
       remoteMembers.set(m.id, m)
     })
-    let localMembers = await LKContactProvider.asyGetAll(curApp.getCurrentUser().id)
+    const localMembers = await LKContactProvider.asyGetAll(curApp.getCurrentUser().id)
     localMembers.forEach((lm) => {
       //let curMCode = lm.mCode
       //let curId = lm.id
-      let remoteM = remoteMembers.get(lm.id)
+      const remoteM = remoteMembers.get(lm.id)
       if (remoteM) {
         if (remoteM.mCode != lm.mCode) {
           modified.push(lm.id)
@@ -250,7 +250,7 @@ class LKChannel extends WSChannel {
     remoteMembers.forEach((v, k) => {
       added.push(k)
     })
-    return {added, modified, removed}
+    return { added, modified, removed }
   }
 
   async _ping() {
@@ -271,7 +271,7 @@ class LKChannel extends WSChannel {
     }
     if (!deprecated) {
       try {
-        let curApp = Application.getCurrentApp()
+        const curApp = Application.getCurrentApp()
         let result
         let orgMCode
         let memberMCode
@@ -280,24 +280,24 @@ class LKChannel extends WSChannel {
           result = await Promise.all([MagicCodeManager.asyGetOrgMCode(), MagicCodeManager.asyGetMemberMCode()])
           orgMCode = result[0]
           memberMCode = result[1]
-          result = await Promise.all([this.applyChannel(), this._asyNewRequest("ping", {orgMCode, memberMCode})])
+          result = await Promise.all([this.applyChannel(), this._asyNewRequest("ping", { orgMCode, memberMCode })])
           checkMCode = true
         } else {
           result = await Promise.all([this.applyChannel(), this._asyNewRequest("ping")])
         }
 
-        let msg = await result[0]._sendMessage(result[1])
+        const msg = await result[0]._sendMessage(result[1])
         this._lastPongTime = Date.now()
         if (checkMCode) {
-          let content = msg.body.content
+          const content = msg.body.content
           if (orgMCode !== content.orgMCode) {
-            let orgs = content.orgs
+            const orgs = content.orgs
             if (orgs) {
               await OrgManager.asyResetOrgs(content.orgMCode, orgs, curApp.getCurrentUser().id)
             }
           }
           if (memberMCode !== content.memberMCode) {
-            let members = content.members
+            const members = content.members
             if (members) {
               this._checkMembersDiff(members).then((diff) => {
                 LKContactHandler.asyRemoveContacts(diff.removed, curApp.getCurrentUser().id)
@@ -316,12 +316,12 @@ class LKChannel extends WSChannel {
   }
 
   async _asyFetchMembers(remoteMemberMCode, added, modified) {
-    let ids = added.concat(modified)
+    const ids = added.concat(modified)
     if (ids.length > 0) {
-      let result = await Promise.all([this.applyChannel(), this._asyNewRequest("fetchMembers", {members: ids})])
+      const result = await Promise.all([this.applyChannel(), this._asyNewRequest("fetchMembers", { members: ids })])
       return new Promise((resolve) => {
         result[0]._sendMessage(result[1]).then((msg) => {
-          let members = msg.body.content.members
+          const members = msg.body.content.members
           return ContactManager.asyRebuildMembers(remoteMemberMCode, ids, members)
         }).then(() => {
           resolve()
@@ -332,12 +332,12 @@ class LKChannel extends WSChannel {
   }
 
   async asyLogin() {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("login", {venderDid: Application.getCurrentApp().getVenderId()})])
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("login", { venderDid: Application.getCurrentApp().getVenderId() })])
     const msg = await result[0]._sendMessage(result[1])
     if (!msg.body.content.err) {
-      let userId = Application.getCurrentApp().getCurrentUser().id
-      let minPreFlows = msg.body.content.minPreFlows
-      let groups = msg.body.content.groups
+      const userId = Application.getCurrentApp().getCurrentUser().id
+      const minPreFlows = msg.body.content.minPreFlows
+      const groups = msg.body.content.groups
       const psAry = [FlowCursor.setLastFlowId(userId, "deviceDiffReport",
         minPreFlows.deviceDiffReport), FlowCursor.setLastFlowId(userId, "group",
         minPreFlows.group), ChatManager.asyResetGroups(groups, userId)]
@@ -348,57 +348,62 @@ class LKChannel extends WSChannel {
   }
 
   async asyGetAllDetainedMsg() {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("getAllDetainedMsg")])
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("getAllDetainedMsg")])
     return result[0]._sendMessage(result[1])
   }
 
   async asyRegister(ip, port, uid, did, venderDid, pk, checkCode, qrCode, description, introducerDid) {
-    let msg = {uid, did, venderDid, pk, checkCode, qrCode, description, introducerDid}
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("register", msg)])
+    const msg = { uid, did, venderDid, pk, checkCode, qrCode, description, introducerDid }
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("register", msg)])
     return result[0]._sendMessage(result[1], 60000)
   }
 
   async asyUnRegister() {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("unRegister")])
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("unRegister")])
     return result[0]._sendMessage(result[1])
   }
 
   sendText(chatId, text, relativeMsgId, isGroup) {
-    let content = {type: ChatManager.MESSAGE_TYPE_TEXT, data: text}
+    const content = { type: ChatManager.MESSAGE_TYPE_TEXT, data: text }
     this._sendMsg(chatId, content, relativeMsgId, isGroup)
   }
+
   sendImage(chatId, imgData, width, height, relativeMsgId, isGroup) {
-    let content = {type: ChatManager.MESSAGE_TYPE_IMAGE, data: {data: imgData, width, height}}
+    const content = { type: ChatManager.MESSAGE_TYPE_IMAGE, data: { data: imgData, width, height } }
     return this._sendMsg(chatId, content, relativeMsgId, isGroup)
   }
+
   async sendFile(Uploader, chatId, filePath, name, postfix, relativeMsgId, isGroup, onScheduleChanged, onCompleted, onError) {
-    let msg = await this._applyUploadChannel(postfix)
-    let port = msg.body.content.port
-    let newName = msg.body.content.newName
-    let upload = new Uploader(filePath, Application.getCurrentApp().getCurrentUser().serverIP, port)
+    const msg = await this._applyUploadChannel(postfix)
+    const port = msg.body.content.port
+    const newName = msg.body.content.newName
+    const upload = new Uploader(filePath, Application.getCurrentApp().getCurrentUser().serverIP, port)
     upload.start()
     upload.onScheduleChanged(onScheduleChanged)
     upload.onCompleted(() => {
-      let content = {type: ChatManager.MESSAGE_TYPE_FILE, data: {name, postfix, newName}}
+      const content = { type: ChatManager.MESSAGE_TYPE_FILE, data: { name, postfix, newName } }
       this._sendMsg(chatId, content, relativeMsgId, isGroup)
       onCompleted()
     })
     upload.onError(onError)
   }
+
   async _applyUploadChannel(postfix) {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("applyUploadChannel", {postfix})])
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("applyUploadChannel", { postfix })])
     return result[0]._sendMessage(result[1])
   }
+
   sendAudio(chatId, audioData, audioExt, duration, relativeMsgId, isGroup) {
-    let content = {type: ChatManager.MESSAGE_TYPE_AUDIO, data: {data: audioData, ext: audioExt, duration}}
+    const content = { type: ChatManager.MESSAGE_TYPE_AUDIO, data: { data: audioData, ext: audioExt, duration } }
     return this._sendMsg(chatId, content, relativeMsgId, isGroup)
   }
+
   async retrySend(chatId, msgId) {
-    let curApp = Application.getCurrentApp()
-    let userId = curApp.getCurrentUser().id
-    let result = await Promise.all([LKChatProvider.asyGetChat(userId, chatId), LKChatProvider.asyGetMsg(userId, chatId, msgId, true)])
-    let chat = result[0]
-    let oldMsg = result[1]
+    const curApp = Application.getCurrentApp()
+    const userId = curApp.getCurrentUser().id
+    const result = await Promise.all([LKChatProvider.asyGetChat(userId, chatId), LKChatProvider.asyGetMsg(userId, chatId, msgId, true)])
+    const chat = result[0]
+    const oldMsg = result[1]
 
     if (oldMsg) {
       this.updateMsgState({
@@ -410,7 +415,7 @@ class LKChannel extends WSChannel {
         oldMsg.content.data = LZBase64String.compressToUTF16(oldMsg.content.data)
         oldMsg.content.compress = true
       }
-      let result = await Promise.all([this.applyChannel(), this._asyNewRequest("sendMsg", {type: oldMsg.type, data: oldMsg.type == "0" ? oldMsg.content : JSON.parse(oldMsg.content)}, {isGroup: chat.isGroup, time: oldMsg.sendTime, chatId, relativeMsgId: oldMsg.relativeMsgId, id: oldMsg.id, order: oldMsg.order})])
+      const result = await Promise.all([this.applyChannel(), this._asyNewRequest("sendMsg", { type: oldMsg.type, data: oldMsg.type == "0" ? oldMsg.content : JSON.parse(oldMsg.content) }, { isGroup: chat.isGroup, time: oldMsg.sendTime, chatId, relativeMsgId: oldMsg.relativeMsgId, id: oldMsg.id, order: oldMsg.order })])
       result[0]._sendMessage(result[1]).then(() => {
         this.updateMsgState({
           chatId,
@@ -428,52 +433,55 @@ class LKChannel extends WSChannel {
   }
 
   updateMsgState(option) {
-    const {chatId, msgId, state} = option
-    let curApp = Application.getCurrentApp()
-    let userId = curApp.getCurrentUser().id
+    const { chatId, msgId, state } = option
+    const curApp = Application.getCurrentApp()
+    const userId = curApp.getCurrentUser().id
     LKChatHandler.asyUpdateMsgState(userId, chatId, msgId, state).then(() => {
       ChatManager.fire("msgStateChange", {
         msgId, state
       })
     })
   }
+
   sendGroupText(chatId, text, relativeMsgId) {
     this.sendText(chatId, text, relativeMsgId, true)
   }
+
   sendGroupImage(chatId, imgData, width, height, relativeMsgId) {
     this.sendImage(chatId, imgData, width, height, relativeMsgId, true)
   }
+
   sendGroupAudio(chatId, audioData, audioExt, duration, relativeMsgId) {
     this.sendAudio(chatId, audioData, audioExt, duration, relativeMsgId, true)
   }
 
   async _sendMsg(chatId, content, relativeMsgId, isGroup) {
-    let curApp = Application.getCurrentApp()
-    let userId = curApp.getCurrentUser().id
-    let did = curApp.getCurrentUser().deviceId
+    const curApp = Application.getCurrentApp()
+    const userId = curApp.getCurrentUser().id
+    const did = curApp.getCurrentUser().deviceId
     let sendContent = content
     if (content.type === ChatManager.MESSAGE_TYPE_IMAGE) {
-      sendContent = {type: content.type, data: {width: content.data.width, height: content.data.height, compress: true}}
+      sendContent = { type: content.type, data: { width: content.data.width, height: content.data.height, compress: true } }
       sendContent.data.data = LZBase64String.compressToUTF16(content.data.data)
     } else if (content.type === ChatManager.MESSAGE_TYPE_AUDIO) {
-      sendContent = {type: content.type, data: {compress: true, ext: content.data.ext}}
+      sendContent = { type: content.type, data: { compress: true, ext: content.data.ext } }
       sendContent.data.data = LZBase64String.compressToUTF16(content.data.data)
     } else {
-      sendContent = {type: content.type, data: content.data}
+      sendContent = { type: content.type, data: content.data }
     }
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("sendMsg", sendContent, {isGroup, chatId, relativeMsgId})])
-    let msgId = result[1].header.id
-    let time = result[1].header.time
-    let curTime = Date.now()
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("sendMsg", sendContent, { isGroup, chatId, relativeMsgId })])
+    const msgId = result[1].header.id
+    const time = result[1].header.time
+    const curTime = Date.now()
     let relativeOrder = curTime
     if (relativeMsgId) {
-      let relativeMsg = await LKChatProvider.asyGetMsg(userId, chatId, relativeMsgId)
+      const relativeMsg = await LKChatProvider.asyGetMsg(userId, chatId, relativeMsgId)
       if (relativeMsg) { relativeOrder = relativeMsg.receiveOrder }
     }
     const psAry = [
       LKChatHandler.asyAddMsg(userId, chatId, msgId, userId, did, content.type, content.data, time, ChatManager.MESSAGE_STATE_SENDING, relativeMsgId, relativeOrder, curTime, result[1].body.order)]
     const dbChangePs = Promise.all(psAry).then(() => {
-      ChatManager.fire("msgSend", {chatId, msgId, senderName: curApp.getCurrentUser().name})
+      ChatManager.fire("msgSend", { chatId, msgId, senderName: curApp.getCurrentUser().name })
     })
     try {
       const psAry2 = [
@@ -497,25 +505,25 @@ class LKChannel extends WSChannel {
   }
 
   async msgDeviceDiffReportHandler(msg) {
-    let header = msg.header
-    let content = msg.body.content
-    let msgId = content.msgId
-    let chatId = content.chatId
-    let diff = content.diff
+    const header = msg.header
+    const content = msg.body.content
+    const msgId = content.msgId
+    const chatId = content.chatId
+    const diff = content.diff
     if (diff) {
-      let added = await ChatManager.deviceChanged(chatId, diff)
+      const added = await ChatManager.deviceChanged(chatId, diff)
       if (added && added.length > 0) {
-        let userId = Application.getCurrentApp().getCurrentUser().id
-        let result = await Promise.all([LKChatProvider.asyGetChat(userId, chatId), LKChatProvider.asyGetMsg(userId, chatId, msgId, true)])
-        let chat = result[0]
-        let oldMsg = result[1]
+        const userId = Application.getCurrentApp().getCurrentUser().id
+        const result = await Promise.all([LKChatProvider.asyGetChat(userId, chatId), LKChatProvider.asyGetMsg(userId, chatId, msgId, true)])
+        const chat = result[0]
+        const oldMsg = result[1]
         if (oldMsg) {
           const contentData = oldMsg.type === ChatManager.MESSAGE_TYPE_TEXT ? oldMsg.content : JSON.parse(oldMsg.content)
           if (oldMsg.type === ChatManager.MESSAGE_TYPE_IMAGE || oldMsg.type === ChatManager.MESSAGE_TYPE_AUDIO) {
             contentData.data = LZBase64String.compressToUTF16(oldMsg.data)
             contentData.compress = true
           }
-          this._asyNewRequest("sendMsg2", {type: oldMsg.type, data: contentData}, {isGroup: chat.isGroup, time: oldMsg.sendTime, chatId, relativeMsgId: oldMsg.relativeMsgId, id: oldMsg.id, targets: added, order: oldMsg.order}).then((req) => {
+          this._asyNewRequest("sendMsg2", { type: oldMsg.type, data: contentData }, { isGroup: chat.isGroup, time: oldMsg.sendTime, chatId, relativeMsgId: oldMsg.relativeMsgId, id: oldMsg.id, targets: added, order: oldMsg.order }).then((req) => {
             this._sendMessage(req).then(() => {
               this._reportMsgHandled(header.flowId, header.flowType)
               this.updateMsgState({
@@ -543,11 +551,12 @@ class LKChannel extends WSChannel {
   }
 
   _getFromChatMsgPool(chatId, msgId) {
-    let msgs = this._chatMsgPool.get(chatId)
+    const msgs = this._chatMsgPool.get(chatId)
     if (msgs) {
       return msgs.get(msgId)
     }
   }
+
   _putChatMsgPool(chatId, msg) {
     let msgs = this._chatMsgPool.get(chatId)
     if (!msgs) {
@@ -556,23 +565,24 @@ class LKChannel extends WSChannel {
     }
     msgs.set(msg.header.id, msg)
   }
+
   async _checkChatMsgPool(chatId, relativeMsgId, relativeOrder) {
-    let msgs = this._chatMsgPool.get(chatId)
+    const msgs = this._chatMsgPool.get(chatId)
     if (msgs) {
-      let ps = []
-      let followMsgIds = []
+      const ps = []
+      const followMsgIds = []
       msgs.forEach((msg) => {
-        let header = msg.header
-        let body = msg.body
+        const header = msg.header
+        const body = msg.body
         if (body.relativeMsgId === relativeMsgId) {
           ps.push(this._getReceiveOrder(chatId, relativeMsgId, header.uid, header.did, body.order))
           followMsgIds.push(header.id)
         }
       })
-      let orders = await Promise.all(ps)
+      const orders = await Promise.all(ps)
       for (let i = 0; i < orders.length; i++) {
-        let receiveOrder = orders[i]
-        let msg = msgs.get(followMsgIds[i])
+        const receiveOrder = orders[i]
+        const msg = msgs.get(followMsgIds[i])
         this._receiveMsg(chatId, msg, relativeOrder, receiveOrder)
       }
     }
@@ -587,7 +597,7 @@ class LKChannel extends WSChannel {
     }
     let exists = false
     for (let i = 0; i < params.length; i++) {
-      let p = params[i]
+      const p = params[i]
       if (JSON.stringify(p) === JSON.stringify(param)) {
         exists = true
         break
@@ -603,7 +613,7 @@ class LKChannel extends WSChannel {
   }
 
   _checkFireDelayEvent() {
-    let now = Date.now()
+    const now = Date.now()
     if (this._lastFireTime && now - this._lastFireTime > 3000) {
       //fire
       this._delayEvents.forEach((v, k) => {
@@ -617,21 +627,21 @@ class LKChannel extends WSChannel {
   }
 
   async _receiveMsg(chatId, msg, relativeOrder, receiveOrder) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
-    let header = msg.header
-    let body = msg.body
-    let random = header.target.random
-    let key = ChatManager.getHotChatKeyReceived(chatId, header.did, random)
-    let content = JSON.parse(msg.body.content)
+    const userId = Application.getCurrentApp().getCurrentUser().id
+    const header = msg.header
+    const body = msg.body
+    const random = header.target.random
+    const key = ChatManager.getHotChatKeyReceived(chatId, header.did, random)
+    const content = JSON.parse(msg.body.content)
     try {
-      let bytes = CryptoJS.AES.decrypt(content.data.toString(), key)
-      let data = bytes.toString(CryptoJS.enc.Utf8)
+      const bytes = CryptoJS.AES.decrypt(content.data.toString(), key)
+      const data = bytes.toString(CryptoJS.enc.Utf8)
       content.data = JSON.parse(data)
     } catch (e) {
       console.info(e)
     }
 
-    let state = userId === header.uid ? ChatManager.MESSAGE_STATE_SERVER_RECEIVE : null
+    const state = userId === header.uid ? ChatManager.MESSAGE_STATE_SERVER_RECEIVE : null
     if ((content.type === ChatManager.MESSAGE_TYPE_IMAGE || content.type === ChatManager.MESSAGE_TYPE_AUDIO) && content.data.compress) {
       content.data.data = LZBase64String.decompressFromUTF16(content.data.data)
     }
@@ -646,8 +656,8 @@ class LKChannel extends WSChannel {
   }
 
   async _getReceiveOrder(chatId, relativeMsgId, senderUid, senderDid, sendOrder) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
-    let nextMsg = await LKChatProvider.asyGetRelativeNextSendMsg(userId, chatId, relativeMsgId, senderUid, senderDid, sendOrder)
+    const userId = Application.getCurrentApp().getCurrentUser().id
+    const nextMsg = await LKChatProvider.asyGetRelativeNextSendMsg(userId, chatId, relativeMsgId, senderUid, senderDid, sendOrder)
     let receiveOrder
     if (!nextMsg) {
       receiveOrder = Date.now()
@@ -662,14 +672,14 @@ class LKChannel extends WSChannel {
   }
 
   async sendMsgHandler(msg) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
-    let header = msg.header
-    let body = msg.body
-    let senderUid = header.uid
-    let senderDid = header.did
-    let isGroup = body.isGroup
-    let chatId = isGroup ? body.chatId : userId === senderUid ? body.chatId : senderUid
-    let _received = await LKChatProvider.asyGetMsg(userId, chatId, header.id)
+    const userId = Application.getCurrentApp().getCurrentUser().id
+    const header = msg.header
+    const body = msg.body
+    const senderUid = header.uid
+    const senderDid = header.did
+    const isGroup = body.isGroup
+    const chatId = isGroup ? body.chatId : userId === senderUid ? body.chatId : senderUid
+    const _received = await LKChatProvider.asyGetMsg(userId, chatId, header.id)
     if (_received) {
       this._reportMsgHandled(header.flowId)
       return
@@ -683,17 +693,17 @@ class LKChannel extends WSChannel {
       exits = await ChatManager.asyEnsureSingleChat(chatId)
     }
     if (exits) {
-      let relativeMsgId = body.relativeMsgId
-      let sendOrder = body.order
+      const relativeMsgId = body.relativeMsgId
+      const sendOrder = body.order
       let relativeOrder
       let receiveOrder
       if (relativeMsgId) {
-        let relativeMsg = await LKChatProvider.asyGetMsg(userId, chatId, relativeMsgId)
+        const relativeMsg = await LKChatProvider.asyGetMsg(userId, chatId, relativeMsgId)
         if (relativeMsg) {
           relativeOrder = relativeMsg.receiveOrder
           receiveOrder = await this._getReceiveOrder(chatId, relativeMsgId, senderUid, senderDid, sendOrder)
         } else if (header.RFExist === 0) { //relative msg flow has been deleted by server as a receive report or timeout or this is a new device after relative msg or eat by ghost
-          let order = Date.now()
+          const order = Date.now()
           this._receiveMsg(chatId, msg, order, order)
         } else {
           this._putChatMsgPool(chatId, msg)
@@ -710,17 +720,18 @@ class LKChannel extends WSChannel {
     }
   }
 
-  async readReport({chatId, isGroup, senderUid, serverIP, serverPort, msgIds}) {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("readReport", {msgIds, chatId, isGroup}, {target: {id: senderUid, serverIP, serverPort}})])
+  async readReport({ chatId, isGroup, senderUid, serverIP, serverPort, msgIds }) {
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("readReport", { msgIds, chatId, isGroup }, { target: { id: senderUid, serverIP, serverPort } })])
     await result[0]._sendMessage(result[1])
     LKChatHandler.asyUpdateReadState(msgIds, ChatManager.MESSAGE_READSTATE_READREPORT)
   }
+
   readReportHandler(msg) {
-    let userId = Application.getCurrentApp().getCurrentUser().id
-    let content = msg.body.content
-    let msgIds = content.msgIds
-    let isGroup = content.isGroup
-    let chatId = isGroup ? content.chatId : userId === msg.header.uid ? content.chatId : msg.header.uid
+    const userId = Application.getCurrentApp().getCurrentUser().id
+    const content = msg.body.content
+    const msgIds = content.msgIds
+    const isGroup = content.isGroup
+    const chatId = isGroup ? content.chatId : userId === msg.header.uid ? content.chatId : msg.header.uid
     const state = ChatManager.MESSAGE_STATE_TARGET_READ
     ChatManager.msgReadReport(msg.header.uid, chatId, msgIds, state).then((result) => {
       if (result.isAllUpdate) { this._reportMsgHandled(msg.header.flowId, msg.header.flowType) }
@@ -737,73 +748,80 @@ class LKChannel extends WSChannel {
   }
 
   async applyMF(contactId, serverIP, serverPort) {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("applyMF", {
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("applyMF", {
       name: Application.getCurrentApp().getCurrentUser().name,
       pic: Application.getCurrentApp().getCurrentUser().pic,
       mCode: Application.getCurrentApp().getCurrentUser().mCode
     },
-    {target: {id: contactId, serverIP, serverPort}})])
+    { target: { id: contactId, serverIP, serverPort } })])
     return result[0]._sendMessage(result[1])
   }
+
   applyMFHandler(msg) {
-    let contactId = msg.header.uid
-    let name = msg.body.content.name
-    let pic = msg.body.content.pic
-    let mCode = msg.body.content.mCode
-    let serverIP = msg.header.serverIP
-    let serverPort = msg.header.serverPort
-    MFApplyManager.asyAddNewMFApply({id: contactId, name, pic, serverIP, serverPort, mCode}).then(() => {
+    const contactId = msg.header.uid
+    const name = msg.body.content.name
+    const pic = msg.body.content.pic
+    const mCode = msg.body.content.mCode
+    const serverIP = msg.header.serverIP
+    const serverPort = msg.header.serverPort
+    MFApplyManager.asyAddNewMFApply({ id: contactId, name, pic, serverIP, serverPort, mCode }).then(() => {
       this._reportMsgHandled(msg.header.flowId, msg.header.flowType)
     })
   }
+
   async acceptMF(contactId, contactName, contactPic, serverIP, serverPort, contactMCode) {
-    let user = Application.getCurrentApp().getCurrentUser()
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("acceptMF", {accepter: {name: user.name, pic: user.pic, mCode: user.mCode}, applyer: {name: contactName, pic: contactPic, mCode: contactMCode}},
-      {target: {id: contactId, serverIP, serverPort}})])
+    const user = Application.getCurrentApp().getCurrentUser()
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("acceptMF", { accepter: { name: user.name, pic: user.pic, mCode: user.mCode }, applyer: { name: contactName, pic: contactPic, mCode: contactMCode } },
+      { target: { id: contactId, serverIP, serverPort } })])
     return result[0]._sendMessage(result[1])
   }
+
   acceptMFHandler(msg) {
-    let header = msg.header
-    let content = msg.body.content
-    let user = Application.getCurrentApp().getCurrentUser()
+    const header = msg.header
+    const content = msg.body.content
+    const user = Application.getCurrentApp().getCurrentUser()
     let friend
     if (header.uid === user.id) {
-      let target = content.target
-      friend = {id: target.id, serverIP: target.serverIP, serverPort: target.serverPort, name: content.applyer.name, pic: content.applyer.pic, mCode: content.applyer.mCode}
+      const target = content.target
+      friend = { id: target.id, serverIP: target.serverIP, serverPort: target.serverPort, name: content.applyer.name, pic: content.applyer.pic, mCode: content.applyer.mCode }
     } else {
-      friend = {id: header.uid, serverIP: header.serverIP, serverPort: header.serverPort, name: content.accepter.name, pic: content.accepter.pic, mCode: content.accepter.mCode}
+      friend = { id: header.uid, serverIP: header.serverIP, serverPort: header.serverPort, name: content.accepter.name, pic: content.accepter.pic, mCode: content.accepter.mCode }
     }
     ContactManager.asyAddNewFriend(friend).then(() => {
       this._reportMsgHandled(header.flowId, header.flowType)
     })
   }
+
   //members:{id,name,pic,serverIP,serverPort}
   async addGroupChat(chatId, name, members) {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("addGroupChat", {chatId, name, members})])
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("addGroupChat", { chatId, name, members })])
     return result[0]._sendMessage(result[1])
   }
+
   async addGroupChatHandler(msg) {
-    let content = msg.body.content
-    let chatId = content.chatId
-    let name = content.name
-    let members = content.members
+    const content = msg.body.content
+    const chatId = content.chatId
+    const name = content.name
+    const members = content.members
     ChatManager.addGroupChat(chatId, name, members).then(() => {
       this._reportMsgHandled(msg.header.flowId, msg.header.flowType)
     })
   }
+
   async addGroupMembers(chatId, chatName, newMembers) {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("addGroupMembers", {chatId, name: chatName, members: newMembers})])
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("addGroupMembers", { chatId, name: chatName, members: newMembers })])
     return result[0]._sendMessage(result[1])
   }
+
   async addGroupMembersHandler(msg) {
-    let header = msg.header
-    let content = msg.body.content
-    let newMembers = content.members
-    let chatId = content.chatId
-    let user = Application.getCurrentApp().getCurrentUser()
+    const header = msg.header
+    const content = msg.body.content
+    const newMembers = content.members
+    const chatId = content.chatId
+    const user = Application.getCurrentApp().getCurrentUser()
     let inNewMembers = false
     for (let i = 0; i < newMembers.length; i++) {
-      let member = newMembers[i]
+      const member = newMembers[i]
       // fixme: ,member is null
       if (member) {
         if (member.id === user.id) {
@@ -811,17 +829,16 @@ class LKChannel extends WSChannel {
           break
         }
       }
-
     }
     if (inNewMembers) {
-      let name = content.name
-      let oldMembers = content.oldMembers
+      const name = content.name
+      const oldMembers = content.oldMembers
 
       ChatManager.addGroupChat(chatId, name, newMembers.concat(oldMembers)).then(() => {
         this._reportMsgHandled(header.flowId, header.flowType)
       })
     } else {
-      let chat = await LKChatProvider.asyGetChat(user.id, chatId)
+      const chat = await LKChatProvider.asyGetChat(user.id, chatId)
       if (chat) {
         // fixme: member is null
         if (newMembers[0]) {
@@ -832,27 +849,31 @@ class LKChannel extends WSChannel {
       }
     }
   }
+
   async setGroupName(chatId, name) {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("setGroupName", {chatId, name})])
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("setGroupName", { chatId, name })])
     return result[0]._sendMessage(result[1])
   }
+
   async setGroupNameHandler(msg) {
-    let header = msg.header
-    let chatId = msg.body.content.chatId
-    let name = msg.body.content.name
+    const header = msg.header
+    const chatId = msg.body.content.chatId
+    const name = msg.body.content.name
     ChatManager.asyUpdateGroupName(chatId, name).then(() => {
       this._reportMsgHandled(header.flowId, header.flowType)
     })
   }
+
   async leaveGroup(chatId) {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("leaveGroup", {chatId})])
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("leaveGroup", { chatId })])
     return result[0]._sendMessage(result[1])
   }
+
   async leaveGroupHandler(msg) {
-    let header = msg.header
-    let sender = header.uid
-    let chatId = msg.body.content.chatId
-    let user = Application.getCurrentApp().getCurrentUser()
+    const header = msg.header
+    const sender = header.uid
+    const chatId = msg.body.content.chatId
+    const user = Application.getCurrentApp().getCurrentUser()
     if (sender === user.id) {
       ChatManager.deleteGroup(chatId).then(() => {
         this._reportMsgHandled(header.flowId, header.flowType)
@@ -863,12 +884,14 @@ class LKChannel extends WSChannel {
       })
     }
   }
+
   async setUserName(name) {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("setUserName", {name})])
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("setUserName", { name })])
     return result[0]._sendMessage(result[1])
   }
+
   async setUserPic(pic) {
-    let result = await Promise.all([this.applyChannel(), this._asyNewRequest("setUserPic", {pic})])
+    const result = await Promise.all([this.applyChannel(), this._asyNewRequest("setUserPic", { pic })])
     return result[0]._sendMessage(result[1])
   }
 }

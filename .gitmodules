@@ -1,0 +1,3 @@
+[submodule "submodule/eslint-config-lk"]
+	path = submodule/eslint-config-lk
+	url = https://github.com/TracelessLK/eslint-config-lk.git

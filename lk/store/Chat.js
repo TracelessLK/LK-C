@@ -20,7 +20,7 @@ class Chat {
     })
   }
 
-  async getSingeChat({userId, chatId}) {
+  async getSingeChat({ userId, chatId }) {
     let result
     const returnAry = await SqlUtil.transaction({
       sql: `select * from chatTableView where ownerUserId = ? and id = ?`,
@@ -36,9 +36,9 @@ class Chat {
 
   getChatID(userId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "select * from chat where ownerUserId=? and isGroup=? "
+        const sql = "select * from chat where ownerUserId=? and isGroup=? "
         db.getAll(sql, [userId, 1], (row) => {
           resolve(row)
         }, (err) => {
@@ -47,11 +47,12 @@ class Chat {
       })
     })
   }
+
   deleteChat(userId, chatId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "delete from chat where id=? and ownerUserId=?"
+        const sql = "delete from chat where id=? and ownerUserId=?"
         db.run(sql, [chatId, userId], () => {
           resolve()
         }, (err) => {
@@ -60,11 +61,12 @@ class Chat {
       })
     })
   }
+
   getChat(userId, chatId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "select * from chat where id=? and ownerUserId=?"
+        const sql = "select * from chat where id=? and ownerUserId=?"
         db.get(sql, [chatId, userId], (row) => {
           resolve(row)
         }, (err) => {
@@ -76,9 +78,9 @@ class Chat {
 
   getChatName(userId, name) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "select * from chat where name=? and ownerUserId=? and isGroup=1 "
+        const sql = "select * from chat where name=? and ownerUserId=? and isGroup=1 "
         db.get(sql, [name, userId], (row) => {
           resolve(row)
         }, (err) => {
@@ -90,9 +92,9 @@ class Chat {
 
   getGroupMembers(chatId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "select c.*, m.groupAdministrator from groupMember as m,contact as c where m.contactId=c.id and m.chatId=? group by c.id"
+        const sql = "select c.*, m.groupAdministrator from groupMember as m,contact as c where m.contactId=c.id and m.chatId=? group by c.id"
         db.getAll(sql, [chatId], (results) => {
           resolve(results)
         }, (err) => {
@@ -104,9 +106,9 @@ class Chat {
 
   addSingleChat(userId, chatId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "insert into chat(id,ownerUserId,createTime,isGroup) values (?,?,?,?)"
+        const sql = "insert into chat(id,ownerUserId,createTime,isGroup) values (?,?,?,?)"
         db.run(sql, [chatId, userId, Date.now(), 0], () => {
           resolve()
         }, (err) => {
@@ -115,12 +117,13 @@ class Chat {
       })
     })
   }
+
   addGroupChat(option) {
-    const {userId, chatId, name, MessageCeiling, focus, reserve1} = option
+    const { userId, chatId, name, MessageCeiling, focus, reserve1 } = option
     return new Promise(async (resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "insert into chat(id,ownerUserId,name,createTime,isGroup,MessageCeiling,focus,reserve1) values (?,?,?,?,?,?,?,?)"
+        const sql = "insert into chat(id,ownerUserId,name,createTime,isGroup,MessageCeiling,focus,reserve1) values (?,?,?,?,?,?,?,?)"
         db.run(sql, [chatId, userId, name, Date.now(), 1, MessageCeiling, focus, reserve1], () => {
           resolve()
         }, (err) => {
@@ -132,9 +135,9 @@ class Chat {
 
   getGroupMember(chatId, contactId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "select * from groupMember where chatId=? and contactId=?"
+        const sql = "select * from groupMember where chatId=? and contactId=?"
         db.get(sql, [chatId, contactId], (row) => {
           resolve(row)
         }, (err) => {
@@ -145,12 +148,12 @@ class Chat {
   }
 
   async _addGroupMember(userId, chatId, contactId, groupAdministrator) {
-    let cur = await this.getGroupMember(chatId, contactId)
+    const cur = await this.getGroupMember(chatId, contactId)
     if (!cur) {
       return new Promise((resolve, reject) => {
-        let db = new DBProxy()
+        const db = new DBProxy()
         db.transaction(() => {
-          let sql = "insert into groupMember(ownerUserId,chatId,contactId,groupAdministrator) values (?,?,?,?)"
+          const sql = "insert into groupMember(ownerUserId,chatId,contactId,groupAdministrator) values (?,?,?,?)"
           db.run(sql, [userId, chatId, contactId, groupAdministrator], () => {
             resolve()
           }, (err) => {
@@ -165,9 +168,9 @@ class Chat {
 
   addGroupMembers(userId, chatId, members, groupAdministrator) {
     return new Promise((resolve, reject) => {
-      let ps = []
+      const ps = []
       members.forEach((contact) => {
-        let contactId = contact.id
+        const contactId = contact.id
         ps.push(this._addGroupMember(userId, chatId, contactId, groupAdministrator))
       })
       Promise.all(ps).then(() => {
@@ -180,9 +183,9 @@ class Chat {
 
   MessageCeiling(MessageCeiling, userId, chatId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "update chat set MessageCeiling=? where id=? and ownerUserId=?"
+        const sql = "update chat set MessageCeiling=? where id=? and ownerUserId=?"
         db.run(sql, [MessageCeiling, chatId, userId], () => {
           resolve()
         }, (err) => {
@@ -191,11 +194,12 @@ class Chat {
       })
     })
   }
+
   messageFocus(focus, userId, chatId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "update chat set focus=? where id=? and ownerUserId=?"
+        const sql = "update chat set focus=? where id=? and ownerUserId=?"
         db.run(sql, [focus, chatId, userId], () => {
           resolve()
         }, (err) => {
@@ -204,11 +208,12 @@ class Chat {
       })
     })
   }
+
   messageDraft(reserve1, userId, chatId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "update chat set reserve1=? where id=? and ownerUserId=?"
+        const sql = "update chat set reserve1=? where id=? and ownerUserId=?"
         db.run(sql, [reserve1, chatId, userId], () => {
           resolve()
         }, (err) => {
@@ -220,9 +225,9 @@ class Chat {
 
   clear(userId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "delete from chat where ownerUserId=? and isGroup=?"//removeAllSingleChats
+        const sql = "delete from chat where ownerUserId=? and isGroup=?"//removeAllSingleChats
         db.run(sql, [userId, 0], () => {
           Record.removeAll(userId).then(() => {
             resolve()
@@ -238,11 +243,11 @@ class Chat {
 
   deleteGroups(userId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "delete from chat where ownerUserId=? and isGroup=?"
+        const sql = "delete from chat where ownerUserId=? and isGroup=?"
         db.run(sql, [userId, 1], () => {
-          let sql2 = "delete from groupMember where ownerUserId=?"
+          const sql2 = "delete from groupMember where ownerUserId=?"
           db.run(sql2, [userId], () => {
             resolve()
           }, (err) => {
@@ -257,11 +262,11 @@ class Chat {
 
   removeAll(userId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "delete from chat where ownerUserId=? "
+        const sql = "delete from chat where ownerUserId=? "
         db.run(sql, [userId], () => {
-          let sql2 = "delete from groupMember where chatId not in (select id from chat where ownerUserId=? )"
+          const sql2 = "delete from groupMember where chatId not in (select id from chat where ownerUserId=? )"
           db.run(sql2, [userId], () => {
             resolve()
           }, (err) => {
@@ -276,22 +281,22 @@ class Chat {
 
   deleteGroup(userId, chatId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "delete from chat where ownerUserId=? and id=?"
+        const sql = "delete from chat where ownerUserId=? and id=?"
         db.run(sql, [userId, chatId], () => {
           resolve()
-          let sql2 = "delete from groupMember where chatId = ?"
+          const sql2 = "delete from groupMember where chatId = ?"
           db.run(sql2, [chatId], () => {
           }, () => {
           })
 
-          let sql3 = "delete from record where ownerUserId=? and chatId=?"
+          const sql3 = "delete from record where ownerUserId=? and chatId=?"
           db.run(sql3, [userId, chatId], () => {
           }, () => {
           })
 
-          let sql4 = "delete from group_record_state where ownerUserId=? and chatId=?"
+          const sql4 = "delete from group_record_state where ownerUserId=? and chatId=?"
           db.run(sql4, [userId, chatId], () => {
           }, () => {
           })
@@ -304,18 +309,18 @@ class Chat {
 
   deleteGroupMember(uerId, chatId, contactId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "delete from groupMember where chatId=? and contactId=?"
+        const sql = "delete from groupMember where chatId=? and contactId=?"
         db.run(sql, [chatId, contactId], () => {
           resolve()
 
-          let sql3 = "delete from record where ownerUserId=? and chatId=? and senderUid=?"
+          const sql3 = "delete from record where ownerUserId=? and chatId=? and senderUid=?"
           db.run(sql3, [uerId, chatId, contactId], () => {
           }, () => {
           })
 
-          let sql4 = "delete from group_record_state where ownerUserId=? and chatId=? and reporterUid=?"
+          const sql4 = "delete from group_record_state where ownerUserId=? and chatId=? and reporterUid=?"
           db.run(sql4, [uerId, chatId, contactId], () => {
           }, () => {
           })
@@ -328,9 +333,9 @@ class Chat {
 
   setGroupName(userId, chatId, name) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "update chat set name=? where id=? and ownerUserId=?"
+        const sql = "update chat set name=? where id=? and ownerUserId=?"
         db.run(sql, [name, chatId, userId], () => {
           resolve()
         }, (err) => {
@@ -382,9 +387,9 @@ order by name
 
   getAll(userId) {
     return new Promise((resolve, reject) => {
-      let db = new DBProxy()
+      const db = new DBProxy()
       db.transaction(() => {
-        let sql = "select * from chat where ownerUserId=? order by MessageCeiling desc,createTime desc"
+        const sql = "select * from chat where ownerUserId=? order by MessageCeiling desc,createTime desc"
         db.getAll(sql, [userId], (results) => {
           resolve(results)
         }, (err) => {
@@ -394,7 +399,7 @@ order by name
     })
   }
 
-  getNotExistUnreadContact({userId}) {
+  getNotExistUnreadContact({ userId }) {
     const sql = `
      select 
         chatId 

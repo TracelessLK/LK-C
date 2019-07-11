@@ -2,7 +2,6 @@ const Chat = require('../../store/Chat')
 const Record = require('../../store/Record')
 
 class LKChatProvider {
-
   asyDeleteChat(userId, chatId) {
     return Chat.deleteChat(userId, chatId)
   }
@@ -10,6 +9,7 @@ class LKChatProvider {
   asyGetChat(userId, chatId) {
     return Chat.getChat(userId, chatId)
   }
+
   asyGetChatName(userId, name) {
     return Chat.getChatName(userId, name)
   }

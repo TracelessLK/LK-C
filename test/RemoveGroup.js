@@ -6,7 +6,7 @@ const _ = require('lodash')
 const fs = require('fs')
 const path = require('path')
 
-let {argv} = yargs
+const { argv } = yargs
 const config = {
   host: '192.144.200.234',
   user: '',
@@ -17,9 +17,9 @@ const config = {
 }
 //使用node RemoveGroup.js name
 async function start(chatId) {
-  let connection = mysql.createConnection(config)
+  const connection = mysql.createConnection(config)
   connection.connect()
-  let arr = [
+  const arr = [
     'DELETE from groupMember where gid = ?;',
     'DELETE from groupChat where id = ?;'
   ]

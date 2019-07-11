@@ -2,7 +2,7 @@ const DBProxy = require('../common/store/DBProxy')
 
 class SqlUtil {
   static transaction(option) {
-    const {sql, paramAry} = option
+    const { sql, paramAry } = option
     const db = new DBProxy()
 
     return new Promise((resolve, reject) => {
