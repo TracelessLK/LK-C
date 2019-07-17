@@ -648,7 +648,10 @@ class ChatManager extends EventTarget {
   }
 
   asyMessageCeiling(MessageCeiling, userId, chatId) {
-    return Chat.MessageCeiling(MessageCeiling, userId, chatId)
+    Chat.MessageCeiling(MessageCeiling, userId, chatId)
+    this.fire('recentChange', {
+      source: 'topChat'
+    })
   }
 
   asyMessageFocus(focus, userId, chatId) {
