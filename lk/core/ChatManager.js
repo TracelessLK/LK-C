@@ -659,7 +659,11 @@ class ChatManager extends EventTarget {
   }
 
   asymessageDraft(reserve1, userId, chatId) {
-    return Chat.messageDraft(reserve1, userId, chatId)
+    Chat.messageDraft(reserve1, userId, chatId)
+    this.fire("chatChange", {
+      source: 'asymessageDraft',
+      chatId
+    })
   }
 
   /**
