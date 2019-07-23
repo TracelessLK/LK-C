@@ -417,7 +417,7 @@ order by sendTime
         const sql = 'select * from record where ownerUserId=? and chatId=? and id=?'
         db.get(sql, [userId, chatId, msgId], (result) => {
           if (result) {
-            if (fetchData && this.MESSAGE_TYPE_IMAGE === result.type) {
+            if (fetchData && (this.MESSAGE_TYPE_IMAGE === result.type || result.type === this.MESSAGE_TYPE_AUDIO || result.type === this.MESSAGE_TYPE_FILE)) {
               const content = JSON.parse(result.content)
               DBProxy.readFile(content.url).then((data) => {
                 result.data = data
