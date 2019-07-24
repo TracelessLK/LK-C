@@ -14,7 +14,6 @@ const DbUtil = require('../store/DbUtil')
 const Contact = require('../store/Contact')
 const Record = require('../store/Record')
 const Application = require('../../common/core/Application')
-const config = require('../../config')
 
 class ChatManager extends EventTarget {
   constructor() {
@@ -231,7 +230,7 @@ class ChatManager extends EventTarget {
         return this.asyGetHotChatRandomSent(chatId)
       }
       //resort
-      if (curIndex != this._recentChats.length - 1) {
+      if (curIndex !== this._recentChats.length - 1) {
         const chats = this._recentChats[curIndex]
         this._recentChats.splice(curIndex, 1)
         this._recentChats.push(chats)
@@ -345,20 +344,19 @@ class ChatManager extends EventTarget {
      * @param msgId
      * @returns {Promise.<void>}
      */
-  setAudioPlayed(msgId) {
-    Record.setAudioPlayed(msgId)
+  async setAudioPlayed(msgId) {
+    await Record.setAudioPlayed(msgId)
     this.fire('msgItemChange', {
       msgId,
       source:'setAudioPlayed'
     })
-
   }
 
-    /**
-     * delete the specified msgs
-     * @param msgIds string ary or  string
-     * @returns {*}
-     */
+  /**
+   * delete the specified msgs
+   * @param msgIds string ary or  string
+   * @returns {*}
+   */
   deleteMsgs(msgIds) {
     return Record.deleteMsgs(msgIds)
   }
@@ -448,7 +446,7 @@ class ChatManager extends EventTarget {
             const removed = changedMember.removed
             const added = changedMember.added
             for (let k = 0; k < localDevices.length; k++) {
-              if (removed.indexOf(localDevices[k].id) != -1) {
+              if (removed.indexOf(localDevices[k].id) !== -1) {
                 localDevices.splice(k, 1)
                 k--
               }
@@ -458,7 +456,7 @@ class ChatManager extends EventTarget {
               added.forEach((addDevice) => {
                 let exists = false
                 for (let m = 0; m < localDevices.length; m++) {
-                  if (localDevices[m].id == addDevice.id) {
+                  if (localDevices[m].id === addDevice.id) {
                     exists = true
                     if (chat.id === chatId) { addDevices.push(localDevices[m]) }
                     break

@@ -64,7 +64,7 @@ class LKChannel extends WSChannel {
           const userId = Application.getCurrentApp().getCurrentUser().id
           FlowCursor.getLastFlowId(userId, header.flowType).then((lastFlowId) => {
             if (lastFlowId) {
-              if (header.preFlowId == lastFlowId) {
+              if (header.preFlowId === lastFlowId) {
                 handler.call(this, msg)
               } else {
                 this._putFlowPool(header.preFlowId, msg)
@@ -239,7 +239,7 @@ class LKChannel extends WSChannel {
       //let curId = lm.id
       const remoteM = remoteMembers.get(lm.id)
       if (remoteM) {
-        if (remoteM.mCode != lm.mCode) {
+        if (remoteM.mCode !== lm.mCode) {
           modified.push(lm.id)
         }
         remoteMembers.delete(lm.id)
@@ -264,7 +264,7 @@ class LKChannel extends WSChannel {
       try {
         this._ws.close()
       } catch (e) {
-
+        console.info(e)
       }
       delete this._openPromise
       deprecated = true
@@ -308,7 +308,7 @@ class LKChannel extends WSChannel {
           }
         }
       } catch (e) {
-
+        console.log(e)
       }
     }
 
@@ -415,8 +415,8 @@ class LKChannel extends WSChannel {
         oldMsg.content.data = LZBase64String.compressToUTF16(oldMsg.content.data)
         oldMsg.content.compress = true
       }
-      const result = await Promise.all([this.applyChannel(), this._asyNewRequest("sendMsg", { type: oldMsg.type, data: oldMsg.type == "0" ? oldMsg.content : JSON.parse(oldMsg.content) }, { isGroup: chat.isGroup, time: oldMsg.sendTime, chatId, relativeMsgId: oldMsg.relativeMsgId, id: oldMsg.id, order: oldMsg.order })])
-      result[0]._sendMessage(result[1]).then(() => {
+      const retryResult = await Promise.all([this.applyChannel(), this._asyNewRequest("sendMsg", { type: oldMsg.type, data: oldMsg.type === "0" ? oldMsg.content : JSON.parse(oldMsg.content) }, { isGroup: chat.isGroup, time: oldMsg.sendTime, chatId, relativeMsgId: oldMsg.relativeMsgId, id: oldMsg.id, order: oldMsg.order })])
+      retryResult[0]._sendMessage(retryResult[1]).then(() => {
         this.updateMsgState({
           chatId,
           msgId,
