@@ -346,16 +346,12 @@ class ChatManager extends EventTarget {
      * @returns {Promise.<void>}
      */
   setAudioPlayed(msgId) {
-    return Record.setAudioPlayed(msgId)
-  }
-
-  asyUpdateDot(isDot, msgId){
-    const user = Application.getCurrentApp().getCurrentUser()
-    Record.updateDot(isDot, user.id, msgId)
+    Record.setAudioPlayed(msgId)
     this.fire('msgItemChange', {
       msgId,
-      source:'asyUpdateDot'
+      source:'setAudioPlayed'
     })
+
   }
 
     /**
