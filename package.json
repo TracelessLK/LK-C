@@ -5,7 +5,8 @@
   "scripts": {
     "flow": "flow",
     "lint": "eslint --fix --ext .js .",
-    "open-esdoc": "ESDoc && open ./docs/index.html"
+    "open-esdoc": "ESDoc && open ./docs/index.html",
+    "init": "git submodule init && git submodule update --remote && npm i"
   },
   "dependencies": {
     "crypto-js": "^3.1.9-1",
@@ -25,7 +26,7 @@
     "babel-preset-flow": "^6.23.0",
     "chalk": "^2.4.2",
     "esdoc": "^1.1.0",
-    "esdoc-config-lk": "file:submodule/eslint-config-lk",
+    "eslint-config-lk": "file:submodule/eslint-config-lk",
     "esdoc-standard-plugin": "^1.0.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
