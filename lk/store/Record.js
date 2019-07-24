@@ -19,8 +19,8 @@ class Record {
       const db = new DBProxy()
       const time = Date.now()
       db.transaction(() => {
-        const sql = 'insert into record(ownerUserId,chatId,id,senderUid,senderDid,type,content,sendTime,eventTime,state,readState,readTime,playState,relativeMsgId,relativeOrder,receiveOrder,sendOrder) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-        db.run(sql, [param.userId, param.chatId, param.msgId, param.senderUid, param.senderDid, param.type, param.content, param.sendTime, time, isNaN(param.state) ? -1 : param.state, -1, -1, -1, param.relativeMsgId, param.relativeOrder, param.receiveOrder, param.sendOrder], () => {
+        const sql = 'insert into record(ownerUserId,chatId,id,senderUid,senderDid,type,content,sendTime,eventTime,state,readState,readTime,playState,relativeMsgId,relativeOrder,receiveOrder,sendOrder,recordTime) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+        db.run(sql, [param.userId, param.chatId, param.msgId, param.senderUid, param.senderDid, param.type, param.content, param.sendTime, time, isNaN(param.state) ? -1 : param.state, -1, -1, -1, param.relativeMsgId, param.relativeOrder, param.receiveOrder, param.sendOrder, param.recordTime], () => {
           resolve()
         }, (err) => {
           console.info(`insert2DB err:${err}`)
@@ -81,6 +81,9 @@ class Record {
             newContent.data = oldContent.data
           }
           extParam.content = JSON.stringify(newContent)
+          if(type === this.MESSAGE_TYPE_AUDIO){
+            extParam.recordTime = content.duration
+          }
           this._insert2DB(extParam).then(() => {
             resolve()
           }).catch((err) => {
@@ -496,6 +499,20 @@ order by sendTime
       const db = new DBProxy()
       db.transaction(() => {
         db.run(sql, [this.AUDIO_PLAYSTATE_PLAYED, msgId], () => {
+          resolve()
+        }, (err) => {
+          reject(err)
+        })
+      })
+    })
+  }
+
+  updateDot(isDot, userId, msgId) {
+    return new Promise((resolve, reject) => {
+      const db = new DBProxy()
+      db.transaction(() => {
+        const sql = "update record set isDot=? where id=? and ownerUserId=?"
+        db.run(sql, [isDot, msgId, userId], () => {
           resolve()
         }, (err) => {
           reject(err)

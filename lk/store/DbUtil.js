@@ -17,7 +17,9 @@ const updateSqlObj = {
   alter table chat add column MessageCeiling INTEGER
   `,
   '0.0.3': `alter table chat add column focus INTEGER`,
-  '0.0.4': `alter table groupMember add column groupAdministrator TEXT`
+  '0.0.4': `alter table groupMember add column groupAdministrator TEXT`,
+  '0.0.5': `alter table record add column recordTime INTEGER`,
+  '0.0.6': `alter table record add column isDot TEXT`
 }
 
 const versionAry = Object.keys(updateSqlObj)
@@ -55,7 +57,7 @@ create table if not exists db_version(
           "create table if not exists magicCode(ownerUserId TEXT PRIMARY KEY NOT NULL,orgMCode TEXT,memberMCode TEXT,reserve1 TEXT)",
           "create table if not exists mfapply(ownerUserId TEXT,id TEXT NOT NULL,name TEXT,pic TEXT,serverIP TEXT,serverPort INTEGER,mCode TEXT,time INTEGER,state INTEGER,PRIMARY KEY(ownerUserId,id))",
           "create table if not exists org(id TEXT PRIMARY KEY NOT NULL,name TEXT,parentId TEXT,ownerUserId TEXT,reserve1 TEXT)",
-          "create table if not exists record(ownerUserId TEXT,chatId TEXT,id TEXT,senderUid TEXT,senderDid TEXT,type INTEGER,content TEXT,sendTime INTEGER,eventTime INTEGER,state INTEGER,readState INTEGER,readTime INTEGER,playState INTEGER,relativeMsgId TEXT,relativeOrder INTEGER,receiveOrder INTEGER,sendOrder INTEGER,PRIMARY KEY(ownerUserId,chatId,id))",
+          "create table if not exists record(ownerUserId TEXT,chatId TEXT,id TEXT,senderUid TEXT,senderDid TEXT,type INTEGER,content TEXT,sendTime INTEGER,eventTime INTEGER,state INTEGER,readState INTEGER,readTime INTEGER,playState INTEGER,relativeMsgId TEXT,relativeOrder INTEGER,receiveOrder INTEGER,sendOrder INTEGER,recordTime INTEGER,isDot TEXT, PRIMARY KEY(ownerUserId,chatId,id))",
           "create table if not exists group_record_state(ownerUserId TEXT,chatId TEXT,msgId TEXT ,reporterUid TEXT NOT NULL,state INTEGER,PRIMARY KEY(ownerUserId,chatId,msgId,reporterUid))"
         ]
         const psAry = sqlAry.map(ele => DbUtil.runSql(ele))
@@ -260,6 +262,8 @@ t1.state,
 t1.playState,
 t1.readTime,
 t1.senderUid,
+t1.recordTime,
+t1.isDot,
 t2.name as senderName,
 t2.pic,
 t1.senderUid = t1.ownerUserId isSelf

@@ -349,7 +349,16 @@ class ChatManager extends EventTarget {
     return Record.setAudioPlayed(msgId)
   }
 
-  /**
+  asyUpdateDot(isDot, msgId){
+    const user = Application.getCurrentApp().getCurrentUser()
+    Record.updateDot(isDot, user.id, msgId)
+    this.fire('msgItemChange', {
+      msgId,
+      source:'asyUpdateDot'
+    })
+  }
+
+    /**
      * delete the specified msgs
      * @param msgIds string ary or  string
      * @returns {*}

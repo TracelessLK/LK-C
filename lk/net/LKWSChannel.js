@@ -464,7 +464,7 @@ class LKChannel extends WSChannel {
       sendContent = { type: content.type, data: { width: content.data.width, height: content.data.height, compress: true } }
       sendContent.data.data = LZBase64String.compressToUTF16(content.data.data)
     } else if (content.type === ChatManager.MESSAGE_TYPE_AUDIO) {
-      sendContent = { type: content.type, data: { compress: true, ext: content.data.ext } }
+      sendContent = { type: content.type, data: { compress: true, ext: content.data.ext, duration: content.data.duration } }
       sendContent.data.data = LZBase64String.compressToUTF16(content.data.data)
     } else {
       sendContent = { type: content.type, data: content.data }
@@ -645,6 +645,7 @@ class LKChannel extends WSChannel {
     if ((content.type === ChatManager.MESSAGE_TYPE_IMAGE || content.type === ChatManager.MESSAGE_TYPE_AUDIO) && content.data.compress) {
       content.data.data = LZBase64String.decompressFromUTF16(content.data.data)
     }
+    console.log("receiveMsg data:", content.data)
     await LKChatHandler.asyAddMsg(userId, chatId, header.id, header.uid, header.did, content.type, content.data, header.time, state, body.relativeMsgId, relativeOrder, receiveOrder, body.order)
     this._reportMsgHandled(header.flowId, header.flowType)
     this._checkChatMsgPool(chatId, header.id, receiveOrder)
