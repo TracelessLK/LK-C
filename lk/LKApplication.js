@@ -142,7 +142,7 @@ class LKApplication extends Application {
     try {
       await this._channel.asyUnRegister()
     } catch (err) {
-      console.error(err)
+      console.log(err)
     }
     const userId = this.getCurrentUser().id
     await ChatManager.removeAll(userId)
