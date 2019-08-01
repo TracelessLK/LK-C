@@ -110,7 +110,7 @@ class ChatManager extends EventTarget {
     })
   }
 
-  fireChatNotReadNum = ({ chatId, sourceEvent }) => {
+  fireChatNotReadNum({ chatId, sourceEvent }){
     const userId = Application.getCurrentApp().getCurrentUser().id
     const source = 'fireChatNotReadNum'
     this.fire('chatChange', {
