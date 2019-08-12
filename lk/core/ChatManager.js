@@ -650,19 +650,23 @@ class ChatManager extends EventTarget {
     return LKChatProvider.asyGetChatName(userId, name)
   }
 
-  asyMessageCeiling(MessageCeiling, userId, chatId) {
-    Chat.MessageCeiling(MessageCeiling, userId, chatId)
+  async asyMessageCeiling(MessageCeiling, userId, chatId) {
+    await Chat.MessageCeiling(MessageCeiling, userId, chatId)
     this.fire('recentChange', {
       source: 'topChat'
     })
   }
 
-  asyMessageFocus(focus, userId, chatId) {
-    return Chat.messageFocus(focus, userId, chatId)
+ async asyMessageFocus(focus, userId, chatId) {
+   await Chat.messageFocus(focus, userId, chatId)
+   this.fire("chatChange", {
+     source: 'asyMessageFocus',
+     focus,userId, chatId
+   })
   }
 
-  asymessageDraft(reserve1, userId, chatId) {
-    Chat.messageDraft(reserve1, userId, chatId)
+  async asymessageDraft(reserve1, userId, chatId) {
+    await Chat.messageDraft(reserve1, userId, chatId)
     this.fire("chatChange", {
       source: 'asymessageDraft',
       chatId
