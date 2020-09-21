@@ -20,7 +20,7 @@ class Record {
       const time = Date.now()
       db.transaction(() => {
         const sql = 'insert into record(ownerUserId,chatId,id,senderUid,senderDid,type,content,sendTime,eventTime,state,readState,readTime,playState,relativeMsgId,relativeOrder,receiveOrder,sendOrder,audioDuration) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-        db.run(sql, [param.userId, param.chatId, param.msgId, param.senderUid, param.senderDid, param.type, param.content, param.sendTime, time, isNaN(param.state) ? -1 : param.state, -1, -1, -1, param.relativeMsgId, param.relativeOrder, param.receiveOrder, param.sendOrder, param.audioDuration], () => {
+        db.run(sql, [param.userId, param.chatId, param.msgId, param.senderUid, param.senderDid, param.type, param.content, param.sendTime, time, isNaN(param.state) ? -1 : param.state, param.readState || -1, -1, -1, param.relativeMsgId, param.relativeOrder, param.receiveOrder, param.sendOrder, param.audioDuration], () => {
           resolve()
         }, (err) => {
           console.info(`insert2DB err:${err}`)
@@ -30,7 +30,7 @@ class Record {
     })
   }
 
-  addMsg(userId, chatId, msgId, senderUid, senderDid, type, content, sendTime, state, relativeMsgId, relativeOrder, receiveOrder, sendOrder) {
+  addMsg(userId, chatId, msgId, senderUid, senderDid, type, content, sendTime, state, relativeMsgId, relativeOrder, receiveOrder, sendOrder, readState) {
     return new Promise((resolve, reject) => {
       const param = {
         userId,
@@ -45,7 +45,8 @@ class Record {
         relativeMsgId,
         relativeOrder,
         receiveOrder,
-        sendOrder
+        sendOrder,
+        readState
       }
       if (type === this.MESSAGE_TYPE_TEXT) {
         this._insert2DB(param).then(() => {
