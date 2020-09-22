@@ -83,12 +83,12 @@ class LKApplication extends Application {
     return this.asyRegister(user, null, null, null, description, introducerDid)
   }
 
-  asyRegister(user, venderDid, checkCode, qrcode, description, introducerDid) {
+  asyRegister(user, venderDid, checkCode, name, description, introducerDid) {
     return this.register({
       user,
       venderDid,
       checkCode,
-      qrcode,
+      name,
       description,
       introducerDid,
       requestName: 'register'
@@ -102,11 +102,12 @@ class LKApplication extends Application {
   }
 
   register({
-    user, venderDid, checkCode, qrcode, description, introducerDid, requestName
+    user, venderDid, checkCode, name, description, introducerDid, requestName
   }) {
     const channel = new WSChannel(`ws://${user.serverIP}:${user.serverPort}`, true)
     return new Promise((resolve, reject) => {
-      channel.asyRegister(user.serverIP, user.serverPort, user.id, user.deviceId, venderDid, user.publicKey, checkCode, qrcode, description, introducerDid, requestName).then((msg) => {
+      channel.asyRegister(user.serverIP, user.serverPort, user.id, user.deviceId, venderDid, user.publicKey, checkCode, name, description, introducerDid, requestName).then((msg) => {
+        // console.log(msg)
         const { content } = msg.body
         if (content.error) {
           reject(content.error)
@@ -120,8 +121,10 @@ class LKApplication extends Application {
           const { friends } = content
           const { groupContacts } = content
           const { groups } = content
-          MagicCodeManager.asyReset(orgMCode, memberMCode, user.id).then(() => OrgManager.asyResetOrgs(orgMCode, orgs, user.id)).then(() => ContactManager.asyResetContacts(memberMCode, members, friends, groupContacts, user.id))
-            .then(() => ChatManager.asyResetGroups(groups, user.id))
+          const usdId = content.uid
+          user.id = content.uid
+          MagicCodeManager.asyReset(orgMCode, memberMCode, usdId).then(() => OrgManager.asyResetOrgs(orgMCode, orgs, usdId)).then(() => ContactManager.asyResetContacts(memberMCode, members, friends, groupContacts, usdId))
+            .then(() => ChatManager.asyResetGroups(groups, usdId))
             .then(() => {
               user.serverPublicKey = serverPK
               return UserManager.asyAddLKUser(user)
