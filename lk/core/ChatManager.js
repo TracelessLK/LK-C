@@ -289,13 +289,13 @@ class ChatManager extends EventTarget {
     })
   }
 
-  async mockSingleMsg({contactId, content, unixTime}) {
+  async mockSingleMsg({chatId, senderId, content, unixTime}) {
   	const userId = Application.getCurrentApp().getCurrentUser().id
   	await Record.addMsg(
-        	userId, contactId,
-        	UUID(), contactId, UUID(), 0,
+        	userId, chatId,
+        	UUID(), senderId, UUID(), 0,
         	content,
-        	unixTime, 2, null, null, null, null, 2)
+        	unixTime, 4, null, null, null, null, 4)
   }
 
   async mockMultipleMsg({contactId}) {

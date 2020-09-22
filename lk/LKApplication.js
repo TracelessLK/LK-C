@@ -120,8 +120,9 @@ class LKApplication extends Application {
           const { members } = content
           const { friends } = content
           const { groupContacts } = content
-          const { groups } = content
+          const { groups, initRecordAry} = content
           const usdId = content.uid
+
           user.id = content.uid
           MagicCodeManager.asyReset(orgMCode, memberMCode, usdId).then(() => OrgManager.asyResetOrgs(orgMCode, orgs, usdId)).then(() => ContactManager.asyResetContacts(memberMCode, members, friends, groupContacts, usdId))
             .then(() => ChatManager.asyResetGroups(groups, usdId))
@@ -130,7 +131,7 @@ class LKApplication extends Application {
               return UserManager.asyAddLKUser(user)
             })
             .then(() => {
-              resolve(user)
+              resolve({user, initRecordAry})
             })
             .catch((err) => {
               reject(err)
