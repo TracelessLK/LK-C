@@ -289,6 +289,34 @@ class ChatManager extends EventTarget {
     })
   }
 
+  async mockSingleMsg({contactId, content, unixTime}) {
+  	const userId = Application.getCurrentApp().getCurrentUser().id
+  	await Record.addMsg(
+        	userId, contactId,
+        	UUID(), contactId, UUID(), 0,
+        	content,
+        	unixTime, 2, null, null, null, null, 2)
+  }
+
+  async mockMultipleMsg({contactId}) {
+		await this.mockSingleMsg({
+			contactId,
+			content: '22日消息',
+			unixTime: 1600731904631
+		})
+		await this.mockSingleMsg({
+        			contactId,
+        			content: '21日消息',
+        			unixTime: 1600645504631
+        		})
+        await this.mockSingleMsg({
+                			contactId,
+                			content: '20日消息',
+                			unixTime: 1600559104631
+                		})
+  	  	this.asyEnsureSingleChat(contactId)
+  }
+
   async ensureNotReadChat() {
     const userId = Application.getCurrentApp().getCurrentUser().id
 
